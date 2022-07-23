@@ -1,0 +1,2 @@
+Takes one int arg
+SetMoveArea

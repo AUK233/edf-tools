@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+      <FILENAME>rab.cpp</FILENAME>
+      <LINE>849</LINE>
+      <COLUMN>19</COLUMN>
+    </SFA>
+    <DEFECTCODE>6281</DEFECTCODE>
+    <DESCRIPTION>运算顺序不正确: 关系运算符的优先级高于位运算符。</DESCRIPTION>
+    <FUNCTION>CMPLHandler::Decompress</FUNCTION>
+    <DECORATED>?Decompress@CMPLHandler@@QAE?AV?$vector@DV?$allocator@D@std@@@std@@XZ</DECORATED>
+    <FUNCLINE>801</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

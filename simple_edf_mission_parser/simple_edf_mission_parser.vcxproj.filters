@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\UITools">
+      <UniqueIdentifier>{57e79378-5d05-41d4-846a-e3e7173bed81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Formats">
+      <UniqueIdentifier>{c162b1c9-9d91-4823-a114-7cc24d8f71e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\includes">
+      <UniqueIdentifier>{af945421-6f91-4cd2-b493-ad01b1e22603}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MissionScript.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VMState.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModManager.h">
+      <Filter>Source Files\UITools</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONAMLParser.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MAB.h">
+      <Filter>Source Files\Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="RAB.h">
+      <Filter>Source Files\Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="RMPA.h">
+      <Filter>Source Files\Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="SGO.h">
+      <Filter>Source Files\Formats</Filter>
+    </ClInclude>
+    <ClInclude Include="include\half.hpp">
+      <Filter>Source Files\includes</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tinyxml2.h">
+      <Filter>Source Files\includes</Filter>
+    </ClInclude>
+    <ClInclude Include="MDB.h">
+      <Filter>Source Files\Formats</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MissionScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VMState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EDF_Tools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ModManager.cpp">
+      <Filter>Source Files\UITools</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONAMLParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MAB.cpp">
+      <Filter>Source Files\Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="RAB.cpp">
+      <Filter>Source Files\Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="RMPA.cpp">
+      <Filter>Source Files\Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="SGO.cpp">
+      <Filter>Source Files\Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="include\tinyxml2.cpp">
+      <Filter>Source Files\includes</Filter>
+    </ClCompile>
+    <ClCompile Include="MDB.cpp">
+      <Filter>Source Files\Formats</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
