@@ -1,13 +1,14 @@
 #pragma once
 
-void Read4Bytes( unsigned char *chunk, std::vector<char> buf, int pos );
-
-void Read4BytesReversed( unsigned char *chunk, std::vector<char> buf, int pos );
+void Read2Bytes( unsigned char *chunk, std::vector<char> buf, int pos );
+void Read2BytesReversed( unsigned char *chunk, std::vector<char> buf, int pos );
+void Read4Bytes(unsigned char* chunk, std::vector<char> buf, int pos);
+void Read4BytesReversed(unsigned char* chunk, std::vector<char> buf, int pos);
 
 std::string ReadRaw(std::vector<char> buf, int pos, int num);
 short ReadInt16(std::vector<char> buf, int pos, bool swapEndian = false);
 uint16_t ReadUInt16(std::vector<char> buf, int pos, bool swapEndian = false);
-//
+//Poor performance as a float and should not be used
 float ReadHalfFloat(std::vector<char> buf, int pos, bool swapEndian = false);
 
 int GetIntFromChunk( unsigned char *chunk );

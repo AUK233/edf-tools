@@ -9,7 +9,19 @@
 #include "util.h"
 #include "include/half.hpp"
 
-void Read4Bytes( unsigned char *chunk, std::vector<char> buf, int pos )
+void Read2Bytes( unsigned char *chunk, std::vector<char> buf, int pos )
+{
+	chunk[0] = buf[ pos + 1];
+	chunk[1] = buf[ pos ];
+}
+
+void Read2BytesReversed( unsigned char *chunk, std::vector<char> buf, int pos )
+{
+	chunk[0] = buf[ pos ];
+	chunk[1] = buf[ pos + 1 ];
+}
+
+void Read4Bytes(unsigned char* chunk, std::vector<char> buf, int pos)
 {
 	/*if( globals->endianMode )
 	{
@@ -17,18 +29,18 @@ void Read4Bytes( unsigned char *chunk, std::vector<char> buf, int pos )
 		return;
 	}*/
 
-	chunk[3] = buf[ pos ];
-	chunk[2] = buf[ pos + 1 ];
-	chunk[1] = buf[ pos + 2 ];
-	chunk[0] = buf[ pos + 3 ];
+	chunk[3] = buf[pos];
+	chunk[2] = buf[pos + 1];
+	chunk[1] = buf[pos + 2];
+	chunk[0] = buf[pos + 3];
 }
 
-void Read4BytesReversed( unsigned char *chunk, std::vector<char> buf, int pos )
+void Read4BytesReversed(unsigned char* chunk, std::vector<char> buf, int pos)
 {
-	chunk[0] = buf[ pos ];
-	chunk[1] = buf[ pos + 1 ];
-	chunk[2] = buf[ pos + 2 ];
-	chunk[3] = buf[ pos + 3 ];
+	chunk[0] = buf[pos];
+	chunk[1] = buf[pos + 1];
+	chunk[2] = buf[pos + 2];
+	chunk[3] = buf[pos + 3];
 }
 
 std::string ReadRaw(std::vector<char> buf, int pos, int num)

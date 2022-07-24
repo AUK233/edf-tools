@@ -30,3 +30,21 @@
 *.exe
 *.out
 *.app
+.vs/EDF Tools/v16/Browse.VC.db
+.vs/EDF Tools/v16/Browse.VC.db-shm
+.vs/EDF Tools/v16/Browse.VC.db-wal
+.vs/EDF Tools/v16/Browse.VC.opendb
+.vs/EDF Tools/v16/ipch/9cbd03c38ee22767.ipch
+.vs/EDF Tools/v16/.suo
+*.iobj
+*.ipdb
+*.pdb
+*.iobj
+simple_edf_mission_parser/Release/EDF Tools.tlog/CL.write.1.tlog
+simple_edf_mission_parser/Release/vc141.pdb
+simple_edf_mission_parser/Release/simple_edf_mission_parser.log
+simple_edf_mission_parser/Release/EDF Tools.tlog/link.read.1.tlog
+simple_edf_mission_parser/Release/EDF Tools.tlog/EDF Tools.write.1u.tlog
+simple_edf_mission_parser/Release/EDF Tools.tlog/CL.write.1.tlog
+simple_edf_mission_parser/Release/EDF Tools.tlog/CL.read.1.tlog
+simple_edf_mission_parser/Release/EDF Tools.tlog/CL.command.1.tlog

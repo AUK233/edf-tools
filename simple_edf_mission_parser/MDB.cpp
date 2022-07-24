@@ -13,6 +13,7 @@
 #include "util.h"
 #include "MDB.h"
 #include "include/tinyxml2.h"
+#include "include/half.hpp"
 
 #include <thread>
 
@@ -442,16 +443,20 @@ int CMDBtoXML::Read(const std::wstring& path)
 										int Vcurpos = Voffset + (l * Vsize);
 
 										tinyxml2::XMLElement* xmlVNode = xmlVertex->InsertNewChildElement("V");
-										float vf;
-										unsigned char seg[4];
+										half_float::half vf;
+										unsigned char seg[2];
 
-										vf = ReadHalfFloat(buffer, Vcurpos);
+										Read2BytesReversed(seg, buffer, Vcurpos);
+										memcpy(&vf, &seg, sizeof(vf));
 										xmlVNode->SetAttribute("x", vf);
-										vf = ReadHalfFloat(buffer, Vcurpos + 0x2);
+										Read2BytesReversed(seg, buffer, Vcurpos + 0x2);
+										memcpy(&vf, &seg, sizeof(vf));
 										xmlVNode->SetAttribute("y", vf);
-										vf = ReadHalfFloat(buffer, Vcurpos + 0x4);
+										Read2BytesReversed(seg, buffer, Vcurpos + 0x4);
+										memcpy(&vf, &seg, sizeof(vf));
 										xmlVNode->SetAttribute("z", vf);
-										vf = ReadHalfFloat(buffer, Vcurpos + 0x6);
+										Read2BytesReversed(seg, buffer, Vcurpos + 0x6);
+										memcpy(&vf, &seg, sizeof(vf));
 										xmlVNode->SetAttribute("w", vf);
 									}
 								}

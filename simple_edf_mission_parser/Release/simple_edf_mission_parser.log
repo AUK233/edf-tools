@@ -1,12 +1,186 @@
 ﻿E:\Program Files\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v150\Microsoft.CppBuild.targets(391,5): warning MSB8028: 中间目录(Release\)包含从另一个项目(simple_edf_mission_parser.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+  EDF_Tools.cpp
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\edf_tools.cpp(340): warning C4244: “参数”: 从“std::streamsize”转换到“const unsigned int”，可能丢失数据
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\edf_tools.cpp(441): warning C4244: “参数”: 从“std::streamsize”转换到“const unsigned int”，可能丢失数据
+  JSONAMLParser.cpp
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\jsonamlparser.cpp(25): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\jsonamlparser.cpp(139): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\jsonamlparser.cpp(149): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\jsonamlparser.cpp(197): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\jsonamlparser.cpp(240): warning C4018: “<”: 有符号/无符号不匹配
   MDB.cpp
-e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(26): warning C4244: “参数”: 从“std::streamsize”转换到“const unsigned int”，可能丢失数据
-e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(446): warning C4101: “seg”: 未引用的局部变量
-e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(483): warning C4101: “vf”: 未引用的局部变量
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(27): warning C4244: “参数”: 从“std::streamsize”转换到“const unsigned int”，可能丢失数据
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(488): warning C4101: “vf”: 未引用的局部变量
+  MissionScript.cpp
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(33): warning C4244: “参数”: 从“std::streamsize”转换到“const unsigned int”，可能丢失数据
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(179): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(206): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(300): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(365): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(622): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(666): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(971): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(967): warning C4101: “e”: 未引用的局部变量
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1145): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1329): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1438): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1517): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1539): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1549): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1578): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1590): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1592): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1599): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1632): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1641): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1655): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1659): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1676): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1690): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1706): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1719): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1730): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1736): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1742): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1748): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1754): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1760): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1819): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1841): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1874): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1476): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1479): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1904): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1943): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(1962): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2022): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2044): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2069): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2094): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2119): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2140): warning C4146: 一元负运算符应用于无符号类型，结果仍为无符号类型
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2140): warning C4267: “参数”: 从“size_t”转换到“_Ty”，可能丢失数据
+          with
+          [
+              _Ty=char
+          ]
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2144): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2146): warning C4146: 一元负运算符应用于无符号类型，结果仍为无符号类型
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2160): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2171): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2211): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2248): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2378): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2409): warning C4244: “初始化”: 从“wchar_t”转换到“char”，可能丢失数据
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2904): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2951): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(2989): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3020): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3031): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3046): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3078): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3084): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3242): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3253): warning C4146: 一元负运算符应用于无符号类型，结果仍为无符号类型
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3253): warning C4267: “参数”: 从“size_t”转换到“_Ty”，可能丢失数据
+          with
+          [
+              _Ty=char
+          ]
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3257): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3259): warning C4146: 一元负运算符应用于无符号类型，结果仍为无符号类型
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3141): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3146): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3155): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3170): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3176): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3188): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3200): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3210): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3326): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3297): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3302): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3305): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3318): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3322): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3352): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3414): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3447): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3482): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3489): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3495): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3499): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\missionscript.cpp(3507): warning C4996: 'wcstok': wcstok has been changed to conform with the ISO C standard, adding an extra context parameter. To use the legacy Microsoft wcstok, define _CRT_NON_CONFORMING_WCSTOK.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(254): note: 参见“wcstok”的声明
+  RAB.cpp
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(29): warning C4244: “参数”: 从“std::streamsize”转换到“const unsigned int”，可能丢失数据
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(208): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(220): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(373): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(407): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(437): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(438): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(439): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(440): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(498): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(575): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(583): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(605): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(629): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(636): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(655): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(675): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(692): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(700): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(709): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(712): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(730): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(739): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(769): warning C4244: “参数”: 从“std::streamsize”转换到“const unsigned int”，可能丢失数据
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(836): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(849): warning C4554: “&”: 检查运算符优先级是否存在的可能的错误；使用括号阐明优先级
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(931): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(934): warning C4309: “参数”: 截断常量值
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(938): warning C4018: “>=”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rab.cpp(1031): warning C4267: “初始化”: 从“size_t”转换到“uint16_t”，可能丢失数据
+  RMPA.cpp
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\rmpa.cpp(26): warning C4244: “参数”: 从“std::streamsize”转换到“const unsigned int”，可能丢失数据
+  SGO.cpp
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\sgo.cpp(27): warning C4244: “参数”: 从“std::streamsize”转换到“const unsigned int”，可能丢失数据
+  util.cpp
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\util.cpp(58): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _itoa. See online help for details.
+  i:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdlib.h(1316): note: 参见“itoa”的声明
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\util.cpp(171): warning C4018: “>”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\util.cpp(216): warning C4018: “>”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\util.cpp(258): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\util.cpp(277): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\util.cpp(279): warning C4018: “<”: 有符号/无符号不匹配
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\util.cpp(366): warning C4101: “e”: 未引用的局部变量
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\util.cpp(383): warning C4101: “e”: 未引用的局部变量
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\util.cpp(395): warning C4018: “<”: 有符号/无符号不匹配
   正在生成代码
-e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(536): warning C4715: “CMDBtoXML::Read”: 不是所有的控件路径都返回值
-  4 of 2975 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(541): warning C4715: “CMDBtoXML::Read”: 不是所有的控件路径都返回值
+  48 of 2975 functions ( 1.6%) were compiled, the rest were copied from previous compilation.
+    43 functions were new in current compilation
+    16 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   simple_edf_mission_parser.vcxproj -> E:\QQDownload\ls\edf-tools-master\Release\EDF Tools.exe
