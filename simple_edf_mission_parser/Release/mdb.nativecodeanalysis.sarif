@@ -3,7 +3,427 @@
   "$schema": "http://json.schemastore.org/sarif-2.0.0",
   "runs": [
     {
-      "results": [],
+      "results": [
+        {
+          "ruleId": "6201",
+          "message": {
+            "text": "索引“5”超出了“0”至“4”的有效范围(对于可能在堆栈中分配的缓冲区“out.index”)。"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "fileLocation": {
+                  "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                },
+                "region": {
+                  "startLine": 495,
+                  "startColumn": 12
+                }
+              },
+              "fullyQualifiedLogicalName": "public: struct MDBBone __thiscall CMDBtoXML::ReadBone(int,class std::vector<char,class std::allocator<char> >)"
+            }
+          ]
+        },
+        {
+          "ruleId": "6386",
+          "message": {
+            "text": "写入到“out.index”时缓冲区溢出: 可写大小为“20”个字节，但可能写入了“24”个字节。"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "fileLocation": {
+                  "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                },
+                "region": {
+                  "startLine": 495,
+                  "startColumn": 14
+                }
+              },
+              "fullyQualifiedLogicalName": "public: struct MDBBone __thiscall CMDBtoXML::ReadBone(int,class std::vector<char,class std::allocator<char> >)"
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "step": 0,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 473,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 1,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 475,
+                            "startColumn": 15
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 2,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 476,
+                            "startColumn": 5
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 3,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 478,
+                            "startColumn": 5
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 4,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 479,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 5,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 479,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 6,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 480,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 7,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 482,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 8,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 483,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 9,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 483,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 10,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 484,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 11,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 486,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 12,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 487,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 13,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 487,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 14,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 488,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 15,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 489,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 16,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 490,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 17,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 490,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 18,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 491,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 19,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 493,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 20,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 494,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 21,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 494,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "step": 22,
+                      "location": {
+                        "physicalLocation": {
+                          "fileLocation": {
+                            "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp"
+                          },
+                          "region": {
+                            "startLine": 495,
+                            "startColumn": 14
+                          }
+                        },
+                        "message": {
+                          "text": "写入到“out.index[5]”无效(可写范围是 0 到 4)"
+                        }
+                      },
+                      "kind": "使用情况",
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "6031",
+          "message": {
+            "text": "返回值被忽略: “frexp”。"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "fileLocation": {
+                  "uri": "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/include/half.hpp"
+                },
+                "region": {
+                  "startLine": 1041,
+                  "startColumn": 13
+                }
+              },
+              "fullyQualifiedLogicalName": "unsigned int __cdecl half_float::detail::float2half_impl<1,long double>(long double,...)"
+            }
+          ]
+        }
+      ],
       "tool": {
         "name": "PREfast",
         "fullName": "PREfast Code Analysis",
@@ -12,7 +432,7 @@
       },
       "invocations": [
         {
-          "commandLine": "\"E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.16.27023\\bin\\HostX86\\x86\\c1xx.dll\" -ACf{1F7B090C-16DB-4822-966A-A93D26ED4681} -ACpmspft140.dll -Alint -D_PREFAST_ -D_AST_FE_ -Analyze -zm0x002B2080 -il I:\\Users\\xwlj233\\AppData\\Local\\Temp\\_CL_4dd742a2ast -typedil -f MDB.cpp -Ze -D_MSC_EXTENSIONS -Zp8 -ZB64 -D_INTEGRAL_MAX_BITS=64 -Gs -pc \\:/ -D_MSC_VER=1916 -D_MSC_FULL_VER=191627045 -D_MSC_BUILD=0 -D_WIN32 -D_M_IX86=600 -D_M_IX86_FP=2 -GR -D_CPPRTTI -nologo -W 3 -diagnostics:column- -diagnostics:caret- -GF -Og -Ot -Oi -ltcg -DCODE_ANALYSIS -DWIN32 -DNDEBUG -D_CONSOLE -D_UNICODE -DUNICODE -EHs -D_CPPUNWIND -EHc -D_MT -D_DLL -GS -D_M_FP_PRECISE -Zc:wchar_t -Zc:forScope -Yustdafx.h -FpRelease\\EDF Tools.pch.codeanalysis -FoRelease\\MDB.obj -FdRelease\\vc141.pdb -Gd -analyze:quiet -analyze:ruleset E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\Team Tools\\Static Analysis Tools\\Rule Sets\\NativeRecommendedRules.ruleset -analyze:plugin E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.16.27023\\bin\\HostX86\\x86\\localespc.dll -FC -errorreport:prompt -I E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.16.27023\\include -I E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.16.27023\\atlmfc\\include -I E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\VS\\include -I I:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.10240.0\\ucrt -I E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\VS\\UnitTest\\include\\v150 -I I:\\Program Files (x86)\\Windows Kits\\8.1\\Include\\um -I I:\\Program Files (x86)\\Windows Kits\\8.1\\Include\\shared -I I:\\Program Files (x86)\\Windows Kits\\8.1\\Include\\winrt"
+          "commandLine": "\"E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.16.27023\\bin\\HostX86\\x86\\c1xx.dll\" -ACf{1F7B090C-16DB-4822-966A-A93D26ED4681} -ACpmspft140.dll -Alint -D_PREFAST_ -D_AST_FE_ -Analyze -zm0x00F92080 -il I:\\Users\\xwlj233\\AppData\\Local\\Temp\\_CL_2130a70cast -typedil -f MDB.cpp -Ze -D_MSC_EXTENSIONS -Zp8 -ZB64 -D_INTEGRAL_MAX_BITS=64 -Gs -pc \\:/ -D_MSC_VER=1916 -D_MSC_FULL_VER=191627045 -D_MSC_BUILD=0 -D_WIN32 -D_M_IX86=600 -D_M_IX86_FP=2 -GR -D_CPPRTTI -nologo -W 3 -diagnostics:column- -diagnostics:caret- -GF -Og -Ot -Oi -ltcg -DCODE_ANALYSIS -DWIN32 -DNDEBUG -D_CONSOLE -D_UNICODE -DUNICODE -EHs -D_CPPUNWIND -EHc -D_MT -D_DLL -GS -D_M_FP_PRECISE -Zc:wchar_t -Zc:forScope -Yustdafx.h -FpRelease\\EDF Tools.pch.codeanalysis -FoRelease\\MDB.obj -FdRelease\\vc141.pdb -Gd -analyze:quiet -analyze:ruleset E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\Team Tools\\Static Analysis Tools\\Rule Sets\\NativeRecommendedRules.ruleset -analyze:plugin E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.16.27023\\bin\\HostX86\\x86\\localespc.dll -FC -errorreport:prompt -I E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.16.27023\\include -I E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.16.27023\\atlmfc\\include -I E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\VS\\include -I I:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.10240.0\\ucrt -I E:\\Program Files\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\VS\\UnitTest\\include\\v150 -I I:\\Program Files (x86)\\Windows Kits\\8.1\\Include\\um -I I:\\Program Files (x86)\\Windows Kits\\8.1\\Include\\shared -I I:\\Program Files (x86)\\Windows Kits\\8.1\\Include\\winrt"
         }
       ],
       "files": {
@@ -101,6 +521,11 @@
             "resultFile"
           ]
         },
+        "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/include/tinyxml2.h": {
+          "roles": [
+            "resultFile"
+          ]
+        },
         "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/modmanager.h": {
           "roles": [
             "resultFile"
@@ -127,11 +552,6 @@
         "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/mdb.cpp": {
           "roles": [
             "analysisTarget",
-            "resultFile"
-          ]
-        },
-        "file:///e:/qqdownload/ls/edf-tools-master/simple_edf_mission_parser/include/tinyxml2.h": {
-          "roles": [
             "resultFile"
           ]
         }

@@ -332,7 +332,7 @@ std::wstring KillSpaceAndDebug(std::wstring in)
 	{
 		if ((out[i] == L' ' || out[i] == L'\t') && !isInQuote )
 		{
-			if (out[i - 1] != delim[13] && out[i + 1] != delim[13])
+			if (out[i - 1] != delim[12] && out[i + 1] != delim[12])
 			{
 				std::wcout << "\nMissing \",\" between 2 values:\n";
 				std::wcout << out;

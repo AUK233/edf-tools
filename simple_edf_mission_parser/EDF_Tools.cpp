@@ -152,8 +152,19 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 		}
 		else if (extension == L"mdb")
 		{
+			wstring scstr;
+			wcout << L"Single Core? (0 is false, 1 is true) : ";
+			wcin >> scstr;
+			bool onecore = false;
+			if (stoi(scstr) == 1)
+			{
+				onecore = true;
+				wcout << L"\nWill now use a single core to read the file!";
+			}
+			wcout << L"\n\n";
+
 			unique_ptr<CMDBtoXML> script = make_unique<CMDBtoXML>();
-			script->Read(strn);
+			script->Read(strn, onecore);
 			script.reset();
 		}
 	}

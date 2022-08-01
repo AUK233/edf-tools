@@ -1,6 +1,195 @@
 ﻿<?xml version="1.0" encoding="utf-8"?><DEFECTS><DEFECT>
     <SFA>
       <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+      <FILENAME>mdb.cpp</FILENAME>
+      <LINE>495</LINE>
+      <COLUMN>12</COLUMN>
+    </SFA>
+    <DEFECTCODE>6201</DEFECTCODE>
+    <DESCRIPTION>索引“5”超出了“0”至“4”的有效范围(对于可能在堆栈中分配的缓冲区“out.index”)。</DESCRIPTION>
+    <FUNCTION>CMDBtoXML::ReadBone</FUNCTION>
+    <DECORATED>?ReadBone@CMDBtoXML@@QAE?AUMDBBone@@HV?$vector@DV?$allocator@D@std@@@std@@@Z</DECORATED>
+    <FUNCLINE>471</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT><DEFECT>
+    <SFA>
+      <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+      <FILENAME>mdb.cpp</FILENAME>
+      <LINE>495</LINE>
+      <COLUMN>14</COLUMN>
+    </SFA>
+    <DEFECTCODE>6386</DEFECTCODE>
+    <DESCRIPTION>写入到“out.index”时缓冲区溢出: 可写大小为“20”个字节，但可能写入了“24”个字节。</DESCRIPTION>
+    <FUNCTION>CMDBtoXML::ReadBone</FUNCTION>
+    <DECORATED>?ReadBone@CMDBtoXML@@QAE?AUMDBBone@@HV?$vector@DV?$allocator@D@std@@@std@@@Z</DECORATED>
+    <FUNCLINE>471</FUNCLINE>
+    <PROBABILITY>1</PROBABILITY>
+    <RANK>4</RANK>
+    <CATEGORY>
+      <RULECATEGORY>mspft</RULECATEGORY>
+    </CATEGORY>
+    <PATH>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>473</LINE>
+        <COLUMN>9</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>475</LINE>
+        <COLUMN>15</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>476</LINE>
+        <COLUMN>5</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>478</LINE>
+        <COLUMN>5</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>479</LINE>
+        <COLUMN>17</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>479</LINE>
+        <COLUMN>11</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>480</LINE>
+        <COLUMN>14</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>482</LINE>
+        <COLUMN>10</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>483</LINE>
+        <COLUMN>17</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>483</LINE>
+        <COLUMN>11</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>484</LINE>
+        <COLUMN>14</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>486</LINE>
+        <COLUMN>10</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>487</LINE>
+        <COLUMN>17</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>487</LINE>
+        <COLUMN>11</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>488</LINE>
+        <COLUMN>14</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>489</LINE>
+        <COLUMN>10</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>490</LINE>
+        <COLUMN>17</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>490</LINE>
+        <COLUMN>11</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>491</LINE>
+        <COLUMN>14</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>493</LINE>
+        <COLUMN>10</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>494</LINE>
+        <COLUMN>17</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>494</LINE>
+        <COLUMN>11</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
+        <FILENAME>mdb.cpp</FILENAME>
+        <LINE>495</LINE>
+        <COLUMN>14</COLUMN>
+        <KEYEVENT>
+          <ID>1</ID>
+          <KIND>使用情况</KIND>
+          <IMPORTANCE>Essential</IMPORTANCE>
+          <MESSAGE>写入到“out.index[5]”无效(可写范围是 0 到 4)</MESSAGE>
+        </KEYEVENT>
+      </SFA>
+    </PATH>
+  </DEFECT><DEFECT>
+    <SFA>
+      <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\include</FILEPATH>
+      <FILENAME>half.hpp</FILENAME>
+      <LINE>1041</LINE>
+      <COLUMN>13</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>返回值被忽略: “frexp”。</DESCRIPTION>
+    <FUNCTION>half_float::detail::float2half_impl</FUNCTION>
+    <DECORATED>??$float2half_impl@$00O@detail@half_float@@YAIOZZ</DECORATED>
+    <FUNCLINE>1031</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT><DEFECT>
+    <SFA>
+      <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
       <FILENAME>missionscript.cpp</FILENAME>
       <LINE>1159</LINE>
       <COLUMN>14</COLUMN>
@@ -570,14 +759,14 @@
     <SFA>
       <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
       <FILENAME>util.cpp</FILENAME>
-      <LINE>123</LINE>
+      <LINE>160</LINE>
       <COLUMN>11</COLUMN>
     </SFA>
     <DEFECTCODE>6011</DEFECTCODE>
     <DESCRIPTION>取消对 NULL 指针“bytes”的引用。</DESCRIPTION>
     <FUNCTION>IntToBytes</FUNCTION>
     <DECORATED>?IntToBytes@@YAPADH_N@Z</DECORATED>
-    <FUNCLINE>109</FUNCLINE>
+    <FUNCLINE>146</FUNCLINE>
     <PROBABILITY>1</PROBABILITY>
     <RANK>4</RANK>
     <CATEGORY>
@@ -587,7 +776,7 @@
       <SFA>
         <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
         <FILENAME>util.cpp</FILENAME>
-        <LINE>111</LINE>
+        <LINE>148</LINE>
         <COLUMN>6</COLUMN>
         <KEYEVENT>
           <ID>1</ID>
@@ -599,13 +788,13 @@
       <SFA>
         <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
         <FILENAME>util.cpp</FILENAME>
-        <LINE>112</LINE>
+        <LINE>149</LINE>
         <COLUMN>15</COLUMN>
       </SFA>
       <SFA>
         <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
         <FILENAME>util.cpp</FILENAME>
-        <LINE>114</LINE>
+        <LINE>151</LINE>
         <COLUMN>5</COLUMN>
         <KEYEVENT>
           <ID>2</ID>
@@ -617,7 +806,7 @@
       <SFA>
         <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
         <FILENAME>util.cpp</FILENAME>
-        <LINE>123</LINE>
+        <LINE>160</LINE>
         <COLUMN>11</COLUMN>
         <KEYEVENT>
           <ID>3</ID>
@@ -631,40 +820,40 @@
     <SFA>
       <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
       <FILENAME>util.cpp</FILENAME>
-      <LINE>298</LINE>
+      <LINE>335</LINE>
       <COLUMN>29</COLUMN>
     </SFA>
     <DEFECTCODE>6201</DEFECTCODE>
     <DESCRIPTION>索引“13”超出了“0”至“12”的有效范围(对于可能在堆栈中分配的缓冲区“delim”)。</DESCRIPTION>
     <FUNCTION>KillSpaceAndDebug</FUNCTION>
     <DECORATED>?KillSpaceAndDebug@@YA?AV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@V12@@Z</DECORATED>
-    <FUNCLINE>287</FUNCLINE>
+    <FUNCLINE>324</FUNCLINE>
     <PATH></PATH>
   </DEFECT><DEFECT>
     <SFA>
       <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
       <FILENAME>util.cpp</FILENAME>
-      <LINE>298</LINE>
+      <LINE>335</LINE>
       <COLUMN>56</COLUMN>
     </SFA>
     <DEFECTCODE>6201</DEFECTCODE>
     <DESCRIPTION>索引“13”超出了“0”至“12”的有效范围(对于可能在堆栈中分配的缓冲区“delim”)。</DESCRIPTION>
     <FUNCTION>KillSpaceAndDebug</FUNCTION>
     <DECORATED>?KillSpaceAndDebug@@YA?AV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@V12@@Z</DECORATED>
-    <FUNCLINE>287</FUNCLINE>
+    <FUNCLINE>324</FUNCLINE>
     <PATH></PATH>
   </DEFECT><DEFECT>
     <SFA>
       <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
       <FILENAME>util.cpp</FILENAME>
-      <LINE>298</LINE>
+      <LINE>335</LINE>
       <COLUMN>31</COLUMN>
     </SFA>
     <DEFECTCODE>6385</DEFECTCODE>
     <DESCRIPTION>从“delim”中读取的数据无效: 可读大小为“26”个字节，但可能读取了“28”个字节。</DESCRIPTION>
     <FUNCTION>KillSpaceAndDebug</FUNCTION>
     <DECORATED>?KillSpaceAndDebug@@YA?AV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@V12@@Z</DECORATED>
-    <FUNCLINE>287</FUNCLINE>
+    <FUNCLINE>324</FUNCLINE>
     <PROBABILITY>1</PROBABILITY>
     <RANK>4</RANK>
     <CATEGORY>
@@ -674,19 +863,19 @@
       <SFA>
         <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
         <FILENAME>util.cpp</FILENAME>
-        <LINE>289</LINE>
+        <LINE>326</LINE>
         <COLUMN>6</COLUMN>
       </SFA>
       <SFA>
         <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
         <FILENAME>util.cpp</FILENAME>
-        <LINE>291</LINE>
+        <LINE>328</LINE>
         <COLUMN>14</COLUMN>
       </SFA>
       <SFA>
         <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
         <FILENAME>util.cpp</FILENAME>
-        <LINE>292</LINE>
+        <LINE>329</LINE>
         <COLUMN>9</COLUMN>
         <KEYEVENT>
           <ID>1</ID>
@@ -698,13 +887,13 @@
       <SFA>
         <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
         <FILENAME>util.cpp</FILENAME>
-        <LINE>294</LINE>
+        <LINE>331</LINE>
         <COLUMN>10</COLUMN>
       </SFA>
       <SFA>
         <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
         <FILENAME>util.cpp</FILENAME>
-        <LINE>294</LINE>
+        <LINE>331</LINE>
         <COLUMN>27</COLUMN>
         <KEYEVENT>
           <ID>2</ID>
@@ -716,7 +905,7 @@
       <SFA>
         <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
         <FILENAME>util.cpp</FILENAME>
-        <LINE>296</LINE>
+        <LINE>333</LINE>
         <COLUMN>42</COLUMN>
         <KEYEVENT>
           <ID>3</ID>
@@ -728,7 +917,7 @@
       <SFA>
         <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>
         <FILENAME>util.cpp</FILENAME>
-        <LINE>298</LINE>
+        <LINE>335</LINE>
         <COLUMN>31</COLUMN>
         <KEYEVENT>
           <ID>4</ID>
@@ -738,19 +927,6 @@
         </KEYEVENT>
       </SFA>
     </PATH>
-  </DEFECT><DEFECT>
-    <SFA>
-      <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\include</FILEPATH>
-      <FILENAME>half.hpp</FILENAME>
-      <LINE>1041</LINE>
-      <COLUMN>13</COLUMN>
-    </SFA>
-    <DEFECTCODE>6031</DEFECTCODE>
-    <DESCRIPTION>返回值被忽略: “frexp”。</DESCRIPTION>
-    <FUNCTION>half_float::detail::float2half_impl</FUNCTION>
-    <DECORATED>??$float2half_impl@$00O@detail@half_float@@YAIOZZ</DECORATED>
-    <FUNCLINE>1031</FUNCLINE>
-    <PATH></PATH>
   </DEFECT><DEFECT>
     <SFA>
       <FILEPATH>e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser</FILEPATH>

@@ -1,4 +1,5 @@
 #pragma once
+#include "include/tinyxml2.h"
 
 struct MDBName
 {
@@ -7,9 +8,7 @@ struct MDBName
 
 struct MDBBone
 {
-	int index;
-	int parent;
-	int id;
+	int index[5];
 };
 
 struct MDBMaterial
@@ -86,7 +85,7 @@ struct MDBTexture
 class CMDBtoXML
 {
 public:
-	int Read(const std::wstring& path);
+	int Read(const std::wstring& path, bool onecore);
 
 	MDBName ReadMDBName(int pos, std::vector<char> buffer);
 	MDBTexture ReadTexture(int pos, std::vector<char> buffer);
@@ -100,6 +99,8 @@ public:
 	MDBObject ReadObject(int pos, std::vector<char> buffer);
 	MDBObjectInfo ReadObjectInfo(int pos, std::vector<char> buffer);
 	MDBObjectLayout ReadObjectLayout(int pos, std::vector<char> buffer);
+
+	void ReadVertex(int pos, std::vector<char> buffer, int type, int num, int size, tinyxml2::XMLElement* header);
 
 private:
 	std::vector< MDBName > names;
