@@ -167,6 +167,21 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 			script->Read(strn, onecore);
 			script.reset();
 		}
+		else if (extension == L"xml")
+		{
+			size_t xmlIndex = strn.find_last_of(L"_");
+			wstring xmlExtension = strn.substr(xmlIndex + 1, xmlExtension.size() - xmlIndex);
+			wstring xmlStrn = strn.substr(0, xmlIndex);
+
+			xmlExtension = ConvertToLower(xmlExtension);
+			// To MDB File
+			if (xmlExtension == L"mdb")
+			{
+				unique_ptr< CXMLToMDB > script = make_unique< CXMLToMDB >();
+				script->Write(xmlStrn, false);
+				script.reset();
+			}
+		}
 	}
 	else
 	{

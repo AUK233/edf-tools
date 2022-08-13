@@ -33,6 +33,8 @@ std::wstring KillWhitespace( std::wstring in );
 //Function to kill whitespace and throw error
 std::wstring KillSpaceAndDebug(std::wstring in);
 
+//Function to write a string to a char vector
+void PushStringToVector(std::string strn, std::vector< char >* bytes);
 //Function to write a wstring to a char vector
 void PushWStringToVector( std::wstring strn, std::vector< char > *bytes );
 

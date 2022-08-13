@@ -1140,14 +1140,6 @@ void CMissionScript::ReadFn( int position, std::vector<char> buffer, int numArgs
 	}
 }
 
-void PushStringToVector( std::string strn, std::vector< char > *bytes )
-{
-	for( int i = 0; i < strn.size(); i++ )
-	{
-		bytes->push_back( strn[i] );
-	}
-}
-
 //BVM header
 BVMHeader::BVMHeader()
 {
@@ -1780,6 +1772,26 @@ void CMissionScript::Write( const std::wstring& path, int flags )
 			bytes[start + 3] = seg[3];
 			free(seg);
 		}
+		// Also check that the calling function exists.
+		int fnnum = m_vecFunctions[i]->fnNameDebug.size();
+		if (fnnum > 0)
+		{
+			for (int j = 0; j < fnnum; j++)
+			{
+				bool fnExist = false;
+				for (int k = 0; k < m_vecFunctions.size(); k++)
+				{
+					if (m_vecFunctions[i]->fnNameDebug[j] == m_vecFunctions[k]->fnName)
+						fnExist = true;
+				}
+
+				if (!fnExist)
+				{
+					std::wcout << L"\nCritical error:\n";
+					std::wcout << m_vecFunctions[i]->fnNameDebug[j] + L" - that does not exist.\n\n";
+				}
+			}
+		}
 	}
 
 	/* The above seems better
@@ -2035,6 +2047,22 @@ void MissionFunction::CompileLine(std::wstring fnStrn)
 		int parseNum = (int)wcstol(arg.c_str(), NULL, 0);
 		char* fnTypeBytes = IntToBytes(parseNum);
 
+		if (parseNum == 2)
+		{
+			std::wstring temparg = argsStrn;
+			std::wstring fnToken = SimpleTokenise(temparg, L',');
+			if (fnToken.front() == L'\"' && fnToken.back() == L'\"')
+			{
+				fnToken.erase(0, 1);
+				fnToken.pop_back();
+				fnNameDebug.push_back(fnToken);
+			}
+			else
+			{
+				std::wcout << L"Wrong parameter: " + fnStrn + L"\n";
+			}
+		}
+
 		//Handle the rest of the function
 		CompileArgs(argsStrn);
 
@@ -2051,6 +2079,7 @@ void MissionFunction::CompileLine(std::wstring fnStrn)
 			bytes.push_back(fnTypeBytes[0]);
 		}
 		free(fnTypeBytes);
+		
 	}
 	else if (preBracketString == L"2D" || preBracketString == L"2d" || preBracketString == L"syscall1") //2D
 	{

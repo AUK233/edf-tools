@@ -1,11 +1,14 @@
 ﻿E:\Program Files\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v150\Microsoft.CppBuild.targets(391,5): warning MSB8028: 中间目录(Release\)包含从另一个项目(simple_edf_mission_parser.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
   MDB.cpp
 e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(27): warning C4244: “参数”: 从“std::streamsize”转换到“const unsigned int”，可能丢失数据
-e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(834): warning C4101: “vf”: 未引用的局部变量
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(960): warning C4129: “T”: 不可识别的字符转义序列
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(930): warning C4101: “entry4”: 未引用的局部变量
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(930): warning C4101: “entry6”: 未引用的局部变量
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(930): warning C4101: “entry3”: 未引用的局部变量
+e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(930): warning C4101: “entry5”: 未引用的局部变量
   正在生成代码
-e:\qqdownload\ls\edf-tools-master\simple_edf_mission_parser\mdb.cpp(477): warning C4715: “CMDBtoXML::Read”: 不是所有的控件路径都返回值
-  1 of 2971 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  1 of 3003 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
+    3 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   simple_edf_mission_parser.vcxproj -> E:\QQDownload\ls\edf-tools-master\Release\EDF Tools.exe

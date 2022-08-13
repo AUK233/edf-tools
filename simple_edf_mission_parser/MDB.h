@@ -127,3 +127,23 @@ private:
 	int TextureCount;
 	int TextureOffset;
 };
+
+class CXMLToMDB
+{
+public:
+	void Write(const std::wstring& path, bool multcore);
+	void GenerateHeader(std::vector< char > &bytes);
+
+	//Every wstring is counted (even if it is repeated!)
+	int NameTableCount = 0;
+	int BoneCount = 0;
+	int ObjectCount = 0;
+	int MaterialCount = 0;
+	int TextureCount = 0;
+
+private:
+
+	std::vector< std::wstring > m_vecWNames;
+	std::vector< std::wstring > m_vecTexArgs;
+	std::vector< std::wstring > m_vecTexNames;
+};

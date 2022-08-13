@@ -58,6 +58,9 @@ struct MissionFunction
 	std::vector<std::wstring> m_vecLocalVars;
 	std::vector< char > fnArgBytes;
 
+	//Function name debug.
+	std::vector<std::wstring> fnNameDebug;
+
 	CMissionScript *myScript;
 };
 

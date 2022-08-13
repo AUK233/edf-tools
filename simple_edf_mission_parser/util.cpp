@@ -477,6 +477,15 @@ void FindAndReplaceAll(std::string& data, std::string toSearch, std::string repl
 	}
 }
 
+//Function to write a string to a char vector
+void PushStringToVector(std::string strn, std::vector< char >* bytes)
+{
+	for (int i = 0; i < strn.size(); i++)
+	{
+		bytes->push_back(strn[i]);
+	}
+}
+
 ///Function to write a wstring to a char vector
 void PushWStringToVector( std::wstring strn, std::vector< char > *bytes )
 {

@@ -14,7 +14,7 @@
     <ProjectGuid>{C4C1EF46-CD8D-41CF-A2AA-008CA025AC7D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>simple_edf_mission_parser</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
     <ProjectName>EDF Tools</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
