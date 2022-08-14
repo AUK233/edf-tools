@@ -37,29 +37,9 @@
 *.pdb
 *.iobj
 *.tlog
-.vs/*
-simple_edf_mission_parser/Release/*
-
-.vs/EDF Tools/v16/Browse.VC.db
-.vs/EDF Tools/v16/Browse.VC.db-shm
-.vs/EDF Tools/v16/Browse.VC.db-wal
-.vs/EDF Tools/v16/Browse.VC.opendb
-.vs/EDF Tools/v16/ipch/9cbd03c38ee22767.ipch
-.vs/EDF Tools/v16/.suo
-simple_edf_mission_parser/Release/EDF Tools.tlog/CL.write.1.tlog
-simple_edf_mission_parser/Release/vc141.pdb
-simple_edf_mission_parser/Release/simple_edf_mission_parser.log
-simple_edf_mission_parser/Release/EDF Tools.tlog/link.read.1.tlog
-simple_edf_mission_parser/Release/EDF Tools.tlog/EDF Tools.write.1u.tlog
-simple_edf_mission_parser/Release/EDF Tools.tlog/CL.write.1.tlog
-simple_edf_mission_parser/Release/EDF Tools.tlog/CL.read.1.tlog
-simple_edf_mission_parser/Release/EDF Tools.tlog/CL.command.1.tlog
-Release/EDF Tools.pdb
-Release/EDF Tools.ipdb
-Release/EDF Tools.iobj
-*.iobj
-*.ipdb
-*.pdb
-*.log
-*.sarif
 *.xml
+.vs/*
+/Release/*
+/Debug/*
+/simple_edf_mission_parser/Release/*
+/simple_edf_mission_parser/Debug/*

@@ -47,7 +47,7 @@ std::string ReadRaw(std::vector<char> buf, int pos, int num)
 {
 	std::string str="";
 	unsigned char chunk;
-	char tempbuffer[2];
+	char tempbuffer[3];
 
 	for (int i = 0; i < num; i++)
 	{
