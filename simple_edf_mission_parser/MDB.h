@@ -80,6 +80,9 @@ struct MDBTexture
 	std::wstring mapping;
 	std::wstring filename;
 	std::string raw;
+
+	//To MDB use
+	std::vector< char > bytes;
 };
 
 class CMDBtoXML
@@ -103,6 +106,7 @@ public:
 	void ReadVertex(int pos, std::vector<char> buffer, int type, int num, int size, tinyxml2::XMLElement* header);
 
 private:
+
 	std::vector< MDBName > names;
 	std::vector< MDBTexture > textures;
 
@@ -132,18 +136,31 @@ class CXMLToMDB
 {
 public:
 	void Write(const std::wstring& path, bool multcore);
+	void Set4BytesInFile(std::vector<char>& bytes, int pos, int value);
 	void GenerateHeader(std::vector< char > &bytes);
+	MDBTexture GetTexture(tinyxml2::XMLElement* entry2);
+
+	void WriteWStringToTemp(std::wstring wstr);
 
 	//Every wstring is counted (even if it is repeated!)
 	int NameTableCount = 0;
+	//Real valid name!
+	int NameCount = 0;
 	int BoneCount = 0;
 	int ObjectCount = 0;
 	int MaterialCount = 0;
 	int TextureCount = 0;
 
+	//Store string
+	std::vector< std::string > m_vecStrns;
+	std::vector< std::wstring > m_vecWStrns;
+	//Where to store the name table call string
+	std::vector< int > m_vecNameTpos;
+	//Where to store the texture call string
+	std::vector< int > m_vecTexPos;
+
 private:
 
 	std::vector< std::wstring > m_vecWNames;
-	std::vector< std::wstring > m_vecTexArgs;
-	std::vector< std::wstring > m_vecTexNames;
+	std::vector< MDBTexture > m_vecTexture;
 };
