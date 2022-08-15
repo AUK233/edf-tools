@@ -43,6 +43,15 @@ void Read4BytesReversed(unsigned char* chunk, std::vector<char> buf, int pos)
 	chunk[3] = buf[pos + 3];
 }
 
+//Read specified number of bytes, which should be a multiple of 2
+void ReadNBytesReversed(unsigned char* chunk, std::vector<char> buf, int pos, int num)
+{
+	for (int i = num - 1; i >= 0; --i)
+	{
+		chunk[i] = buf[pos + i];
+	}
+}
+
 std::string ReadRaw(std::vector<char> buf, int pos, int num)
 {
 	std::string str="";

@@ -1,5 +1,6 @@
 #pragma once
 #include "include/tinyxml2.h"
+#include <mutex>
 
 struct MDBName
 {
@@ -104,6 +105,7 @@ public:
 	MDBObjectLayout ReadObjectLayout(int pos, std::vector<char> buffer);
 
 	void ReadVertex(int pos, std::vector<char> buffer, int type, int num, int size, tinyxml2::XMLElement* header);
+	void ReadVertexMT(std::mutex &mtx, int pos, std::vector<char> buffer, int type, int num, int size, tinyxml2::XMLElement* header);
 
 private:
 

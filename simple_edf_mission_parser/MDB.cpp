@@ -49,11 +49,6 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 		xml.InsertFirstChild(xml.NewDeclaration());
 		tinyxml2::XMLElement* xmlHeader = xml.NewElement("MDB");
 		xml.InsertEndChild(xmlHeader);
-		
-		std::ofstream output(path + L"_MDB.xml", std::ios::binary | std::ios::out | std::ios::ate );
-		/*
-		std::locale utf8_locale(output.getloc(), new std::codecvt_utf8<wchar_t>);
-		output.imbue(utf8_locale);*/
 
 		//Parse the header
 
@@ -345,7 +340,7 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 						int avg_num = Layoutnum / threads_num;
 						// thread lock
 						std::mutex mtx;
-
+						// Multithreading seems to be the same speed as single threading
 						for (int tk = 0; tk <= avg_num; tk++)
 						{
 							for (int th = 0; th < threads_num; th++)
@@ -356,18 +351,19 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 									threads.emplace_back([&, k]() {
 										int curoffset = objects_layout[k].offset;
 										std::string curstr = objects_layout[k].name;
-
+										//must be locked, otherwise the order will be out of order
+										mtx.lock();
 										tinyxml2::XMLElement* xmlVertex = xmlVertexList->InsertNewChildElement(curstr.c_str());
+										mtx.unlock();
+
 										int Vtype = objects_layout[k].type;
 										xmlVertex->SetAttribute("type", Vtype);
 										xmlVertex->SetAttribute("channel", objects_layout[k].channel);
 
 										int Voffset = curpos + objects_info.back().VertexOffset + curoffset;
 										std::wcout << L"vertex type:" + UTF8ToWide(curstr) + L"\n";
-										//Locking, it seems to become a single core, but does not affect the efficiency?
-										std::lock_guard<std::mutex> lk(mtx);
 										//Read data
-										ReadVertex(Voffset, buffer, Vtype, Vnum, Vsize, xmlVertex);
+										ReadVertexMT(mtx, Voffset, buffer, Vtype, Vnum, Vsize, xmlVertex);
 										//output result
 										});
 								}
@@ -413,16 +409,29 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					//read the rest
 					
 					//Read indices
-					std::wcout << L"read indices...... ";
+					int iNum = objects_info.back().indicesNum;
+					std::wcout << L"Read indices......\n";
+					std::wcout << L"Get count:" + ToString(iNum) + L"\n";
 
 					tinyxml2::XMLElement* xmlIndices = xmlMesh->InsertNewChildElement("Indices");
-					xmlIndices->SetAttribute("Count", objects_info.back().indicesNum);
-					for (int k = 0; k < objects_info.back().indicesNum; k++)
+					xmlIndices->SetAttribute("Count", iNum);
+					for (int k = 0; k < iNum; k++)
 					{
-						int newcurpos = curpos + objects_info.back().indicesOffset + (k*2);
+						int newcurpos = curpos + objects_info.back().indicesOffset + (k * 2);
 						tinyxml2::XMLElement* xmlNode = xmlIndices->InsertNewChildElement("value");
 						//short int16 = ReadInt16(buffer, newcurpos);
-						xmlNode->SetText(ReadInt16(buffer, newcurpos));
+						char seg[2];
+						seg[0] = buffer[newcurpos + 1];
+						seg[1] = buffer[newcurpos];
+
+						short int16 = 0;
+						for (int i = 0; i < 2; i++)
+						{
+							int16 <<= 8;
+							int16 |= seg[i];
+						}
+						xmlNode->SetText(int16);
+						//xmlNode->SetText(ReadInt16(buffer, newcurpos));
 					}
 					std::wcout << L"complete.\n";
 				}
@@ -540,16 +549,25 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 			std::wcout << L"Completed!\n\n";
 		}
 		// Read End!
-
+		
+		// Write to file
+		std::string outfile = WideToUTF8(path) + "_MDB.xml";
+		xml.SaveFile(outfile.c_str());
+		/*
 		tinyxml2::XMLPrinter printer;
 		xml.Accept(&printer);
 		auto xmlString = std::string{ printer.CStr() };
 
-		//std::wcout << UTF8ToWide(xmlString);
+		std::wcout << UTF8ToWide(xmlString);
 		FindAndReplaceAll(xmlString, "\n", "\r\n");
+		
+		std::ofstream output(path + L"_MDB.xml", std::ios::binary | std::ios::out | std::ios::ate);
+		
+		std::locale utf8_locale(output.getloc(), new std::codecvt_utf8<wchar_t>);
+		output.imbue(utf8_locale);
 		output << xmlString;
 		output.close();
-
+		*/
 		file.close();
 	}
 }
@@ -815,100 +833,81 @@ MDBTexture CMDBtoXML::ReadTexture(int pos, std::vector<char> buffer)
 
 void CMDBtoXML::ReadVertex(int pos, std::vector<char> buffer, int type, int num, int size, tinyxml2::XMLElement* header)
 {
-	unsigned char seg[4];
-
 	if (type == 1)
 	{
-		float vf;
+		float vf[4];
 
 		for (int l = 0; l < num; l++)
 		{
 			int Vcurpos = pos + (l * size);
 
-			tinyxml2::XMLElement *xmlVNode = header->InsertNewChildElement("V");
+			memcpy(&vf, &buffer[Vcurpos], 16U);
 
-			Read4BytesReversed(seg, buffer, Vcurpos);
-			memcpy(&vf, &seg, 4U);
-			xmlVNode->SetAttribute("x", vf);
-			Read4BytesReversed(seg, buffer, Vcurpos + 0x4);
-			memcpy(&vf, &seg, 4U);
-			xmlVNode->SetAttribute("y", vf);
-			Read4BytesReversed(seg, buffer, Vcurpos + 0x8);
-			memcpy(&vf, &seg, 4U);
-			xmlVNode->SetAttribute("z", vf);
-			Read4BytesReversed(seg, buffer, Vcurpos + 0x0C);
-			memcpy(&vf, &seg, 4U);
-			xmlVNode->SetAttribute("w", vf);
+			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
+			xmlVNode->SetAttribute("x", vf[0]);
+			xmlVNode->SetAttribute("y", vf[1]);
+			xmlVNode->SetAttribute("z", vf[2]);
+			xmlVNode->SetAttribute("w", vf[3]);
 		}
 	}
 	else if (type == 4)
 	{
-		float vf;
+		float vf[3];
 
 		for (int l = 0; l < num; l++)
 		{
 			int Vcurpos = pos + (l * size);
 
-			tinyxml2::XMLElement *xmlVNode = header->InsertNewChildElement("V");
+			memcpy(&vf, &buffer[Vcurpos], 12U);
 
-			Read4BytesReversed(seg, buffer, Vcurpos);
-			memcpy(&vf, &seg, 4U);
-			xmlVNode->SetAttribute("x", vf);
-			Read4BytesReversed(seg, buffer, Vcurpos + 0x4);
-			memcpy(&vf, &seg, 4U);
-			xmlVNode->SetAttribute("y", vf);
-			Read4BytesReversed(seg, buffer, Vcurpos + 0x8);
-			memcpy(&vf, &seg, 4U);
-			xmlVNode->SetAttribute("z", vf);
+			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
+			xmlVNode->SetAttribute("x", vf[0]);
+			xmlVNode->SetAttribute("y", vf[1]);
+			xmlVNode->SetAttribute("z", vf[2]);
 		}
 	}
 	else if (type == 7)
 	{
-		half_float::half vf[2];
+		half_float::half vf[4];
 
 		for (int l = 0; l < num; l++)
 		{
 			int Vcurpos = pos + (l * size);
 
-			tinyxml2::XMLElement *xmlVNode = header->InsertNewChildElement("V");
+			memcpy(&vf, &buffer[Vcurpos], 8U);
 
-			Read4BytesReversed(seg, buffer, Vcurpos);
-			memcpy(&vf, &seg, 4U);
+			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
 			xmlVNode->SetAttribute("x", vf[0]);
 			xmlVNode->SetAttribute("y", vf[1]);
-			Read4BytesReversed(seg, buffer, Vcurpos + 0x4);
-			memcpy(&vf, &seg, 4U);
-			xmlVNode->SetAttribute("z", vf[0]);
-			xmlVNode->SetAttribute("w", vf[1]);
+			xmlVNode->SetAttribute("z", vf[2]);
+			xmlVNode->SetAttribute("w", vf[3]);
 		}
 	}
 	else if (type == 12)
 	{
-		float vf;
+		float vf[2];
 
 		for (int l = 0; l < num; l++)
 		{
 			int Vcurpos = pos + (l * size);
 
-			tinyxml2::XMLElement *xmlVNode = header->InsertNewChildElement("V");
+			memcpy(&vf, &buffer[Vcurpos], 8U);
 
-			Read4BytesReversed(seg, buffer, Vcurpos);
-			memcpy(&vf, &seg, sizeof(vf));
-			xmlVNode->SetAttribute("x", vf);
-			Read4BytesReversed(seg, buffer, Vcurpos + 0x4);
-			memcpy(&vf, &seg, sizeof(vf));
-			xmlVNode->SetAttribute("y", vf);
+			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
+			xmlVNode->SetAttribute("x", vf[0]);
+			xmlVNode->SetAttribute("y", vf[1]);
 		}
 	}
 	else if (type == 21)
 	{
+		unsigned char seg[4];
 		for (int l = 0; l < num; l++)
 		{
 			int Vcurpos = pos + (l * size);
 
-			tinyxml2::XMLElement *xmlVNode = header->InsertNewChildElement("V");
-
 			Read4BytesReversed(seg, buffer, Vcurpos);
+
+			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
 			xmlVNode->SetAttribute("x", seg[0]);
 			xmlVNode->SetAttribute("y", seg[1]);
 			xmlVNode->SetAttribute("z", seg[2]);
@@ -919,6 +918,139 @@ void CMDBtoXML::ReadVertex(int pos, std::vector<char> buffer, int type, int num,
 	{
 		// unknown type
 		std::string strn = ReadRaw(buffer, pos, 0x20);
+		header->SetText(strn.c_str());
+	}
+}
+
+void CMDBtoXML::ReadVertexMT(std::mutex& mtx, int pos, std::vector<char> buffer, int type, int num, int size, tinyxml2::XMLElement* header)
+{
+	if (type == 1)
+	{
+		struct ModelVertex
+		{
+			float vf[4];
+		};
+
+		std::vector <ModelVertex> vf(num);
+
+		for (int l = 0; l < num; l++)
+		{
+			int Vcurpos = pos + (l * size);
+
+			memcpy(&vf[l], &buffer[Vcurpos], 16U);
+
+			//Locking, it seems to become a single core, but does not affect the efficiency?
+			std::lock_guard<std::mutex> lk(mtx);
+			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
+			xmlVNode->SetAttribute("x", vf[l].vf[0]);
+			xmlVNode->SetAttribute("y", vf[l].vf[1]);
+			xmlVNode->SetAttribute("z", vf[l].vf[2]);
+			xmlVNode->SetAttribute("w", vf[l].vf[3]);
+		}
+	}
+	else if (type == 4)
+	{
+		struct ModelVertex
+		{
+			float vf[3];
+		};
+
+		std::vector <ModelVertex> vf(num);
+
+		for (int l = 0; l < num; l++)
+		{
+			int Vcurpos = pos + (l * size);
+
+			memcpy(&vf[l], &buffer[Vcurpos], 12U);
+
+			std::lock_guard<std::mutex> lk(mtx);
+			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
+			xmlVNode->SetAttribute("x", vf[l].vf[0]);
+			xmlVNode->SetAttribute("y", vf[l].vf[1]);
+			xmlVNode->SetAttribute("z", vf[l].vf[2]);
+		}
+	}
+	else if (type == 7)
+	{
+		struct ModelVertex
+		{
+			half_float::half vf[4];
+		};
+
+		std::vector <ModelVertex> vf(num);
+
+		for (int l = 0; l < num; l++)
+		{
+			int Vcurpos = pos + (l * size);
+
+			memcpy(&vf[l], &buffer[Vcurpos], 8U);
+
+			std::lock_guard<std::mutex> lk(mtx);
+			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
+			xmlVNode->SetAttribute("x", vf[l].vf[0]);
+			xmlVNode->SetAttribute("y", vf[l].vf[1]);
+			xmlVNode->SetAttribute("z", vf[l].vf[2]);
+			xmlVNode->SetAttribute("w", vf[l].vf[3]);
+		}
+	}
+	else if (type == 12)
+	{
+		struct ModelVertex
+		{
+			float vf[2];
+		};
+
+		std::vector <ModelVertex> vf(num);
+
+		for (int l = 0; l < num; l++)
+		{
+			int Vcurpos = pos + (l * size);
+
+			memcpy(&vf[l], &buffer[Vcurpos], 8U);
+
+			std::lock_guard<std::mutex> lk(mtx);
+			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
+			xmlVNode->SetAttribute("x", vf[l].vf[0]);
+			xmlVNode->SetAttribute("y", vf[l].vf[1]);
+		}
+	}
+	else if (type == 21)
+	{
+		struct ModelVertex
+		{
+			unsigned char vf[4];
+		};
+
+		std::vector <ModelVertex> vf(num);
+
+		for (int l = 0; l < num; l++)
+		{
+			int Vcurpos = pos + (l * size);
+
+			memcpy(&vf[l], &buffer[Vcurpos], 4U);
+
+			std::lock_guard<std::mutex> lk(mtx);
+			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
+			xmlVNode->SetAttribute("x", vf[l].vf[0]);
+			xmlVNode->SetAttribute("y", vf[l].vf[1]);
+			xmlVNode->SetAttribute("z", vf[l].vf[2]);
+			xmlVNode->SetAttribute("w", vf[l].vf[3]);
+			/*
+			unsigned char seg[4];
+			Read4BytesReversed(seg, buffer, Vcurpos);
+			xmlVNode->SetAttribute("x", seg[0]);
+			xmlVNode->SetAttribute("y", seg[1]);
+			xmlVNode->SetAttribute("z", seg[2]);
+			xmlVNode->SetAttribute("w", seg[3]);
+			*/
+		}
+	}
+	else
+	{
+		// unknown type
+		std::string strn = ReadRaw(buffer, pos, 0x20);
+
+		std::lock_guard<std::mutex> lk(mtx);
 		header->SetText(strn.c_str());
 	}
 }
@@ -942,6 +1074,7 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	tinyxml2::XMLNode* header = doc.FirstChildElement("MDB");
 	tinyxml2::XMLElement* entry, * entry2, * entry3, * entry4, * entry5, * entry6;
 
+	// read model name table (if there is)
 	bool NoNameTable = false;
 	entry = header->FirstChildElement("Names");
 	if (entry == nullptr)
@@ -966,7 +1099,7 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 		}
 		std::wcout << L"\nLoading completed!\n";
 	}
-
+	// read texture table (if there is)
 	bool NoTexTable = false;
 	entry = header->FirstChildElement("Textures");
 	if (entry == nullptr)
@@ -980,6 +1113,22 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 		for (entry2 = entry->FirstChildElement("value"); entry2 != 0; entry2 = entry2->NextSiblingElement("value"))
 		{
 			m_vecTexture.push_back( GetTexture(entry2) );
+		}
+	}
+	// read bone list (it must exist)
+	entry = header->FirstChildElement("BoneLists");
+	if (entry == nullptr)
+	{
+		std::wcout << L"Required \'BoneLists\' do not exist!\n";
+		//terminate program
+		system("pause");
+		exit(0);
+	}
+	else
+	{
+		std::wcout << L"Converting BoneLists:\n";
+		for (entry2 = header->FirstChildElement(); entry2 != 0; entry2 = entry2->NextSiblingElement("Bone"))
+		{
 		}
 	}
 
@@ -1006,23 +1155,23 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	//Push texture table offset
 	Set4BytesInFile(bytes, 0x2C, bytes.size());
 	//Push texture table
-	for (int i = 0; i < m_vecTexture.size(); i++)
+	for (size_t i = 0; i < m_vecTexture.size(); i++)
 	{
 		m_vecTexPos.push_back(bytes.size());
-		for (int j = 0; j < m_vecTexture[i].bytes.size(); j++)
+		for (size_t j = 0; j < m_vecTexture[i].bytes.size(); j++)
 		{
 			bytes.push_back(m_vecTexture[i].bytes[j]);
 		}
 	}
 	
 	//Push wide strings
-	for (int i = 0; i < m_vecWStrns.size(); i++)
+	for (size_t i = 0; i < m_vecWStrns.size(); i++)
 	{
 		int strpos = bytes.size();
 		PushWStringToVector(m_vecWStrns[i], &bytes);
 		//write string offset
 		//in name table:
-		for (int j = 0; j < m_vecNameTpos.size(); j++)
+		for (size_t j = 0; j < m_vecNameTpos.size(); j++)
 		{
 			if (m_vecWNames[j] == m_vecWStrns[i])
 				Set4BytesInFile(bytes, m_vecNameTpos[j], strpos - m_vecNameTpos[j]);
@@ -1118,7 +1267,7 @@ void CXMLToMDB::WriteWStringToTemp(std::wstring wstr)
 {
 	//Check string array:
 	bool found = false;
-	for (int strID = 0; strID < m_vecWStrns.size(); strID++)
+	for (size_t strID = 0; strID < m_vecWStrns.size(); strID++)
 	{
 		if (m_vecWStrns[strID] == wstr)
 		{

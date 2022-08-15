@@ -4,6 +4,8 @@ void Read2Bytes( unsigned char *chunk, std::vector<char> buf, int pos );
 void Read2BytesReversed( unsigned char *chunk, std::vector<char> buf, int pos );
 void Read4Bytes(unsigned char* chunk, std::vector<char> buf, int pos);
 void Read4BytesReversed(unsigned char* chunk, std::vector<char> buf, int pos);
+//Read specified number of bytes, which should be a multiple of 2
+void ReadNBytesReversed(unsigned char* chunk, std::vector<char> buf, int pos, int num);
 
 std::string ReadRaw(std::vector<char> buf, int pos, int num);
 short ReadInt16(std::vector<char> buf, int pos, bool swapEndian = false);
