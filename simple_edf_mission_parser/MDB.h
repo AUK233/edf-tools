@@ -10,6 +10,12 @@ struct MDBName
 struct MDBBone
 {
 	int index[5];
+	// write need
+	unsigned char weight[3][4];
+	float matrix1[4][4];
+	float matrix2[4][4];
+	float fg[2][4];
+	std::vector< char > bytes;
 };
 
 struct MDBMaterial
@@ -22,6 +28,8 @@ struct MDBMaterial
 	// texture used, not name of texture
 	int TexOffset;
 	int TexCount;
+	//To MDB use
+	std::vector< char > bytes;
 };
 
 struct MDBMaterialPtr
@@ -31,12 +39,16 @@ struct MDBMaterialPtr
 	float b;
 	float a;
 	std::string ptrname;
+	//To MDB use
+	std::vector< char > bytes;
 };
 
 struct MDBMaterialTex
 {
 	int texid;
 	std::string textype;
+	//To MDB use
+	std::vector< char > bytes;
 };
 
 struct MDBObject
@@ -45,6 +57,8 @@ struct MDBObject
 	int Nameid;
 	int infoCount;
 	int infoOffset;
+	//To MDB use
+	std::vector< char > bytes;
 };
 
 struct MDBObjectInfo
@@ -58,6 +72,8 @@ struct MDBObjectInfo
 	int VertexOffset;
 	int indicesNum;
 	int indicesOffset;
+	//To MDB use
+	std::vector< char > bytes;
 };
 
 struct MDBObjectLayout
@@ -66,6 +82,14 @@ struct MDBObjectLayout
 	int offset;
 	int channel;
 	std::string name;
+	//To MDB use
+	std::vector< char > bytes;
+};
+//for writing to MDB
+struct MDBObjectLayoutOut
+{
+	std::string name;
+	std::vector< char > bytes;
 };
 
 struct MDBTexture
@@ -83,6 +107,11 @@ struct MDBTexture
 	std::string raw;
 
 	//To MDB use
+	std::vector< char > bytes;
+};
+
+struct MDBByte
+{
 	std::vector< char > bytes;
 };
 
@@ -138,13 +167,29 @@ class CXMLToMDB
 {
 public:
 	void Write(const std::wstring& path, bool multcore);
+	void AlignFileTo16Bytes(std::vector<char>& bytes);
 	void Set4BytesInFile(std::vector<char>& bytes, int pos, int value);
 	void GenerateHeader(std::vector< char > &bytes);
 	MDBTexture GetTexture(tinyxml2::XMLElement* entry2);
+	MDBBone GetBone(tinyxml2::XMLElement* entry2, bool NoNameTable);
+	void WriteRawToByte(std::string& argsStrn, std::vector<char> &buf, int pos);
+	MDBMaterial GetMaterial(tinyxml2::XMLElement* entry2, bool NoNameTable, bool NoTexTable);
+	MDBMaterialPtr GetMaterialParameter(tinyxml2::XMLElement* entry4);
+	MDBMaterialTex GetMaterialTexture(tinyxml2::XMLElement* entry4, bool NoTexTable);
+	MDBTexture GetTextureInMaterial(std::wstring wstr1, std::wstring wstr2);
+	MDBObject GetModel(tinyxml2::XMLElement* entry2, bool NoNameTable, bool multcore);
+	int GetMeshLayoutSize(tinyxml2::XMLElement* entry5);
+	MDBObjectInfo GetMeshInModel(tinyxml2::XMLElement* entry3, int index, bool multcore);
+	MDBObjectLayout GetLayoutInModel(tinyxml2::XMLElement* entry5, int layoutofs);
+	MDBObjectLayoutOut GetLayoutInModel(MDBObjectLayout objlay, int size);
+	MDBByte GetVerticesInModel(std::vector< MDBObjectLayout > objlay, int chunksize, tinyxml2::XMLElement* entry4, int num, int layout, bool multcore);
+	void GetModelVertex(int type, int num, tinyxml2::XMLElement* entry5, std::vector< char > &bytes, int chunksize, int offset);
+	MDBByte GetIndicesInModel(tinyxml2::XMLElement* entry4, int size);
 
+	void WriteStringToTemp(std::string str);
 	void WriteWStringToTemp(std::wstring wstr);
 
-	//Every wstring is counted (even if it is repeated!)
+	//Every wide string is counted (even if it is repeated!)
 	int NameTableCount = 0;
 	//Real valid name!
 	int NameCount = 0;
@@ -160,9 +205,27 @@ public:
 	std::vector< int > m_vecNameTpos;
 	//Where to store the texture call string
 	std::vector< int > m_vecTexPos;
+	//Where to store the material call string
+	std::vector< int > m_vecMatPos;
+	std::vector< int > m_vecMatPtrPos;
+	std::vector< int > m_vecMatTexPos;
+	//Where to store the model call string
+	std::vector< int > m_vecModelPos;
+	std::vector< int > m_vecObjInfoPos;
+	std::vector< int > m_vecObjLayPos;
 
 private:
 
+	//wide string in name table
 	std::vector< std::wstring > m_vecWNames;
 	std::vector< MDBTexture > m_vecTexture;
+	std::vector< MDBBone > m_vecBone;
+	std::vector< MDBMaterial > m_vecMaterial;
+	std::vector< MDBMaterialPtr > m_vecMaterialPtr;
+	std::vector< MDBMaterialTex > m_vecMaterialTex;
+	std::vector< MDBObject > m_vecObject;
+	std::vector< MDBObjectInfo > m_vecObjInfo;
+	std::vector< MDBObjectLayoutOut > m_vecObjLayout;
+	std::vector< MDBByte > m_vecObjVertices;
+	std::vector< MDBByte > m_vecObjIndices;
 };

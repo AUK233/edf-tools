@@ -174,7 +174,7 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 			wstring xmlStrn = strn.substr(0, xmlIndex);
 
 			xmlExtension = ConvertToLower(xmlExtension);
-			// To MDB File
+			// To MDB File, no need for multi-core.
 			if (xmlExtension == L"mdb")
 			{
 				unique_ptr< CXMLToMDB > script = make_unique< CXMLToMDB >();

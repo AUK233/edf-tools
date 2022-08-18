@@ -182,7 +182,7 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 				xmlBoneID->SetText(utf8str.c_str());
 				
 				tinyxml2::XMLElement* xmlBoneP = xmlBone->InsertNewChildElement("parent");
-				xmlBoneP->SetText(bones.back().index[1]);
+				xmlBoneP->SetAttribute("value", bones.back().index[1]);
 				//think of these values as a special link
 				tinyxml2::XMLElement* xmlBoneIK = xmlBone->InsertNewChildElement("IK");
 				xmlBoneIK->SetAttribute("root", bones.back().index[2]);
@@ -210,9 +210,15 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					tpos = curtablepos + 0x20 + (j * 0x10);
 
 					tinyxml2::XMLElement* xmlBNode = xmlBone->InsertNewChildElement("float");
-					float bf;
-					unsigned char seg[4];
+					float bf[4];
 
+					memcpy(&bf, &buffer[tpos], 16U);
+					xmlBNode->SetAttribute("x", bf[0]);
+					xmlBNode->SetAttribute("y", bf[1]);
+					xmlBNode->SetAttribute("z", bf[2]);
+					xmlBNode->SetAttribute("w", bf[3]);
+					/*
+					unsigned char seg[4];
 					Read4BytesReversed(seg, buffer, tpos);
 					memcpy(&bf, &seg, 4U);
 					xmlBNode->SetAttribute("x", bf);
@@ -225,7 +231,7 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					Read4BytesReversed(seg, buffer, tpos + 0xC);
 					memcpy(&bf, &seg, 4U);
 					xmlBNode->SetAttribute("w", bf);
-
+					*/
 					utf8str = ReadRaw(buffer, tpos, 0x10);
 					xmlBNode->SetText(utf8str.c_str());
 					xmlBNode->SetAttribute("debugPos", tpos);
@@ -303,6 +309,7 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					int Layoutnum = objects_info.back().LayoutCount;
 					tinyxml2::XMLElement* xmlLayout = xmlMesh->InsertNewChildElement("Layout");
 					xmlLayout->SetAttribute("Count", Layoutnum);
+					//xmlLayout->SetAttribute("inpos", objects_info.back().LayoutOffset);
 
 					int Vnum = objects_info.back().VertexNum;
 					tinyxml2::XMLElement* xmlVertexList = xmlMesh->InsertNewChildElement("VertexList");
@@ -354,13 +361,15 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 										//must be locked, otherwise the order will be out of order
 										mtx.lock();
 										tinyxml2::XMLElement* xmlVertex = xmlVertexList->InsertNewChildElement(curstr.c_str());
-										mtx.unlock();
 
 										int Vtype = objects_layout[k].type;
 										xmlVertex->SetAttribute("type", Vtype);
 										xmlVertex->SetAttribute("channel", objects_layout[k].channel);
 
 										int Voffset = curpos + objects_info.back().VertexOffset + curoffset;
+										xmlVertex->InsertNewChildElement("debug")->SetAttribute("pos", Voffset);
+										mtx.unlock();
+
 										std::wcout << L"vertex type:" + UTF8ToWide(curstr) + L"\n";
 										//Read data
 										ReadVertexMT(mtx, Voffset, buffer, Vtype, Vnum, Vsize, xmlVertex);
@@ -399,6 +408,8 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 							xmlVertex->SetAttribute("channel", objects_layout[k].channel);
 
 							int Voffset = curpos + objects_info.back().VertexOffset + curoffset;
+							xmlVertex->InsertNewChildElement("debug")->SetAttribute("pos", Voffset);
+
 							std::wcout << L"vertex type:" + UTF8ToWide(curstr) + L", ";
 							//Read data
 							ReadVertex(Voffset, buffer, Vtype, Vnum, Vsize, xmlVertex);
@@ -415,11 +426,13 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 
 					tinyxml2::XMLElement* xmlIndices = xmlMesh->InsertNewChildElement("Indices");
 					xmlIndices->SetAttribute("Count", iNum);
+
+					short int16;
 					for (int k = 0; k < iNum; k++)
 					{
 						int newcurpos = curpos + objects_info.back().indicesOffset + (k * 2);
 						tinyxml2::XMLElement* xmlNode = xmlIndices->InsertNewChildElement("value");
-						//short int16 = ReadInt16(buffer, newcurpos);
+						/* wrong reading
 						char seg[2];
 						seg[0] = buffer[newcurpos + 1];
 						seg[1] = buffer[newcurpos];
@@ -430,7 +443,10 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 							int16 <<= 8;
 							int16 |= seg[i];
 						}
-						xmlNode->SetText(int16);
+						*/
+						memcpy(&int16, &buffer[newcurpos], 2U);
+						//xmlNode->SetAttribute("pos", newcurpos);
+						xmlNode->SetAttribute("value", int16);
 						//xmlNode->SetText(ReadInt16(buffer, newcurpos));
 					}
 					std::wcout << L"complete.\n";
@@ -488,12 +504,15 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 
 					xmlMatPtr->SetAttribute("Name", materials_ptr.back().ptrname.c_str());
 
-					utf8str = std::to_string(materials_ptr.back().r) + ", ";
-					utf8str += std::to_string(materials_ptr.back().g) + ", ";
-					utf8str += std::to_string(materials_ptr.back().b) + ", ";
-					utf8str += std::to_string(materials_ptr.back().a);
+					//utf8str = std::to_string(materials_ptr.back().r) + ", ";
+					//utf8str += std::to_string(materials_ptr.back().g) + ", ";
+					//utf8str += std::to_string(materials_ptr.back().b) + ", ";
+					//utf8str += std::to_string(materials_ptr.back().a);
 					tinyxml2::XMLElement* xmlMatPtrVal = xmlMatPtr->InsertNewChildElement("Color");
-					xmlMatPtrVal->SetText(utf8str.c_str());
+					xmlMatPtrVal->SetAttribute("r", materials_ptr.back().r);
+					xmlMatPtrVal->SetAttribute("g", materials_ptr.back().g);
+					xmlMatPtrVal->SetAttribute("b", materials_ptr.back().b);
+					xmlMatPtrVal->SetAttribute("a", materials_ptr.back().a);
 
 					//Raw hex 1
 					utf8str = ReadRaw(buffer, curpos + 0x10, 8);
@@ -663,23 +682,21 @@ MDBMaterialPtr CMDBtoXML::ReadMaterialPtr(int pos, std::vector<char> buffer)
 	int offset = 0;
 
 	int position = pos;
-	Read4BytesReversed(seg, buffer, position);
-	memcpy(&f, &seg, sizeof(f));
+	//Read4BytesReversed(seg, buffer, position);
+	//memcpy(&f, &seg, sizeof(f));
+	memcpy(&f, &buffer[position], 4U);
 	out.r = f;
 
 	position = pos + 0x4;
-	Read4BytesReversed(seg, buffer, position);
-	memcpy(&f, &seg, sizeof(f));
+	memcpy(&f, &buffer[position], 4U);
 	out.g = f;
 
 	position = pos + 0x8;
-	Read4BytesReversed(seg, buffer, position);
-	memcpy(&f, &seg, sizeof(f));
+	memcpy(&f, &buffer[position], 4U);
 	out.b = f;
 
 	position = pos + 0x0C;
-	Read4BytesReversed(seg, buffer, position);
-	memcpy(&f, &seg, sizeof(f));
+	memcpy(&f, &buffer[position], 4U);
 	out.a = f;
 
 	position = pos + 0x18;
@@ -741,6 +758,7 @@ MDBObjectInfo CMDBtoXML::ReadObjectInfo(int pos, std::vector<char> buffer)
 
 	unsigned char seg[4];
 	int offset = 0;
+	short int16;
 
 	int position = pos + 0x4;
 	Read4Bytes(seg, buffer, position);
@@ -751,9 +769,12 @@ MDBObjectInfo CMDBtoXML::ReadObjectInfo(int pos, std::vector<char> buffer)
 	out.LayoutOffset = GetIntFromChunk(seg);
 
 	position = pos + 0x10;
-	out.VertexSize = ReadInt16(buffer, position);
+	memcpy(&int16, &buffer[position], 2U);
+	out.VertexSize = int16;
+	//out.VertexSize = ReadInt16(buffer, position);
 	position = pos + 0x12;
-	out.LayoutCount = ReadInt16(buffer, position);
+	memcpy(&int16, &buffer[position], 2U);
+	out.LayoutCount = int16;
 
 	position = pos + 0x14;
 	Read4Bytes(seg, buffer, position);
@@ -904,8 +925,9 @@ void CMDBtoXML::ReadVertex(int pos, std::vector<char> buffer, int type, int num,
 		for (int l = 0; l < num; l++)
 		{
 			int Vcurpos = pos + (l * size);
-
-			Read4BytesReversed(seg, buffer, Vcurpos);
+			//The performance of this function is too poor
+			//Read4BytesReversed(seg, buffer, Vcurpos);
+			memcpy(&seg, &buffer[Vcurpos], 4U);
 
 			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
 			xmlVNode->SetAttribute("x", seg[0]);
@@ -1063,16 +1085,11 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	//std::wstring FileRaw = ReadFile(sourcePath.c_str());
 	std::string UTF8Path = WideToUTF8(sourcePath);
 
-	//Set to header size.
-	std::vector< char > bytes(0x30);
-	//Write header.
-	GenerateHeader(bytes);
-
 	tinyxml2::XMLDocument doc;
 	doc.LoadFile(UTF8Path.c_str());
 
 	tinyxml2::XMLNode* header = doc.FirstChildElement("MDB");
-	tinyxml2::XMLElement* entry, * entry2, * entry3, * entry4, * entry5, * entry6;
+	tinyxml2::XMLElement* entry, * entry2;
 
 	// read model name table (if there is)
 	bool NoNameTable = false;
@@ -1097,7 +1114,7 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 
 			std::wcout << modelName + L", ";
 		}
-		std::wcout << L"\nLoading completed!\n";
+		std::wcout << L"\nLoading completed!\n\n";
 	}
 	// read texture table (if there is)
 	bool NoTexTable = false;
@@ -1114,6 +1131,7 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 		{
 			m_vecTexture.push_back( GetTexture(entry2) );
 		}
+		std::wcout << L"Loading completed!\n\n";
 	}
 	// read bone list (it must exist)
 	entry = header->FirstChildElement("BoneLists");
@@ -1127,16 +1145,55 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	else
 	{
 		std::wcout << L"Converting BoneLists:\n";
-		for (entry2 = header->FirstChildElement(); entry2 != 0; entry2 = entry2->NextSiblingElement("Bone"))
+		for (entry2 = entry->FirstChildElement(); entry2 != 0; entry2 = entry2->NextSiblingElement("Bone"))
 		{
+			m_vecBone.push_back( GetBone(entry2, NoNameTable) );
 		}
+		std::wcout << L"-> bone count: " + ToString(BoneCount) + L"\n\n";
+	}
+	// read model list (it must exist)
+	entry = header->FirstChildElement("ObjectLists");
+	if (entry == nullptr)
+	{
+		std::wcout << L"Required \'ObjectLists\' do not exist!\n";
+		//terminate program
+		system("pause");
+		exit(0);
+	}
+	else
+	{
+		std::wcout << L"Converting objects:\n";
+		for (entry2 = entry->FirstChildElement(); entry2 != 0; entry2 = entry2->NextSiblingElement("Object"))
+		{
+			std::wcout << L"read model:\n";
+			m_vecObject.push_back( GetModel(entry2, NoNameTable, multcore) );
+			std::wcout << L"write model complete!\n\n";
+		}
+		std::wcout << L"-> object count: " + ToString(ObjectCount) + L"\n\n";
+	}
+	// read material list (it must exist)
+	entry = header->FirstChildElement("Materials");
+	if (entry == nullptr)
+	{
+		std::wcout << L"Required \'Materials\' do not exist!\n";
+		//terminate program
+		system("pause");
+		exit(0);
+	}
+	else
+	{
+		std::wcout << L"Converting Materials:\n";
+		for (entry2 = entry->FirstChildElement(); entry2 != 0; entry2 = entry2->NextSiblingElement("MaterialNode"))
+		{
+			m_vecMaterial.push_back( GetMaterial(entry2, NoNameTable, NoTexTable) );
+		}
+		std::wcout << L"-> material count: " + ToString(MaterialCount) + L"\n\n";
 	}
 
-	/*
-	for (entry = header->FirstChildElement(); entry != 0; entry = entry->NextSiblingElement())
-	{
-	}
-	*/
+	//Set to header size.
+	std::vector< char > bytes(0x30);
+	//Write header.
+	GenerateHeader(bytes);
 
 	//Push name table count
 	Set4BytesInFile(bytes, 0x8, NameTableCount);
@@ -1148,6 +1205,19 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 
 		for (int j = 0; j < 4; j++)
 			bytes.push_back(0);
+	}
+
+	//Push bone list count
+	Set4BytesInFile(bytes, 0x10, BoneCount);
+	//Push bone list offset
+	Set4BytesInFile(bytes, 0x14, bytes.size());
+	//Push bone list
+	for (size_t i = 0; i < m_vecBone.size(); i++)
+	{
+		for (size_t j = 0; j < m_vecBone[i].bytes.size(); j++)
+		{
+			bytes.push_back(m_vecBone[i].bytes[j]);
+		}
 	}
 
 	//Push texture table count
@@ -1163,6 +1233,150 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 			bytes.push_back(m_vecTexture[i].bytes[j]);
 		}
 	}
+
+	//Push material list count
+	Set4BytesInFile(bytes, 0x20, MaterialCount);
+	//Push material list offset
+	Set4BytesInFile(bytes, 0x24, bytes.size());
+	//Push material list
+	for (size_t i = 0; i < m_vecMaterial.size(); i++)
+	{
+		m_vecMatPos.push_back(bytes.size());
+		for (size_t j = 0; j < m_vecMaterial[i].bytes.size(); j++)
+		{
+			bytes.push_back(m_vecMaterial[i].bytes[j]);
+		}
+	}
+	//Push material list parameter
+	for (size_t i = 0; i < m_vecMaterialPtr.size(); i++)
+	{
+		m_vecMatPtrPos.push_back(bytes.size());
+		for (size_t j = 0; j < m_vecMaterialPtr[i].bytes.size(); j++)
+		{
+			bytes.push_back(m_vecMaterialPtr[i].bytes[j]);
+		}
+	}
+	//Push material list texture
+	for (size_t i = 0; i < m_vecMaterialTex.size(); i++)
+	{
+		m_vecMatTexPos.push_back(bytes.size());
+		for (size_t j = 0; j < m_vecMaterialTex[i].bytes.size(); j++)
+		{
+			bytes.push_back(m_vecMaterialTex[i].bytes[j]);
+		}
+	}
+	//Actually a material's parameters and texture are together,
+	//Now output parameters and textures separately.
+	//Write parameter offset to material
+	int matptrNum = 0;
+	int mattexNum = 0;
+	for (size_t i = 0; i < m_vecMatPos.size(); i++)
+	{
+		Set4BytesInFile(bytes, (m_vecMatPos[i] + 0x0C), (m_vecMatPtrPos[matptrNum] - m_vecMatPos[i]));
+		matptrNum += m_vecMaterial[i].PtrCount;
+		Set4BytesInFile(bytes, (m_vecMatPos[i] + 0x14), (m_vecMatTexPos[mattexNum] - m_vecMatPos[i]));
+		mattexNum += m_vecMaterial[i].TexCount;
+	}
+
+	//Push model list count
+	Set4BytesInFile(bytes, 0x18, ObjectCount);
+	//Push model list offset
+	Set4BytesInFile(bytes, 0x1C, bytes.size());
+	//Push model list
+	for (size_t i = 0; i < m_vecObject.size(); i++)
+	{
+		m_vecModelPos.push_back(bytes.size());
+		for (size_t j = 0; j < m_vecObject[i].bytes.size(); j++)
+		{
+			bytes.push_back(m_vecObject[i].bytes[j]);
+		}
+	}
+	//Push model info
+	for (size_t i = 0; i < m_vecObjInfo.size(); i++)
+	{
+		m_vecObjInfoPos.push_back(bytes.size());
+		for (size_t j = 0; j < m_vecObjInfo[i].bytes.size(); j++)
+		{
+			bytes.push_back(m_vecObjInfo[i].bytes[j]);
+		}
+	}
+	//Push model layout
+	for (size_t i = 0; i < m_vecObjLayout.size(); i++)
+	{
+		m_vecObjLayPos.push_back(bytes.size());
+		for (size_t j = 0; j < m_vecObjLayout[i].bytes.size(); j++)
+		{
+			bytes.push_back(m_vecObjLayout[i].bytes[j]);
+		}
+		//Data tails for each model may need to be aligned
+		//AlignFileTo16Bytes(bytes);
+	}
+	//Push model indices
+	for (size_t i = 0; i < m_vecObjIndices.size(); i++)
+	{
+		// write offset to model info
+		Set4BytesInFile(bytes, (m_vecObjInfoPos[i] + 0x24), (bytes.size() - m_vecObjInfoPos[i]));
+		for (size_t j = 0; j < m_vecObjIndices[i].bytes.size(); j++)
+		{
+			bytes.push_back(m_vecObjIndices[i].bytes[j]);
+		}
+		//AlignFileTo16Bytes(bytes);
+	}
+	//Push model vertices
+	for (size_t i = 0; i < m_vecObjVertices.size(); i++)
+	{
+		// write offset to model info
+		Set4BytesInFile(bytes, (m_vecObjInfoPos[i] + 0x1C), (bytes.size() - m_vecObjInfoPos[i]));
+		for (size_t j = 0; j < m_vecObjVertices[i].bytes.size(); j++)
+		{
+			bytes.push_back(m_vecObjVertices[i].bytes[j]);
+		}
+		// The last one does not need to be aligned
+		/*
+		if((i+1) < m_vecObjVertices.size())
+			AlignFileTo16Bytes(bytes);
+		*/
+	}
+	//Write parameter offset to model
+	int modelInfoNum = 0;
+	for (size_t i = 0; i < m_vecModelPos.size(); i++)
+	{
+		Set4BytesInFile(bytes, (m_vecModelPos[i] + 0x0C), (m_vecObjInfoPos[modelInfoNum] - m_vecModelPos[i]));
+		modelInfoNum += m_vecObject[i].infoCount;
+	}
+	//Write parameter offset to model info
+	int MIlayoutNum = 0;
+	for (size_t i = 0; i < m_vecObjInfoPos.size(); i++)
+	{
+		Set4BytesInFile(bytes, (m_vecObjInfoPos[i] + 0x0C), (m_vecObjLayPos[MIlayoutNum] - m_vecObjInfoPos[i]));
+		MIlayoutNum += m_vecObjInfo[i].LayoutCount;
+	}
+
+	//Push strings
+	for (size_t i = 0; i < m_vecStrns.size(); i++)
+	{
+		int strpos = bytes.size();
+		PushStringToVector(m_vecStrns[i], &bytes);
+		//write string offset
+		//in material list:
+		for (size_t j = 0; j < m_vecMatPtrPos.size(); j++)
+		{
+			if (m_vecMaterialPtr[j].ptrname == m_vecStrns[i])
+				Set4BytesInFile(bytes, (m_vecMatPtrPos[j] + 0x18), (strpos - m_vecMatPtrPos[j]) );
+		}
+		for (size_t j = 0; j < m_vecMatTexPos.size(); j++)
+		{
+			if (m_vecMaterialTex[j].textype == m_vecStrns[i])
+				Set4BytesInFile(bytes, (m_vecMatTexPos[j] + 0x4), (strpos - m_vecMatTexPos[j]) );
+		}
+		//in model list
+		for (size_t j = 0; j < m_vecObjLayPos.size(); j++)
+		{
+			if (m_vecObjLayout[j].name == m_vecStrns[i])
+				Set4BytesInFile(bytes, (m_vecObjLayPos[j] + 0xC), (strpos - m_vecObjLayPos[j]) );
+		}
+	}
+	bytes.push_back(0);
 	
 	//Push wide strings
 	for (size_t i = 0; i < m_vecWStrns.size(); i++)
@@ -1174,21 +1388,27 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 		for (size_t j = 0; j < m_vecNameTpos.size(); j++)
 		{
 			if (m_vecWNames[j] == m_vecWStrns[i])
-				Set4BytesInFile(bytes, m_vecNameTpos[j], strpos - m_vecNameTpos[j]);
+				Set4BytesInFile(bytes, m_vecNameTpos[j], (strpos - m_vecNameTpos[j]) );
 		}
 		//in texture table:
-		for (int j = 0; j < m_vecTexPos.size(); j++)
+		for (size_t j = 0; j < m_vecTexPos.size(); j++)
 		{
 			if (m_vecTexture[j].mapping == m_vecWStrns[i])
-				Set4BytesInFile(bytes, m_vecTexPos[j] + 0x4, strpos - m_vecTexPos[j]);
+				Set4BytesInFile(bytes, (m_vecTexPos[j] + 0x4), (strpos - m_vecTexPos[j]) );
 			if (m_vecTexture[j].filename == m_vecWStrns[i])
-				Set4BytesInFile(bytes, m_vecTexPos[j] + 0x8, strpos - m_vecTexPos[j]);
+				Set4BytesInFile(bytes, (m_vecTexPos[j] + 0x8), (strpos - m_vecTexPos[j]) );
+		}
+		//in material list:
+		for (size_t j = 0; j < m_vecMatPos.size(); j++)
+		{
+			if (m_vecMaterial[j].shader == m_vecWStrns[i])
+				Set4BytesInFile(bytes, (m_vecMatPos[j] + 0x8), (strpos - m_vecMatPos[j]) );
 		}
 	}
 
-	
+	std::wcout << L">> File Size: " + ToString((int)bytes.size()) + L" Bytes!\n";
 	//Final write.
-	/*
+	/**/
 	std::ofstream newFile(path + L".mdb", std::ios::binary | std::ios::out | std::ios::ate);
 	
 	for (int i = 0; i < bytes.size(); i++)
@@ -1197,8 +1417,19 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	}
 	
 	newFile.close();
-	*/
+	
 	std::wcout << L"Conversion completed: " + sourcePath + L"\n";
+}
+
+void CXMLToMDB::AlignFileTo16Bytes(std::vector<char>& bytes)
+{
+	//align size to 16 bytes
+	int filesize = bytes.size() % 16;
+	if (filesize > 0)
+	{
+		for (int i = filesize; i < 16; i++)
+			bytes.push_back(0);
+	}
 }
 
 void CXMLToMDB::Set4BytesInFile(std::vector<char>& bytes, int pos, int value)
@@ -1224,6 +1455,25 @@ void CXMLToMDB::GenerateHeader(std::vector< char >& bytes)
 	bytes[4] = 0x14;
 	//NameTable starts at 0x30
 	bytes[0xC] = 0x30;
+}
+
+void CXMLToMDB::WriteWStringToTemp(std::wstring wstr)
+{
+	//Check string array:
+	bool found = false;
+	for (size_t strID = 0; strID < m_vecWStrns.size(); strID++)
+	{
+		if (m_vecWStrns[strID] == wstr)
+		{
+			found = true;
+			break;
+		}
+	}
+	if (!found)
+	{
+		m_vecWStrns.push_back(wstr);
+	}
+	NameTableCount++;
 }
 
 MDBTexture CXMLToMDB::GetTexture(tinyxml2::XMLElement* entry2)
@@ -1263,22 +1513,656 @@ MDBTexture CXMLToMDB::GetTexture(tinyxml2::XMLElement* entry2)
 	return out;
 }
 
-void CXMLToMDB::WriteWStringToTemp(std::wstring wstr)
+MDBBone CXMLToMDB::GetBone(tinyxml2::XMLElement* entry2, bool NoNameTable)
 {
-	//Check string array:
-	bool found = false;
-	for (size_t strID = 0; strID < m_vecWStrns.size(); strID++)
+	MDBBone out;
+	tinyxml2::XMLElement* entry3;
+
+	entry3 = entry2->FirstChildElement("name");
+	int nameid = entry3->IntAttribute("id");
+	if (!NoNameTable && nameid)
 	{
-		if (m_vecWStrns[strID] == wstr)
+		out.index[0] = nameid;
+	}
+	else
+	{
+		std::wstring wstr = UTF8ToWide(entry3->GetText());
+		// Check if name exists in table
+		bool found = false;
+		for (size_t strID = 0; strID < m_vecWNames.size(); strID++)
+		{
+			if (m_vecWNames[strID] == wstr)
+			{
+				found = true;
+				out.index[0] = strID;
+				break;
+			}
+		}
+		if (!found)
+		{
+			out.index[0] = m_vecWNames.size();
+			m_vecWNames.push_back(wstr);
+			NameCount++;
+		}
+		WriteWStringToTemp(wstr);
+	}
+
+	out.index[1] = entry2->FirstChildElement("parent")->IntAttribute("value");
+
+	entry3 = entry2->FirstChildElement("IK");
+	out.index[2] = entry3->IntAttribute("root");
+	out.index[3] = entry3->IntAttribute("next");
+	out.index[4] = entry3->IntAttribute("current");
+
+	out.bytes.resize(0xC0);
+	memcpy(&out.bytes[0], &out.index[0], 20U);
+	// ubyte 4x3
+	for (int i = 0; i < 3; i++)
+	{
+		entry3 = entry3->NextSiblingElement("weight");
+		out.weight[i][0] = entry3->IntAttribute("x");
+		out.weight[i][1] = entry3->IntAttribute("y");
+		out.weight[i][2] = entry3->IntAttribute("z");
+		out.weight[i][3] = entry3->IntAttribute("w");
+	}
+	memcpy(&out.bytes[0x14], &out.weight[0][0], 12U);
+	// matrix1 4x4
+	for (int i = 0; i < 4; i++)
+	{
+		entry3 = entry3->NextSiblingElement("float");
+		out.matrix1[i][0] = entry3->FloatAttribute("x");
+		out.matrix1[i][1] = entry3->FloatAttribute("y");
+		out.matrix1[i][2] = entry3->FloatAttribute("z");
+		out.matrix1[i][3] = entry3->FloatAttribute("w");
+	}
+	memcpy(&out.bytes[0x20], &out.matrix1[0][0], 64U);
+	// matrix2 4x4
+	for (int i = 0; i < 4; i++)
+	{
+		entry3 = entry3->NextSiblingElement("float");
+		out.matrix2[i][0] = entry3->FloatAttribute("x");
+		out.matrix2[i][1] = entry3->FloatAttribute("y");
+		out.matrix2[i][2] = entry3->FloatAttribute("z");
+		out.matrix2[i][3] = entry3->FloatAttribute("w");
+	}
+	memcpy(&out.bytes[0x60], &out.matrix2[0][0], 64U);
+	// fg 2x4
+	for (int i = 0; i < 2; i++)
+	{
+		entry3 = entry3->NextSiblingElement();
+		out.fg[i][0] = entry3->FloatAttribute("x");
+		out.fg[i][1] = entry3->FloatAttribute("y");
+		out.fg[i][2] = entry3->FloatAttribute("z");
+		out.fg[i][3] = entry3->FloatAttribute("w");
+	}
+	memcpy(&out.bytes[0xA0], &out.fg[0][0], 32U);
+
+	BoneCount++;
+
+	return out;
+}
+
+void CXMLToMDB::WriteRawToByte(std::string& argsStrn, std::vector<char> &buf, int pos)
+{
+	if (argsStrn.length() % 2 > 0)
+	{
+		argsStrn = ("0" + argsStrn);
+	}
+	int count = 0;
+	//Convert to hex.
+	for (unsigned int i = 0; i < argsStrn.length(); i += 2)
+	{
+		std::string byteString = argsStrn.substr(i, 2);
+		buf[pos + count] = (char)std::stol(byteString.c_str(), NULL, 16);
+		count++;
+	}
+}
+
+MDBMaterial CXMLToMDB::GetMaterial(tinyxml2::XMLElement* entry2, bool NoNameTable, bool NoTexTable)
+{
+	MDBMaterial out;
+	tinyxml2::XMLElement* entry3, *entry4;
+	std::wstring wstr;
+	std::string argsStrn;
+
+	out.PtrCount = 0;
+	out.TexCount = 0;
+
+	out.bytes.resize(0x20);
+
+	entry3 = entry2->FirstChildElement("raw");
+	argsStrn = entry3->GetText();
+	WriteRawToByte(argsStrn, out.bytes, 0);
+	// read material name
+	entry3 = entry2->FirstChildElement("MaterialName");
+	int nameid = entry3->IntAttribute("MatID");
+	if (!NoNameTable && nameid)
+	{
+		out.matid = nameid;
+	}
+	else
+	{
+		std::wstring wstr = UTF8ToWide(entry3->GetText());
+		// Check if name exists in table
+		bool found = false;
+		for (size_t strID = 0; strID < m_vecWNames.size(); strID++)
+		{
+			if (m_vecWNames[strID] == wstr)
+			{
+				found = true;
+				out.matid = strID;
+				break;
+			}
+		}
+		if (!found)
+		{
+			out.matid = m_vecWNames.size();
+			m_vecWNames.push_back(wstr);
+			NameCount++;
+		}
+		WriteWStringToTemp(wstr);
+		wstr.clear();
+	}
+	memcpy(&out.bytes[4], &out.matid, 4U);
+	//read shader name
+	//note! it is not stored in the name table!
+	entry3 = entry2->FirstChildElement("Shader");
+	wstr = UTF8ToWide(entry3->Attribute("Name"));
+	WriteWStringToTemp(wstr);
+	out.shader = wstr;
+	wstr.clear();
+	// read parameter
+	out.PtrCount = 0;
+	for (entry4 = entry3->FirstChildElement("Parameter"); entry4 != 0; entry4 = entry4->NextSiblingElement("Parameter"))
+	{
+		m_vecMaterialPtr.push_back(GetMaterialParameter(entry4));
+		out.PtrCount++;
+	}
+	memcpy(&out.bytes[0x10], &out.PtrCount, 4U);
+	// read texture
+	out.TexCount = 0;
+	for (entry4 = entry3->FirstChildElement("Texture"); entry4 != 0; entry4 = entry4->NextSiblingElement("Texture"))
+	{
+		m_vecMaterialTex.push_back(GetMaterialTexture(entry4, NoTexTable));
+		out.TexCount++;
+	}
+	memcpy(&out.bytes[0x18], &out.TexCount, 4U);
+
+	entry3 = entry3->NextSiblingElement("raw");
+	argsStrn = entry3->GetText();
+	WriteRawToByte(argsStrn, out.bytes, 0x1C);
+	argsStrn.clear();
+
+	MaterialCount++;
+
+	return out;
+}
+
+void CXMLToMDB::WriteStringToTemp(std::string str)
+{
+	bool found = false;
+	for (size_t strID = 0; strID < m_vecStrns.size(); strID++)
+	{
+		if (m_vecStrns[strID] == str)
 		{
 			found = true;
 			break;
 		}
 	}
 	if (!found)
+		m_vecStrns.push_back(str);
+}
+
+MDBMaterialPtr CXMLToMDB::GetMaterialParameter(tinyxml2::XMLElement* entry4)
+{
+	MDBMaterialPtr out;
+	tinyxml2::XMLElement *entry5;
+	std::string argsStrn;
+
+	argsStrn = entry4->Attribute("Name");
+	WriteStringToTemp(argsStrn);
+	out.ptrname = argsStrn;
+
+	entry5 = entry4->FirstChildElement("Color");
+	out.r = entry5->FloatAttribute("r");
+	out.g = entry5->FloatAttribute("g");
+	out.b = entry5->FloatAttribute("b");
+	out.a = entry5->FloatAttribute("a");
+
+	out.bytes.resize(0x20);
+	memcpy(&out.bytes[0], &out.r, 4U);
+	memcpy(&out.bytes[4], &out.g, 4U);
+	memcpy(&out.bytes[8], &out.b, 4U);
+	memcpy(&out.bytes[12], &out.a, 4U);
+
+	entry5 = entry4->FirstChildElement("raw");
+	argsStrn = entry5->GetText();
+	WriteRawToByte(argsStrn, out.bytes, 0x10);
+
+	entry5 = entry5->NextSiblingElement("raw");
+	argsStrn = entry5->GetText();
+	WriteRawToByte(argsStrn, out.bytes, 0x1C);
+	
+	argsStrn.clear();
+
+	return out;
+}
+
+MDBMaterialTex CXMLToMDB::GetMaterialTexture(tinyxml2::XMLElement* entry4, bool NoTexTable)
+{
+	MDBMaterialTex out;
+	tinyxml2::XMLElement* entry5;
+	std::wstring wstr1, wstr2;
+	std::string argsStrn;
+	
+	entry5 = entry4->FirstChildElement("Name");
+	int nameid = entry5->IntAttribute("MatID");
+	int mipmap = entry5->IntAttribute("MIP");
+	if (!NoTexTable && nameid)
 	{
-		m_vecWStrns.push_back(wstr);
+		out.texid = nameid;
+	}
+	else
+	{
+		wstr2 = UTF8ToWide(entry5->GetText());
+		wstr1 = wstr2;
+		wstr1.replace(wstr1.find_last_of(L"."), 1U, L"_");
+		if (mipmap != 0)
+		{
+			wstr1 += ToString(mipmap);
+		}
+		// Check if texture exists in table
+		bool found = false;
+		for (size_t strID = 0; strID < m_vecTexture.size(); strID++)
+		{
+			if (m_vecTexture[strID].mapping == wstr1)
+			{
+				found = true;
+				out.texid = strID;
+				break;
+			}
+		}
+		if (!found)
+		{
+			out.texid = TextureCount;
+			m_vecTexture.push_back( GetTextureInMaterial(wstr1, wstr2) );
+		}
+	}
+	//read type
+	entry5 = entry4->FirstChildElement("Type");
+	argsStrn = entry5->GetText();
+	WriteStringToTemp(argsStrn);
+	out.textype = argsStrn;
+
+	out.bytes.resize(0x1C);
+	// write id
+	memcpy(&out.bytes[0], &out.texid, 4U);
+	
+	entry5 = entry4->FirstChildElement("raw");
+	argsStrn = entry5->GetText();
+	WriteRawToByte(argsStrn, out.bytes, 0x8);
+
+	argsStrn.clear();
+
+	return out;
+}
+
+MDBTexture CXMLToMDB::GetTextureInMaterial(std::wstring wstr1, std::wstring wstr2)
+{
+	MDBTexture out;
+
+	out.ID = TextureCount;
+	out.mapping = wstr1;
+	WriteWStringToTemp(wstr1);
+	out.filename = wstr2;
+	WriteWStringToTemp(wstr2);
+
+	out.bytes.resize(0x10);
+	// write index
+	char* idBytes = IntToBytes(out.ID);
+	out.bytes[0] = idBytes[0];
+	out.bytes[1] = idBytes[1];
+	out.bytes[2] = idBytes[2];
+	out.bytes[3] = idBytes[3];
+	free(idBytes);
+	// increment count
+	TextureCount++;
+
+	return out;
+}
+
+MDBObject CXMLToMDB::GetModel(tinyxml2::XMLElement* entry2, bool NoNameTable, bool multcore)
+{
+	MDBObject out;
+	tinyxml2::XMLElement* entry3;
+	int index[4] = { 0 };
+	// set object index
+	index[0] = ObjectCount;
+	out.ID = index[0];
+	// get name
+	int nameid = entry2->IntAttribute("ID");
+	if (!NoNameTable && nameid)
+	{
+		index[1] = nameid;
+	}
+	else
+	{
+		entry3 = entry2->FirstChildElement("name");
+		std::wstring wstr = UTF8ToWide(entry3->GetText());
+		// Check if name exists in table
+		bool found = false;
+		for (size_t strID = 0; strID < m_vecWNames.size(); strID++)
+		{
+			if (m_vecWNames[strID] == wstr)
+			{
+				found = true;
+				index[1] = strID;
+				break;
+			}
+		}
+		if (!found)
+		{
+			index[1] = m_vecWNames.size();
+			m_vecWNames.push_back(wstr);
+			NameCount++;
+		}
+		WriteWStringToTemp(wstr);
+		wstr.clear();
+	}
+	out.Nameid = index[1];
+	// read mesh count
+	for (entry3 = entry2->FirstChildElement("Mesh"); entry3 != 0; entry3 = entry3->NextSiblingElement("Mesh"))
+	{
+		std::wcout << L"read mesh: " + ToString(index[2]) + L"\n";
+
+		m_vecObjInfo.push_back(GetMeshInModel(entry3, index[2], multcore));
+		index[2] += 1;
+
+		std::wcout << L"write mesh complete!\n";
+	}
+	out.infoCount = index[2];
+	out.infoOffset = index[3];
+
+	out.bytes.resize(0x10);
+	memcpy(&out.bytes[0], &index, 16U);
+
+	ObjectCount++;
+
+	return out;
+}
+
+int CXMLToMDB::GetMeshLayoutSize(tinyxml2::XMLElement* entry5)
+{
+	int chunkSize, chunkType;
+	chunkType = entry5->IntAttribute("type");
+
+	if (chunkType == 1)
+		chunkSize = 16;
+	else if (chunkType == 4)
+		chunkSize = 12;
+	else if (chunkType == 7)
+		chunkSize = 8;
+	else if (chunkType == 12)
+		chunkSize = 8;
+	else if (chunkType == 21)
+		chunkSize = 4;
+
+	return chunkSize;
+}
+
+MDBObjectInfo CXMLToMDB::GetMeshInModel(tinyxml2::XMLElement* entry3, int index, bool multcore)
+{
+	MDBObjectInfo out;
+	tinyxml2::XMLElement* entry4, *entry5, *entry6;
+	std::string argsStrn;
+	std::vector< MDBObjectLayout > objlay;
+
+	out.bytes.resize(0x28);
+	// get material id
+	out.matid = entry3->IntAttribute("MatID");
+	memcpy(&out.bytes[4], &out.matid, 4U);
+	// read raw
+	entry4 = entry3->FirstChildElement("raw");
+	argsStrn = entry4->GetText();
+	WriteRawToByte(argsStrn, out.bytes, 0);
+
+	entry4 = entry4->NextSiblingElement("raw");
+	argsStrn = entry4->GetText();
+	WriteRawToByte(argsStrn, out.bytes, 0x8);
+	// get layout
+	uint16_t count[2] = { 0 };
+	entry4 = entry3->FirstChildElement("VertexList");
+	for (entry5 = entry4->FirstChildElement(); entry5 != 0; entry5 = entry5->NextSiblingElement())
+	{
+		objlay.push_back( GetLayoutInModel(entry5, count[0]) );
+		//push bytes
+		m_vecObjLayout.push_back(GetLayoutInModel(objlay.back(), 0x10));
+		
+		count[0] += GetMeshLayoutSize(entry5);
+		count[1] += 1;
+	}
+	out.VertexSize = count[0];
+	out.LayoutCount = count[1];
+	memcpy(&out.bytes[0x10], &count, 4U);
+	// get number of vertices
+	int vexNum = 0;
+	entry5 = entry4->FirstChildElement();
+	for (entry6 = entry5->FirstChildElement("V"); entry6 != 0; entry6 = entry6->NextSiblingElement("V"))
+		vexNum++;
+	out.VertexNum = vexNum;
+	memcpy(&out.bytes[0x14], &out.VertexNum, 4U);
+	// write vertex!
+	entry4 = entry3->FirstChildElement("VertexList");
+	m_vecObjVertices.push_back(GetVerticesInModel(objlay, count[0], entry4, vexNum, count[1], multcore));
+	// set index
+	out.MeshIndex = index;
+	memcpy(&out.bytes[0x18], &out.MeshIndex, 4U);
+	// get number of indices
+	int InxNum = 0;
+	entry4 = entry3->FirstChildElement("Indices");
+	for (entry5 = entry4->FirstChildElement("value"); entry5 != 0; entry5 = entry5->NextSiblingElement("value"))
+		InxNum++;
+	out.indicesNum = InxNum;
+	m_vecObjIndices.push_back(GetIndicesInModel(entry4, InxNum));
+	memcpy(&out.bytes[0x20], &out.indicesNum, 4U);
+
+	objlay.clear();
+
+	return out;
+}
+
+MDBObjectLayout CXMLToMDB::GetLayoutInModel(tinyxml2::XMLElement* entry5, int layoutofs)
+{
+	MDBObjectLayout out;
+
+	out.type = entry5->IntAttribute("type");
+	out.offset = layoutofs;
+	out.channel = entry5->IntAttribute("channel");
+
+	std::string argsStrn = entry5->Name();
+	WriteStringToTemp(argsStrn);
+	out.name = argsStrn;
+
+	out.bytes.resize(0x10);
+	memcpy(&out.bytes[0], &out.type, 4U);
+	memcpy(&out.bytes[4], &out.offset, 4U);
+	memcpy(&out.bytes[8], &out.channel, 4U);
+
+	return out;
+}
+
+MDBObjectLayoutOut CXMLToMDB::GetLayoutInModel(MDBObjectLayout objlay, int size)
+{
+	MDBObjectLayoutOut out;
+
+	out.name = objlay.name;
+
+	out.bytes.resize(size);
+	for (int i = 0; i < size; i++)
+		out.bytes[i] = objlay.bytes[i];
+
+	return out;
+}
+
+MDBByte CXMLToMDB::GetVerticesInModel(std::vector<MDBObjectLayout> objlay, int chunksize, tinyxml2::XMLElement* entry4, int num, int layout, bool multcore)
+{
+	MDBByte out;
+	out.bytes.resize(chunksize * num);
+
+	tinyxml2::XMLElement* entry5;
+	entry5 = entry4->FirstChildElement();
+	int offset = objlay[0].offset;
+	int type = objlay[0].type;
+	std::wstring wstr = UTF8ToWide(objlay[0].name);
+	std::wcout << L"read: " + wstr + L", ";
+	GetModelVertex(type, num, entry5, out.bytes, chunksize, offset);
+	std::wcout << L"write complete!\n";
+	//start looping to get
+	int layoutNum = objlay.size();
+	//Of course, starting from 1
+	for (int i = 1; i < layoutNum; i++)
+	{
+		entry5 = entry5->NextSiblingElement();
+		offset = objlay[i].offset;
+		type = objlay[i].type;
+		wstr = UTF8ToWide(objlay[i].name);
+		std::wcout << L"read: " + wstr + L", ";
+		GetModelVertex(type, num, entry5, out.bytes, chunksize, offset);
+		std::wcout << L"write complete!\n";
+	}
+	//for (entry5 = entry4->FirstChildElement(); entry5 != 0; entry5 = entry5->NextSiblingElement())
+	return out;
+}
+
+void CXMLToMDB::GetModelVertex(int type, int num, tinyxml2::XMLElement* entry5, std::vector< char >& bytes, int chunksize, int offset)
+{
+	int pos;
+	tinyxml2::XMLElement* entry6 = entry5->FirstChildElement("V");
+
+	if (type == 1)
+	{
+		float vf[4];
+
+		vf[0] = entry6->FloatAttribute("x");
+		vf[1] = entry6->FloatAttribute("y");
+		vf[2] = entry6->FloatAttribute("z");
+		vf[3] = entry6->FloatAttribute("w");
+		memcpy(&bytes[offset], &vf, 16U);
+
+		for (int i = 1; i < num; i++)
+		{
+			entry6 = entry6->NextSiblingElement("V");
+			vf[0] = entry6->FloatAttribute("x");
+			vf[1] = entry6->FloatAttribute("y");
+			vf[2] = entry6->FloatAttribute("z");
+			vf[3] = entry6->FloatAttribute("w");
+
+			pos = offset + (i * chunksize);
+			memcpy(&bytes[pos], &vf, 16U);
+		}
+	}
+	else if (type == 4)
+	{
+		float vf[3];
+
+		vf[0] = entry6->FloatAttribute("x");
+		vf[1] = entry6->FloatAttribute("y");
+		vf[2] = entry6->FloatAttribute("z");
+		memcpy(&bytes[offset], &vf, 12U);
+
+		for (int i = 1; i < num; i++)
+		{
+			entry6 = entry6->NextSiblingElement("V");
+			vf[0] = entry6->FloatAttribute("x");
+			vf[1] = entry6->FloatAttribute("y");
+			vf[2] = entry6->FloatAttribute("z");
+
+			pos = offset + (i * chunksize);
+			memcpy(&bytes[pos], &vf, 12U);
+		}
+	}
+	else if (type == 7)
+	{
+		half_float::half vf[4];
+
+		vf[0] = entry6->FloatAttribute("x");
+		vf[1] = entry6->FloatAttribute("y");
+		vf[2] = entry6->FloatAttribute("z");
+		vf[3] = entry6->FloatAttribute("w");
+		memcpy(&bytes[offset], &vf, 8U);
+
+		for (int i = 1; i < num; i++)
+		{
+			entry6 = entry6->NextSiblingElement("V");
+			vf[0] = entry6->FloatAttribute("x");
+			vf[1] = entry6->FloatAttribute("y");
+			vf[2] = entry6->FloatAttribute("z");
+			vf[3] = entry6->FloatAttribute("w");
+
+			pos = offset + (i * chunksize);
+			memcpy(&bytes[pos], &vf, 8U);
+		}
+	}
+	else if (type == 12)
+	{
+		float vf[2];
+
+		vf[0] = entry6->FloatAttribute("x");
+		vf[1] = entry6->FloatAttribute("y");
+		memcpy(&bytes[offset], &vf, 8U);
+
+		for (int i = 1; i < num; i++)
+		{
+			entry6 = entry6->NextSiblingElement("V");
+			vf[0] = entry6->FloatAttribute("x");
+			vf[1] = entry6->FloatAttribute("y");
+
+			pos = offset + (i * chunksize);
+			memcpy(&bytes[pos], &vf, 8U);
+		}
+	}
+	else if (type == 21)
+	{
+		unsigned char vf[4];
+
+		vf[0] = entry6->IntAttribute("x");
+		vf[1] = entry6->IntAttribute("y");
+		vf[2] = entry6->IntAttribute("z");
+		vf[3] = entry6->IntAttribute("w");
+		memcpy(&bytes[offset], &vf, 4U);
+
+		for (int i = 1; i < num; i++)
+		{
+			entry6 = entry6->NextSiblingElement("V");
+			vf[0] = entry6->IntAttribute("x");
+			vf[1] = entry6->IntAttribute("y");
+			vf[2] = entry6->IntAttribute("z");
+			vf[3] = entry6->IntAttribute("w");
+
+			pos = offset + (i * chunksize);
+			memcpy(&bytes[pos], &vf, 4U);
+		}
+	}
+}
+
+MDBByte CXMLToMDB::GetIndicesInModel(tinyxml2::XMLElement* entry4, int size)
+{
+	MDBByte out;
+	short value;
+
+	out.bytes.resize(size * 2);
+
+	tinyxml2::XMLElement* entry5 = entry4->FirstChildElement("value");
+	value = entry5->IntAttribute("value");
+	memcpy(&out.bytes[0], &value, 2U);
+	//Here we start at 1 because it is 0 above
+	for (int i = 1; i < size; i++)
+	{
+		entry5 = entry5->NextSiblingElement("value");
+		value = entry5->IntAttribute("value");
+		//The size of each value is 2, so take x2
+		memcpy(&out.bytes[i*2], &value, 2U);
 	}
 
-	NameTableCount++;
+	return out;
 }

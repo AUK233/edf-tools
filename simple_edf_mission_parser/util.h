@@ -8,6 +8,7 @@ void Read4BytesReversed(unsigned char* chunk, std::vector<char> buf, int pos);
 void ReadNBytesReversed(unsigned char* chunk, std::vector<char> buf, int pos, int num);
 
 std::string ReadRaw(std::vector<char> buf, int pos, int num);
+//wrong reading, do not use.
 short ReadInt16(std::vector<char> buf, int pos, bool swapEndian = false);
 uint16_t ReadUInt16(std::vector<char> buf, int pos, bool swapEndian = false);
 //Poor performance as a float and should not be used

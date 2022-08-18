@@ -69,6 +69,7 @@ std::string ReadRaw(std::vector<char> buf, int pos, int num)
 	return str;
 }
 
+//wrong reading, do not use.
 short ReadInt16(std::vector<char> buf, int pos, bool swapEndian)
 {
 	char chunk[2];
@@ -493,6 +494,8 @@ void PushStringToVector(std::string strn, std::vector< char >* bytes)
 	{
 		bytes->push_back(strn[i]);
 	}
+	//Zero terminate
+	bytes->push_back(0x0);
 }
 
 ///Function to write a wstring to a char vector
