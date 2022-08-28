@@ -204,10 +204,50 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					xmlBNode->SetAttribute("z", seg[2]);
 					xmlBNode->SetAttribute("w", seg[3]);
 				}
-				//Read Float
-				for (int j = 0; j < 10; j++)
+				//Read matrix1
+				for (int j = 0; j < 4; j++)
 				{
 					tpos = curtablepos + 0x20 + (j * 0x10);
+
+					tinyxml2::XMLElement* xmlBNode = xmlBone->InsertNewChildElement("mainTM");
+					float bf[4];
+
+					memcpy(&bf, &buffer[tpos], 16U);
+					xmlBNode->SetAttribute("x", bf[0]);
+					xmlBNode->SetAttribute("y", bf[1]);
+					xmlBNode->SetAttribute("z", bf[2]);
+					xmlBNode->SetAttribute("w", bf[3]);
+				}
+				//Read matrix2
+				for (int j = 0; j < 4; j++)
+				{
+					tpos = curtablepos + 0x60 + (j * 0x10);
+
+					tinyxml2::XMLElement* xmlBNode = xmlBone->InsertNewChildElement("skinTM");
+					float bf[4];
+
+					memcpy(&bf, &buffer[tpos], 16U);
+					xmlBNode->SetAttribute("x", bf[0]);
+					xmlBNode->SetAttribute("y", bf[1]);
+					xmlBNode->SetAttribute("z", bf[2]);
+					xmlBNode->SetAttribute("w", bf[3]);
+				}
+				//Read Position
+				{
+					tpos = curtablepos + 0xA0;
+
+					tinyxml2::XMLElement* xmlBNode = xmlBone->InsertNewChildElement("position");
+					float bf[4];
+
+					memcpy(&bf, &buffer[tpos], 16U);
+					xmlBNode->SetAttribute("x", bf[0]);
+					xmlBNode->SetAttribute("y", bf[1]);
+					xmlBNode->SetAttribute("z", bf[2]);
+					xmlBNode->SetAttribute("w", bf[3]);
+				}
+				//Read Float
+				{
+					tpos = curtablepos + 0xB0;
 
 					tinyxml2::XMLElement* xmlBNode = xmlBone->InsertNewChildElement("float");
 					float bf[4];
@@ -217,41 +257,11 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					xmlBNode->SetAttribute("y", bf[1]);
 					xmlBNode->SetAttribute("z", bf[2]);
 					xmlBNode->SetAttribute("w", bf[3]);
-					/*
-					unsigned char seg[4];
-					Read4BytesReversed(seg, buffer, tpos);
-					memcpy(&bf, &seg, 4U);
-					xmlBNode->SetAttribute("x", bf);
-					Read4BytesReversed(seg, buffer, tpos + 0x4);
-					memcpy(&bf, &seg, 4U);
-					xmlBNode->SetAttribute("y", bf);
-					Read4BytesReversed(seg, buffer, tpos + 0x8);
-					memcpy(&bf, &seg, 4U);
-					xmlBNode->SetAttribute("z", bf);
-					Read4BytesReversed(seg, buffer, tpos + 0xC);
-					memcpy(&bf, &seg, 4U);
-					xmlBNode->SetAttribute("w", bf);
-					*/
+
 					utf8str = ReadRaw(buffer, tpos, 0x10);
 					xmlBNode->SetText(utf8str.c_str());
 					xmlBNode->SetAttribute("debugPos", tpos);
 				}
-				//Raw hex
-				/*
-				for (int j = 0;j<10;j++)
-				{
-					int tpos = curtablepos + 0x14 + (j*0x10);
-					
-					utf8str = ReadRaw(buffer, tpos, 0x10);
-					tinyxml2::XMLElement* xmlBoneRaw = xmlBone->InsertNewChildElement("raw");
-					xmlBoneRaw->SetText(utf8str.c_str());
-					xmlBoneRaw->SetAttribute("inPos", tpos);
-				}
-				utf8str = ReadRaw(buffer, curtablepos + 180, 12);
-				tinyxml2::XMLElement* xmlBoneRaw2 = xmlBone->InsertNewChildElement("raw");
-				xmlBoneRaw2->SetText(utf8str.c_str());
-				xmlBoneRaw2->SetAttribute("inPos", curtablepos + 180);
-				*/
 			}
 			std::wcout << L"Completed!\n\n";
 		}
@@ -419,12 +429,12 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					}
 					//read the rest
 					
-					//Read indices
+					//Read faces
 					int iNum = objects_info.back().indicesNum;
-					std::wcout << L"Read indices......\n";
+					std::wcout << L"Read faces......\n";
 					std::wcout << L"Get count:" + ToString(iNum) + L"\n";
-
-					tinyxml2::XMLElement* xmlIndices = xmlMesh->InsertNewChildElement("Indices");
+					//Unify with the name in 3dmax
+					tinyxml2::XMLElement* xmlIndices = xmlMesh->InsertNewChildElement("Faces");
 					xmlIndices->SetAttribute("Count", iNum);
 
 					short int16;
@@ -488,6 +498,8 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 				tinyxml2::XMLElement* xmlMatSdr = xmlMat->InsertNewChildElement("Shader");
 				utf8str = WideToUTF8(materials.back().shader);
 				xmlMatSdr->SetAttribute("Name", utf8str.c_str());
+				xmlMatSdr->SetAttribute("ptrnum", materials.back().PtrCount);
+				xmlMatSdr->SetAttribute("texnum", materials.back().TexCount);
 				//Raw hex 2
 				utf8str = ReadRaw(buffer, curtablepos + 0x1C, 4);
 				tinyxml2::XMLElement* xmlMatRaw2 = xmlMat->InsertNewChildElement("raw");
@@ -542,14 +554,24 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					// If mapping and name have different lengths
 					std::wstring wstrm = textures[tempint].mapping;
 					std::wstring wstrn = textures[tempint].filename;
+					//check mapping length
+					size_t nnsize = wstrm.find_last_of(L"_") + 4;
 					size_t wmsize = wstrm.size();
-					size_t wnsize = wstrn.size();
 					// Truncate the tail of the mapping as a mipmap
 					std::string mipmap;
+					if (wmsize == nnsize)
+						mipmap = "0";
+					else
+						mipmap = WideToUTF8(wstrm.substr(nnsize, wmsize - nnsize));
+					//Now it has a problem
+					//so do not use it
+					/*
+					size_t wnsize = wstrn.size();
 					if (wmsize == wnsize)
 						mipmap = "0";
 					else
 						mipmap = WideToUTF8(wstrm.substr(wnsize, wmsize - wnsize));
+					*/
 
 					xmlMatTexID->SetAttribute("MIP", mipmap.c_str());
 					utf8str = WideToUTF8(wstrn);
@@ -1559,7 +1581,7 @@ MDBBone CXMLToMDB::GetBone(tinyxml2::XMLElement* entry2, bool NoNameTable)
 	// ubyte 4x3
 	for (int i = 0; i < 3; i++)
 	{
-		entry3 = entry3->NextSiblingElement("weight");
+		entry3 = entry3->NextSiblingElement();
 		out.weight[i][0] = entry3->IntAttribute("x");
 		out.weight[i][1] = entry3->IntAttribute("y");
 		out.weight[i][2] = entry3->IntAttribute("z");
@@ -1569,7 +1591,7 @@ MDBBone CXMLToMDB::GetBone(tinyxml2::XMLElement* entry2, bool NoNameTable)
 	// matrix1 4x4
 	for (int i = 0; i < 4; i++)
 	{
-		entry3 = entry3->NextSiblingElement("float");
+		entry3 = entry3->NextSiblingElement();
 		out.matrix1[i][0] = entry3->FloatAttribute("x");
 		out.matrix1[i][1] = entry3->FloatAttribute("y");
 		out.matrix1[i][2] = entry3->FloatAttribute("z");
@@ -1579,7 +1601,7 @@ MDBBone CXMLToMDB::GetBone(tinyxml2::XMLElement* entry2, bool NoNameTable)
 	// matrix2 4x4
 	for (int i = 0; i < 4; i++)
 	{
-		entry3 = entry3->NextSiblingElement("float");
+		entry3 = entry3->NextSiblingElement();
 		out.matrix2[i][0] = entry3->FloatAttribute("x");
 		out.matrix2[i][1] = entry3->FloatAttribute("y");
 		out.matrix2[i][2] = entry3->FloatAttribute("z");
@@ -1959,7 +1981,7 @@ MDBObjectInfo CXMLToMDB::GetMeshInModel(tinyxml2::XMLElement* entry3, int index,
 	memcpy(&out.bytes[0x18], &out.MeshIndex, 4U);
 	// get number of indices
 	int InxNum = 0;
-	entry4 = entry3->FirstChildElement("Indices");
+	entry4 = entry3->FirstChildElement("Faces");
 	for (entry5 = entry4->FirstChildElement("value"); entry5 != 0; entry5 = entry5->NextSiblingElement("value"))
 		InxNum++;
 	out.indicesNum = InxNum;

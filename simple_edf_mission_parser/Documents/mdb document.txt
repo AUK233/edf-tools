@@ -1,0 +1,26 @@
+The transformation matrix of the bones should be column-major.
+
+Because the offset matrix is (row-major):
+1, 0, 0, px
+0, 1, 0, py
+0, 0, 1, pz
+0, 0, 0, 1
+
+But the float value read is:
+1, 0, 0, 0
+0, 1, 0, 0
+0, 0, 1, 0
+px, py, pz, 1
+
+========================
+
+rotation matrix (row-major):
+D = rotation angle
+0  , -zD, yD
+zD , 0  , -xD
+-yD, xD , 0
+
+scale matrix (row-major):
+sx, 0, 0
+0, sy, 0
+0, 0, sz
