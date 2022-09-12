@@ -87,6 +87,7 @@
     <ClInclude Include="JSONAMLParser.h" />
     <ClInclude Include="MAB.h" />
     <ClInclude Include="MDB.h" />
+    <ClInclude Include="Middleware.h" />
     <ClInclude Include="MissionScript.h" />
     <ClInclude Include="ModManager.h" />
     <ClInclude Include="RAB.h" />
@@ -107,6 +108,7 @@
     <ClCompile Include="JSONAMLParser.cpp" />
     <ClCompile Include="MAB.cpp" />
     <ClCompile Include="MDB.cpp" />
+    <ClCompile Include="Middleware.cpp" />
     <ClCompile Include="MissionScript.cpp" />
     <ClCompile Include="ModManager.cpp" />
     <ClCompile Include="RAB.cpp" />

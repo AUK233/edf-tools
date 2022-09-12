@@ -182,12 +182,16 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 				script.reset();
 			}
 		}
+		else if (extension == L"sgo")
+		{
+			std::unique_ptr< SGO > sgoReader = std::make_unique< SGO >();
+			sgoReader->Read(strn);
+			sgoReader.reset();
+		}
 	}
 	else
 	{
 		//Search for valid files:
-
-
 	}
 }
 
