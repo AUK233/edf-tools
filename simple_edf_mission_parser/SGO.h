@@ -20,6 +20,12 @@ struct SGONodeName
 	int id;
 };
 
+struct SGOExtraData
+{
+	std::string name;
+	std::vector< char > bytes;
+};
+
 class SGO
 {
 public:
@@ -29,12 +35,18 @@ public:
 	void ReadSGOHeader(bool big_endian, std::vector<char> buffer);
 	void ReadSGONode(bool big_endian, std::vector<char> buffer, int nodepos, std::vector<SGONode>& datanode, int i, tinyxml2::XMLElement*& xmlNode, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader);
 
-	//Writing SGO from nodal data.
-	//void Write();
-	//char * GenerateHeader();
+	// Write
+	void Write(std::wstring path, tinyxml2::XMLNode* header);
+	std::vector< char > WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNode* header);
+	void GetNodeExtraData(tinyxml2::XMLElement* entry, int& nodePtrNum);
+	SGOExtraData GetExtraData(tinyxml2::XMLElement* entry, std::string dataName, tinyxml2::XMLNode* header);
+	SGOExtraData GetNodeData(tinyxml2::XMLElement* entry, int size, int pos, std::vector< char > & NodeBytes);
+	SGOExtraData GetNodeName(tinyxml2::XMLElement* entry, int pos, int NodeIndex);
 
 private:
-	std::map< std::wstring, SGONode * > node;
+	//std::map< std::wstring, SGONode * > node;
+
+	std::vector< std::string > SubDataGroup;
 
 	int DataNodeCount = 0;
 	int DataNodeOffset = 0;
@@ -42,6 +54,10 @@ private:
 	int DataNameOffset = 0;
 	int DataUnkCount = 0;
 	int DataUnkOffset = 0;
-
-	int m_iNumVariables;
+	// write
+	std::vector< std::string > NodeString;
+	std::vector< SGONodeName > NodeWString;
+	int WstrPos = 0;
+	std::vector< SGOExtraData > ExtraData;
+	std::vector< int > ExtraDataPos;
 };

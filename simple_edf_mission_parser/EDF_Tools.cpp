@@ -49,9 +49,11 @@ void init_locale(void)
 #include "MissionScript.h" //TODO: Implement mission script class that stores and proccess data
 #include "RMPA.h" //TODO: Implement RMPA class that stores and proccess data
 #include "RAB.h" //RAB extractor
-#include "SGO.h" //SGO parser.
 
-#include "MDB.h" //MDB parser.
+#include "SGO.h" //SGO parser
+#include "Middleware.h" //Data middleware
+
+#include "MDB.h" //MDB parser
 
 #include "ModManager.h"
 
@@ -167,6 +169,12 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 			script->Read(strn, onecore);
 			script.reset();
 		}
+		else if (extension == L"sgo")
+		{
+			std::unique_ptr< SGO > sgoReader = std::make_unique< SGO >();
+			sgoReader->Read(strn);
+			sgoReader.reset();
+		}
 		else if (extension == L"xml")
 		{
 			size_t xmlIndex = strn.find_last_of(L"_");
@@ -174,19 +182,19 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 			wstring xmlStrn = strn.substr(0, xmlIndex);
 
 			xmlExtension = ConvertToLower(xmlExtension);
-			// To MDB File, no need for multi-core.
+
 			if (xmlExtension == L"mdb")
 			{
+				// To MDB File, no need for multi-core.
 				unique_ptr< CXMLToMDB > script = make_unique< CXMLToMDB >();
 				script->Write(xmlStrn, false);
 				script.reset();
 			}
-		}
-		else if (extension == L"sgo")
-		{
-			std::unique_ptr< SGO > sgoReader = std::make_unique< SGO >();
-			sgoReader->Read(strn);
-			sgoReader.reset();
+			else if (xmlExtension == L"data")
+			{
+				//Data needs a function to judge the header.
+				CheckXMLHeader(xmlStrn);
+			}
 		}
 	}
 	else
