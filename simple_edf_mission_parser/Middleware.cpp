@@ -97,7 +97,7 @@ std::vector<char> CheckDataType(tinyxml2::XMLElement* Data, tinyxml2::XMLNode* h
 		}
 	}
 
-	std::wcout << L"\ndata size: " + ToString(int(bytes.size())) + L"\n\n";
+	//std::wcout << L"\ndata size: " + ToString(int(bytes.size())) + L"\n\n";
 
 	return bytes;
 }

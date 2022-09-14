@@ -265,7 +265,7 @@ void SGO::ReadSGONode(bool big_endian, std::vector<char> buffer, int nodepos, st
 		break;
 	}
 	// only debug
-	xmlNode->SetAttribute("debugPos", nodepos);
+	//xmlNode->SetAttribute("debugPos", nodepos);
 }
 
 void SGO::Write(std::wstring path, tinyxml2::XMLNode* header)
@@ -339,9 +339,15 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 
 	// compute node size
 	int i_NdataCount = DataNodeCount * 0xC;
+	// 16 byte alignment
+	int a_dataCount = i_NdataCount;
+	/*
+	if (i_NdataCount % 16 != 0)
+		a_dataCount = (i_NdataCount / 16 + 1) * 16;
+	*/
 	int i_NptrCount = nodePtrNum * 0xC;
 	int i_NnameCount = DataNameCount * 0x8;
-	int i_NdataSize = 0x20 + i_NdataCount + i_NptrCount;
+	int i_NdataSize = 0x20 + a_dataCount + i_NptrCount;
 	// 16 byte alignment
 	int a_datasize = i_NdataSize;
 	if (i_NdataSize % 16 != 0)
@@ -368,14 +374,15 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	{
 		SGONodeName NN;
 		NN.id = e_nodesize + strpos;
-		strpos += (NodeString[i].length() * 2);
-		strpos += 2;
 		NN.name = UTF8ToWide(NodeString[i]);
 		NodeWString.push_back(NN);
+		// Must be converted to UTF16 first, because UTF8 is not fixed length.
+		strpos += (NN.name.size() * 2);
+		strpos += 2;
 	}
 
 	// get node data
-	std::vector< char > NodeBytes(i_NdataCount);
+	std::vector< char > NodeBytes(a_dataCount);
 	//NodeBytes.resize(i_NdataCount);
 	std::vector< SGOExtraData > NodeData;
 	std::vector< SGOExtraData > NodeName;
@@ -439,6 +446,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 		PushWStringToVector(NodeWString[i].name, &bytes);
 
 	// debug only
+	/*
 	std::wcout << L"String Size: " + ToString(int(NodeString.size())) + L"\n\n";
 
 	std::wcout << L"DataNodeCount: " + ToString(DataNodeCount) + L"\n";
@@ -448,7 +456,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	std::wcout << L"Align Data Size: " + ToString(a_nodesize) + L"\n";
 	std::wcout << L"SubDataGroup num: " + ToString(int(SubDataGroup.size())) + L"\n";
 	std::wcout << L"ExtraData num: " + ToString(int(ExtraData.size())) + L"\n";
-
+	*/
 	return bytes;
 }
 
@@ -524,14 +532,14 @@ SGOExtraData SGO::GetNodeData(tinyxml2::XMLElement* entry, int size, int pos, st
 		int offset = 0x20 + size;
 		tinyxml2::XMLElement* entry2;
 		// first, set placeholders
-		int count = 0;
 		for (entry2 = entry->FirstChildElement(); entry2 != 0; entry2 = entry2->NextSiblingElement())
-			count++;
-		for (int i = count * 0xC; i > 0; --i)
-			NodeBytes.push_back(0);
+		{
+			for (int i = 0; i < 12; i++)
+				NodeBytes.push_back(0);
+		}
 		// then, read data
 		std::vector< SGOExtraData > Data;
-		count = 0;
+		int count = 0;
 		for (entry2 = entry->FirstChildElement(); entry2 != 0; entry2 = entry2->NextSiblingElement())
 		{
 			Data.push_back(GetNodeData(entry2, NodeBytes.size(), (offset + (count * 0xC)), NodeBytes));
@@ -543,7 +551,7 @@ SGOExtraData SGO::GetNodeData(tinyxml2::XMLElement* entry, int size, int pos, st
 		// last, write data
 		int value[2];
 		value[0] = count;
-		value[1] = size - pos;
+		value[1] = offset - pos;
 		memcpy(&out.bytes[4], &value, 8U);
 	}
 	else if (nodeType == "int")

@@ -526,21 +526,4 @@ std::string WideToUTF8(const std::wstring& source)
 {
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
 	return conv.to_bytes(source);
-	/* not working very well
-	LPCWSTR inwstr = source.c_str();
-	int nlen = WideCharToMultiByte(CP_ACP, 0, inwstr, -1, NULL, 0, NULL, FALSE);
-	if (nlen == 0)
-		return std::string("");
-
-	char* todst = new char[nlen];
-	if (!todst)
-		return std::string("");
-
-	WideCharToMultiByte(CP_ACP, 0, inwstr, -1, todst, nlen, NULL, FALSE);
-
-	std::string str(todst);
-	delete[] todst;
-	todst = NULL;
-
-	return str;*/
 }
