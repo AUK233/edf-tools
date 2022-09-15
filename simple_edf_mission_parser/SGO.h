@@ -17,6 +17,7 @@ struct SGONode
 struct SGONodeName
 {
 	std::wstring name;
+	// as position when writing
 	int id;
 };
 

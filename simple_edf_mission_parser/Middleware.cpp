@@ -15,6 +15,7 @@
 #include "Middleware.h"
 #include "util.h"
 #include "SGO.h"
+#include "MAB.h"
 #include "include/tinyxml2.h"
 
 void CheckDataType(std::vector<char>& buffer, tinyxml2::XMLElement*& xmlHeader, std::string str)

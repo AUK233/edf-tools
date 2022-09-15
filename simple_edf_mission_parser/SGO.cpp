@@ -293,7 +293,24 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 {
 	std::vector< char > bytes;
 
-	tinyxml2::XMLElement* entry;
+	tinyxml2::XMLElement* entry = mainData->FirstChildElement();
+	// if empty content, return empty sgo
+	if (!entry)
+	{
+		bytes.resize(0x20);
+
+		bytes[0] = 0x53;
+		bytes[1] = 0x47;
+		bytes[2] = 0x4F;
+		bytes[4] = 0x02;
+		bytes[5] = 0x01;
+		bytes[0xC] = 0x20;
+		bytes[0x14] = 0x20;
+		bytes[0x1C] = 0x20;
+
+		return bytes;
+	}
+
 	// prefetch data size
 	int nodePtrNum = 0;
 	std::string dataName;
