@@ -37,6 +37,14 @@ void CheckDataType(std::vector<char>& buffer, tinyxml2::XMLElement*& xmlHeader, 
 		sgoReader->ReadData(buffer, NewXml, xmlHeader);
 		sgoReader.reset();
 	}
+	else if (header[0] == 0x4D && header[1] == 0x41 && header[2] == 0x42 && header[3] == 0x00)
+	{
+		NewXml->SetAttribute("header", "MAB");
+
+		std::unique_ptr< MAB > mabReader = std::make_unique< MAB >();
+		mabReader->ReadData(buffer, NewXml, xmlHeader);
+		mabReader.reset();
+	}
 	else
 	{
 		NewXml->SetAttribute("header", "RAW");
@@ -65,6 +73,12 @@ void CheckXMLHeader(std::wstring path)
 		writer->Write(path, header);
 		writer.reset();
 	}
+	else if (headerType == "MAB")
+	{
+		std::unique_ptr< MAB > writer = std::make_unique< MAB >();
+		writer->Write(path, header);
+		writer.reset();
+	}
 }
 
 // Check for the extra file header
@@ -76,6 +90,12 @@ std::vector<char> CheckDataType(tinyxml2::XMLElement* Data, tinyxml2::XMLNode* h
 	if (headerType == "SGO")
 	{
 		std::unique_ptr< SGO > writer = std::make_unique< SGO >();
+		bytes = writer->WriteData(Data, header);
+		writer.reset();
+	}
+	else if (headerType == "MAB")
+	{
+		std::unique_ptr< MAB > writer = std::make_unique< MAB >();
 		bytes = writer->WriteData(Data, header);
 		writer.reset();
 	}

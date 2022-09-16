@@ -7,6 +7,7 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
+#include <algorithm>
 
 #include <iostream>
 #include <locale>
@@ -111,6 +112,7 @@ void MAB::ReadBoneData(std::vector<char>& buffer, int curpos, tinyxml2::XMLEleme
 	{
 		int ptrpos = offset + (i * 0x20);
 		tinyxml2::XMLElement* xmlBPtr = xmlBNode->InsertNewChildElement("ptr");
+		xmlBPtr->SetAttribute("debugpos", ptrpos);
 
 		// get string offset
 		int strofs[2];
@@ -144,6 +146,9 @@ void MAB::ReadBoneData(std::vector<char>& buffer, int curpos, tinyxml2::XMLEleme
 		int vi[2];
 		memcpy(&vi, &buffer[ptrpos + 0x18], 8U);
 		xmlBPtr->SetAttribute("unknown", vi[0]);
+		if (vi[0] != 0)
+			std::wcout << L"Unknown value at position: " + ToString(ptrpos + 8) + L" - value: " + ToString(vi[0]) + L"\n";
+
 		// read extra
 		std::string namestr = "MAB_" + std::to_string(buffer.size()) + "_" + std::to_string(vi[1]);
 		xmlBPtr->SetAttribute("extra", namestr.c_str());
@@ -180,6 +185,41 @@ void MAB::ReadBoneTypeData(int type, std::vector<char>& buffer, int ptrpos, tiny
 		memcpy(&ivalue, &buffer[ptrpos + 0x14], 4U);
 		xmlNode->SetText(ivalue);
 	}
+	else if (type == 1)
+	{
+		tinyxml2::XMLElement* xmlNode;
+
+		// get offset of float group
+		int fofs[2];
+		memcpy(&fofs, &buffer[ptrpos + 0xC], 8U);
+		// set float group
+		for (int j = 0; j < 2; j++)
+		{
+			xmlNode = xmlBPtr->InsertNewChildElement("floatgroup");
+			float vf[4];
+			memcpy(&vf, &buffer[fofs[j]], 16U);
+			// output type help
+			switch (j)
+			{
+			case 0:
+				xmlNode->SetAttribute("name", "a");
+				break;
+			case 1:
+				xmlNode->SetAttribute("name", "b");
+				break;
+			default:
+				break;
+			}
+			// get float
+			Read4FloatData(xmlNode, vf);
+		}
+
+		// get int
+		xmlNode = xmlBPtr->InsertNewChildElement("int");
+		int ivalue;
+		memcpy(&ivalue, &buffer[ptrpos + 0x14], 4U);
+		xmlNode->SetText(ivalue);
+	}
 	else if (type == 2)
 	{
 		// get offset of float group
@@ -195,7 +235,7 @@ void MAB::ReadBoneTypeData(int type, std::vector<char>& buffer, int ptrpos, tiny
 			switch (j)
 			{
 			case 0:
-				xmlNode->SetAttribute("name", "a");
+				xmlNode->SetAttribute("name", "location");
 				break;
 			case 1:
 				xmlNode->SetAttribute("name", "b");
@@ -210,9 +250,40 @@ void MAB::ReadBoneTypeData(int type, std::vector<char>& buffer, int ptrpos, tiny
 			Read4FloatData(xmlNode, vf);
 		}
 	}
+	else if (type == 3 || type == 4)
+	{
+		tinyxml2::XMLElement* xmlNode;
+
+		// get offset of float group 1
+		int fofs1;
+		memcpy(&fofs1, &buffer[ptrpos + 0xC], 4U);
+		// set float group
+		xmlNode = xmlBPtr->InsertNewChildElement("floatgroup");
+		xmlNode->SetAttribute("name", "a");
+		float vf1[4];
+		memcpy(&vf1, &buffer[fofs1], 16U);
+		Read4FloatData(xmlNode, vf1);
+
+		// get float
+		xmlNode = xmlBPtr->InsertNewChildElement("float");
+		float fvalue;
+		memcpy(&fvalue, &buffer[ptrpos + 0x10], 4U);
+		xmlNode->SetText(fvalue);
+
+		// get offset of float group 2
+		int fofs2;
+		memcpy(&fofs2, &buffer[ptrpos + 0x14], 4U);
+		// set float group
+		xmlNode = xmlBPtr->InsertNewChildElement("floatgroup");
+		xmlNode->SetAttribute("name", "c");
+		float vf2[4];
+		memcpy(&vf2, &buffer[fofs2], 16U);
+		Read4FloatData(xmlNode, vf2);
+	}
 	else
 	{
-		std::wcout << L"Unknown type at position: " + ToString(ptrpos + 8) + L"\n";
+		std::wcout << L"Unknown type at position: " + ToString(ptrpos + 8) + L" - ";
+		std::wcout << L"Type: " + ToString(type) + L"\n";
 	}
 }
 
@@ -302,7 +373,7 @@ void MAB::ReadAnimeData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElem
 void MAB::ReadAnimeDataA(std::vector<char>& buffer, int pos, tinyxml2::XMLElement* xmlNode, tinyxml2::XMLElement* xmlHeader)
 {
 	tinyxml2::XMLElement* xmlptr = xmlNode->InsertNewChildElement("value");
-	//xmlptr->SetAttribute("debugpos", pos);
+	xmlptr->SetAttribute("debugpos", pos);
 
 	// get name
 	int strofs;
@@ -329,4 +400,531 @@ void MAB::ReadAnimeDataA(std::vector<char>& buffer, int pos, tinyxml2::XMLElemen
 	std::string namestr = "MAB_" + std::to_string(buffer.size()) + "_" + std::to_string(sgoofs);
 	xmlptr->SetAttribute("extra", namestr.c_str());
 	ReadExtraSGO(namestr, buffer, sgoofs, xmlHeader);
+}
+
+void MAB::Write(std::wstring path, tinyxml2::XMLNode* header)
+{
+	std::wcout << "Will output MAB file.\n";
+
+	tinyxml2::XMLElement* mainData = header->FirstChildElement("Main");
+
+	std::vector< char > bytes;
+	bytes = WriteData(mainData, header);
+
+	//Final write.
+	/**/
+	std::ofstream newFile(path + L".mab", std::ios::binary | std::ios::out | std::ios::ate);
+
+	for (int i = 0; i < bytes.size(); i++)
+	{
+		newFile << bytes[i];
+	}
+
+	newFile.close();
+	
+	std::wcout << L"Conversion completed: " + path + L".mab\n";
+}
+
+std::vector<char> MAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNode* header)
+{
+	std::vector< char > bytes;
+
+	tinyxml2::XMLElement *entry, *entry2, *entry3, *entry4;
+
+	// prefetch data size
+	std::string namestr;
+	// get bone count
+	int BonePtrNum = 0;
+	entry = mainData->FirstChildElement("Bone");
+	for (entry2 = entry->FirstChildElement("value"); entry2 != 0; entry2 = entry2->NextSiblingElement("value"))
+	{
+		for (entry3 = entry2->FirstChildElement("ptr"); entry3 != 0; entry3 = entry3->NextSiblingElement("ptr"))
+		{
+			namestr = entry3->Attribute("ExportBone");
+			GetMABString(namestr);
+
+			namestr = entry3->Attribute("Parent");
+			GetMABString(namestr);
+
+			GetMABExtraDataName(entry3);
+
+			BonePtrNum++;
+		}
+
+		BoneCount++;
+	}
+	// get anime count
+	int animePtrNum = 0;
+	entry = mainData->FirstChildElement("Anime");
+	for (entry2 = entry->FirstChildElement("value"); entry2 != 0; entry2 = entry2->NextSiblingElement("value"))
+	{
+		entry3 = entry2->FirstChildElement("name");
+		namestr = entry3->GetText();
+		GetMABString(namestr);
+
+		entry3 = entry2->FirstChildElement("ptrA");
+		for (entry4 = entry3->FirstChildElement("value"); entry4 != 0; entry4 = entry4->NextSiblingElement("value"))
+		{
+			namestr = entry4->Attribute("name");
+			GetMABString(namestr);
+
+			GetMABExtraDataName(entry4);
+
+			animePtrNum++;
+		}
+
+		AnimationCount++;
+	}
+
+	// generate size
+	int i_headerSize = 0x24;
+	// bone
+	BoneOffset = i_headerSize;
+	int i_boneSize = BoneCount * 0x8;
+	int i_bonePtrOfs = BoneOffset + i_boneSize;
+	int i_bonePtrSize = BonePtrNum * 0x20;
+	// anime
+	AnimationOffset = i_bonePtrOfs + i_bonePtrSize;
+	int i_animeSize = AnimationCount * 0x10;
+	int i_animePtrOfs = AnimationOffset + i_animeSize;
+	int i_animePtrSize = animePtrNum * 0x10;
+	// null pointer: 0xBABABABA
+	int i_nullSize = i_animePtrOfs + i_animePtrSize + 4;
+	int a_nullSize = i_nullSize;
+	if (i_nullSize % 16 != 0)
+		a_nullSize = (i_nullSize / 16 + 1) * 16;
+
+	// prefetch float data
+	FloatGroupOffset = a_nullSize;
+	entry = mainData->FirstChildElement("Bone");
+	for (entry2 = entry->FirstChildElement("value"); entry2 != 0; entry2 = entry2->NextSiblingElement("value"))
+	{
+		for (entry3 = entry2->FirstChildElement("ptr"); entry3 != 0; entry3 = entry3->NextSiblingElement("ptr"))
+		{
+			GetMABFloatGroup(entry3);
+		}
+	}
+	int i_floatSize = (FloatGroup.size() * 0x10);
+
+	// prefetch extra data
+	std::string dataName;
+	int i_extraOfs = a_nullSize + i_floatSize;
+	int i_extraPos = i_extraOfs;
+	for (entry = header->FirstChildElement("Subdata"); entry != 0; entry = entry->NextSiblingElement("Subdata"))
+	{
+		dataName = entry->Attribute("name");
+		for (size_t i = 0; i < SubDataGroup.size(); i++)
+		{
+			if (SubDataGroup[i] == dataName)
+			{
+				ExtraData.push_back(GetExtraData(entry, dataName, header, i_extraPos));
+				i_extraPos += ExtraData.back().bytes.size();
+				break;
+			}
+		}
+	}
+
+	// out string
+	StringOffset = i_extraPos;
+	std::sort(NodeString.begin(), NodeString.end());
+	int strpos = 0;
+	for (size_t i = 0; i < NodeString.size(); i++)
+	{
+		MABString NN;
+		NN.pos = StringOffset + strpos;
+		NN.name = UTF8ToWide(NodeString[i]);
+		NodeWString.push_back(NN);
+		// Must be converted to UTF16 first, because UTF8 is not fixed length.
+		strpos += (NN.name.size() * 2);
+		strpos += 2;
+	}
+	StringSize = strpos;
+
+	// get bone data
+	entry = mainData->FirstChildElement("Bone");
+	for (entry2 = entry->FirstChildElement("value"); entry2 != 0; entry2 = entry2->NextSiblingElement("value"))
+	{
+		boneData.push_back(GetMABBoneData(entry2, i_bonePtrOfs));
+	}
+
+	//get anime data
+	entry = mainData->FirstChildElement("Anime");
+	for (entry2 = entry->FirstChildElement("value"); entry2 != 0; entry2 = entry2->NextSiblingElement("value"))
+	{
+		animeData.push_back(GetMABAnimeData(entry2, i_animePtrOfs, i_nullSize-4));
+	}
+
+	// push bytes!
+	bytes.resize(0x24);
+	bytes[0] = 0x4D;
+	bytes[1] = 0x41;
+	bytes[2] = 0x42;
+	bytes[4] = 0x0F;
+	bytes[8] = 0x03;
+	// count
+	memcpy(&bytes[0xC], &BoneCount, 2U);
+	memcpy(&bytes[0xE], &AnimationCount, 2U);
+	memcpy(&bytes[0x10], &FloatGroupCount, 2U);
+	memcpy(&bytes[0x12], &StringSize, 2U);
+	//offset
+	bytes[0x14] = 0x24;
+	memcpy(&bytes[0x18], &AnimationOffset, 4U);
+	memcpy(&bytes[0x1C], &FloatGroupOffset, 4U);
+	memcpy(&bytes[0x20], &StringOffset, 4U);
+
+	// write bone
+	for (size_t i = 0; i < boneData.size(); i++)
+	{
+		for (size_t j = 0; j < boneData[i].bytes.size(); j++)
+			bytes.push_back(boneData[i].bytes[j]);
+	}
+
+	for (size_t i = 0; i < bonePtrData.size(); i++)
+	{
+		for (size_t j = 0; j < bonePtrData[i].bytes.size(); j++)
+			bytes.push_back(bonePtrData[i].bytes[j]);
+	}
+
+	// write anime
+	for (size_t i = 0; i < animeData.size(); i++)
+	{
+		for (size_t j = 0; j < animeData[i].bytes.size(); j++)
+			bytes.push_back(animeData[i].bytes[j]);
+	}
+
+	for (size_t i = 0; i < animePtrData.size(); i++)
+	{
+		for (size_t j = 0; j < animePtrData[i].bytes.size(); j++)
+			bytes.push_back(animePtrData[i].bytes[j]);
+	}
+
+	// write null pointer
+	for (int i = 0; i < 4; i++)
+		bytes.push_back(0xBA);
+	// check alignment
+	if (a_nullSize > i_nullSize)
+	{
+		for (int i = (a_nullSize - i_nullSize); i > 0; --i)
+			bytes.push_back(0xBA);
+	}
+
+	// write float group
+	for (size_t i = 0; i < FloatGroup.size(); i++)
+	{
+		for (size_t j = 0; j < FloatGroup[i].bytes.size(); j++)
+			bytes.push_back(FloatGroup[i].bytes[j]);
+	}
+
+	// write extra file
+	for (size_t i = 0; i < ExtraData.size(); i++)
+	{
+		for (size_t j = 0; j < ExtraData[i].bytes.size(); j++)
+			bytes.push_back(ExtraData[i].bytes[j]);
+	}
+	// write wide string
+	for (size_t i = 0; i < NodeWString.size(); i++)
+		PushWStringToVector(NodeWString[i].name, &bytes);
+
+	// debug only
+	/*
+	std::wcout << L"BoneCount: " + ToString(BoneCount) + L"\n";
+	std::wcout << L"BonePtrNum: " + ToString(BonePtrNum) + L"\n";
+	std::wcout << L"AnimationCount: " + ToString(AnimationCount) + L"\n";
+	std::wcout << L"animePtrNum: " + ToString(animePtrNum) + L"\n";
+
+	std::wcout << L"FloatGroupOffset: " + ToString(FloatGroupOffset) + L"\n";
+	std::wcout << L"FloatGroupCount: " + ToString(FloatGroupCount) + L"\n";
+	std::wcout << L"FloatGroupSize: " + ToString(i_floatSize) + L"\n";
+
+	std::wcout << L"Extra Data End: " + ToString(i_extraPos) + L"\n";
+	*/
+	return bytes;
+}
+
+void MAB::GetMABString(std::string namestr)
+{
+	bool subexist = false;
+	// check for duplicates
+	for (size_t i = 0; i < NodeString.size(); i++)
+	{
+		if (NodeString[i] == namestr)
+		{
+			subexist = true;
+			break;
+		}
+	}
+
+	if (!subexist)
+		NodeString.push_back(namestr);
+}
+
+void MAB::GetMABExtraDataName(tinyxml2::XMLElement* data)
+{
+	std::string namestr = data->Attribute("extra");
+	bool subexist = false;
+	// check for duplicates
+	for (size_t i = 0; i < SubDataGroup.size(); i++)
+	{
+		if (SubDataGroup[i] == namestr)
+		{
+			subexist = true;
+			break;
+		}
+	}
+
+	if (!subexist)
+		SubDataGroup.push_back(namestr);
+}
+
+void MAB::GetMABFloatGroup(tinyxml2::XMLElement* entry3)
+{
+	for (tinyxml2::XMLElement* fg = entry3->FirstChildElement("floatgroup"); fg != 0; fg = fg->NextSiblingElement("floatgroup"))
+	{
+		MABFloatGroup out;
+		// get float 4
+		int vfCount = 0;
+		for (tinyxml2::XMLElement* vf = fg->FirstChildElement("value"); vfCount < 4; vf = vf->NextSiblingElement("value"))
+		{
+			out.f[vfCount] = vf->FloatText();
+			vfCount++;
+		}
+		// get pos
+		out.pos = FloatGroupOffset + (FloatGroup.size() * 0x10);
+		// output bytes
+		out.bytes.resize(0x10);
+		memcpy(&out.bytes[0], &out.f, 16U);
+		// check for duplicates
+		bool isExist = false;
+		for (size_t i = 0; i < FloatGroup.size(); i++)
+		{
+			if (FloatGroup[i].bytes == out.bytes)
+			{
+				isExist = true;
+				break;
+			}
+		}
+
+		if (!isExist)
+		{
+			FloatGroup.push_back(out);
+			FloatGroupCount++;
+		}
+	}
+	// end
+}
+
+MABExtraData MAB::GetExtraData(tinyxml2::XMLElement* entry, std::string dataName, tinyxml2::XMLNode* header, int pos)
+{
+	MABExtraData out;
+	out.name = dataName;
+	out.bytes = CheckDataType(entry, header);
+	out.pos = pos;
+	return out;
+}
+
+int MAB::GetMABStringOffset(std::string namestr)
+{
+	int pos = 0;
+
+	std::wstring wstr = UTF8ToWide(namestr);
+	for (size_t i = 0; i < NodeWString.size(); i++)
+	{
+		if (NodeWString[i].name == wstr)
+		{
+			pos = NodeWString[i].pos;
+			break;
+		}
+	}
+
+	return pos;
+}
+
+int MAB::GetMABExtraOffset(std::string namestr)
+{
+	int pos = 0;
+
+	for (size_t i = 0; i < ExtraData.size(); i++)
+	{
+		if (ExtraData[i].name == namestr)
+		{
+			pos = ExtraData[i].pos;
+			break;
+		}
+	}
+
+	return pos;
+}
+
+MABData MAB::GetMABBoneData(tinyxml2::XMLElement* entry2, int ptrpos)
+{
+	MABData out;
+
+	short value[2];
+	value[0] = entry2->IntAttribute("ID");
+	value[1] = 0;
+	int offset = ptrpos + (bonePtrData.size() * 0x20);
+	// get ptr
+	for (tinyxml2::XMLElement* entry3 = entry2->FirstChildElement("ptr"); entry3 != 0; entry3 = entry3->NextSiblingElement("ptr"))
+	{
+		bonePtrData.push_back(GetMABBonePtrData(entry3));
+		value[1] += 1;
+	}
+	// push bytes
+	out.bytes.resize(0x8);
+	memcpy(&out.bytes[0], &value, 4U);
+	memcpy(&out.bytes[4], &offset, 4U);
+
+	return out;
+}
+
+MABData MAB::GetMABBonePtrData(tinyxml2::XMLElement* entry3)
+{
+	MABData out;
+	out.bytes.resize(0x20);
+	// get string
+	int pos[2];
+	std::string str;
+	// 1
+	str = entry3->Attribute("ExportBone");
+	pos[0] = GetMABStringOffset(str);
+	// 2
+	str = entry3->Attribute("Parent");
+	pos[1] = GetMABStringOffset(str);
+	memcpy(&out.bytes[0], &pos, 8U);
+
+	// get type and value
+	int type;
+	type = entry3->IntAttribute("Type");
+	memcpy(&out.bytes[0x8], &type, 4U);
+	// type is not checked now
+	//if (type == 0)
+	int ptr[3];
+	tinyxml2::XMLElement* entry4 = entry3->FirstChildElement();
+	ptr[0] = GetMABBonePtrValue(entry4);
+
+	entry4 = entry4->NextSiblingElement();
+	ptr[1] = GetMABBonePtrValue(entry4);
+
+	entry4 = entry4->NextSiblingElement();
+	ptr[2] = GetMABBonePtrValue(entry4);
+
+	memcpy(&out.bytes[0xC], &ptr, 12U);
+
+	// get unknown and extra
+	int value[2];
+	value[0] = entry3->IntAttribute("unknown");
+	// get extra
+	str = entry3->Attribute("extra");
+	value[1] = GetMABExtraOffset(str);
+	memcpy(&out.bytes[0x18], &value, 8U);
+
+	return out;
+}
+
+int MAB::GetMABBonePtrValue(tinyxml2::XMLElement* entry)
+{
+	int out = 0;
+
+	std::string nodeType = entry->Name();
+	if (nodeType == "floatgroup")
+	{
+		// get float 4
+		float vf[4];
+		int count = 0;
+		for (tinyxml2::XMLElement* node = entry->FirstChildElement("value"); count < 4; node = node->NextSiblingElement("value"))
+		{
+			vf[count] = node->FloatText();
+			count++;
+		}
+		// get pos
+		std::vector<char> temp(16U);
+		memcpy(&temp[0], &vf, 16U);
+		// check for duplicates
+		for (size_t i = 0; i < FloatGroup.size(); i++)
+		{
+			if (FloatGroup[i].bytes == temp)
+			{
+				out = FloatGroup[i].pos;
+				break;
+			}
+		}
+	}
+	else if (nodeType == "int")
+	{
+		out = entry->IntText();
+	}
+	else if (nodeType == "float")
+	{
+		float vf = entry->FloatText();
+		memcpy(&out, &vf, 4U);
+	}
+
+	return out;
+}
+
+MABData MAB::GetMABAnimeData(tinyxml2::XMLElement* entry2, int ptrpos, int nullpos)
+{
+	MABData out;
+
+	tinyxml2::XMLElement* entry3;
+	int offset[4];
+
+	// get string
+	entry3 = entry2->FirstChildElement("name");
+	std::string str = entry3->GetText();
+	offset[2] = GetMABStringOffset(str);
+
+	// get ptr 1
+	// initialize the count to 0
+	offset[3] = 0;
+	entry3 = entry2->FirstChildElement("ptrA");
+	if (entry3->FirstChildElement("value"))
+	{
+		offset[0] = ptrpos + (animePtrData.size() * 0x10);;
+		for (tinyxml2::XMLElement* entry4 = entry3->FirstChildElement("value"); entry4 != 0; entry4 = entry4->NextSiblingElement("value"))
+		{
+			animePtrData.push_back(GetMABAnimePtrData(entry4, nullpos));
+			offset[3] += 1;
+		}
+	}
+	else
+	{
+		offset[0] = nullpos;
+	}
+
+	// get ptr 2, now points to null
+	offset[1] = nullpos;
+
+	// push bytes
+	out.bytes.resize(0x10);
+	memcpy(&out.bytes[0], &offset, 16U);
+
+	return out;
+}
+
+MABData MAB::GetMABAnimePtrData(tinyxml2::XMLElement* entry3, int nullpos)
+{
+	MABData out;
+	std::string str;
+
+	out.bytes.resize(0x10);
+
+	// get string
+	str = entry3->Attribute("name");
+	int pos = GetMABStringOffset(str);
+	memcpy(&out.bytes[0], &pos, 4U);
+
+	// get float
+	float vf = entry3->FloatAttribute("float");
+	memcpy(&out.bytes[4], &vf, 4U);
+
+	// get unknown and extra
+	int value[2];
+	value[0] = entry3->IntAttribute("unk");
+	// get extra
+	str = entry3->Attribute("extra");
+	value[1] = GetMABExtraOffset(str);
+	memcpy(&out.bytes[8], &value, 8U);
+
+	return out;
 }
