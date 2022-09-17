@@ -112,7 +112,7 @@ void MAB::ReadBoneData(std::vector<char>& buffer, int curpos, tinyxml2::XMLEleme
 	{
 		int ptrpos = offset + (i * 0x20);
 		tinyxml2::XMLElement* xmlBPtr = xmlBNode->InsertNewChildElement("ptr");
-		xmlBPtr->SetAttribute("debugpos", ptrpos);
+		//xmlBPtr->SetAttribute("debugpos", ptrpos);
 
 		// get string offset
 		int strofs[2];
@@ -241,7 +241,7 @@ void MAB::ReadBoneTypeData(int type, std::vector<char>& buffer, int ptrpos, tiny
 				xmlNode->SetAttribute("name", "b");
 				break;
 			case 2:
-				xmlNode->SetAttribute("name", "c");
+				xmlNode->SetAttribute("name", "rotation");
 				break;
 			default:
 				break;
@@ -336,7 +336,7 @@ void MAB::ReadAnimeData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElem
 	memcpy(&value, &buffer[curpos], 16U);
 	// output data
 	tinyxml2::XMLElement* xmlANode = xmlAnm->InsertNewChildElement("value");
-	xmlANode->SetAttribute("debugpos", curpos);
+	//xmlANode->SetAttribute("debugpos", curpos);
 
 	// value[2] is string
 	tinyxml2::XMLElement* xmlstr = xmlANode->InsertNewChildElement("name");
@@ -373,7 +373,7 @@ void MAB::ReadAnimeData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElem
 void MAB::ReadAnimeDataA(std::vector<char>& buffer, int pos, tinyxml2::XMLElement* xmlNode, tinyxml2::XMLElement* xmlHeader)
 {
 	tinyxml2::XMLElement* xmlptr = xmlNode->InsertNewChildElement("value");
-	xmlptr->SetAttribute("debugpos", pos);
+	//xmlptr->SetAttribute("debugpos", pos);
 
 	// get name
 	int strofs;

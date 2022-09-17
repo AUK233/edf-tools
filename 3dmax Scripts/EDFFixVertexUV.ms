@@ -31,6 +31,7 @@ struct EDFFixVertUV
 
 					for k = 1 to vertsnum do
 					(
+						if (vertuv[k] == undefined) then (vertuv[k] = [0,0,0])
 						setTVert nmesh k vertuv[k]
 					)
 					--It is necessary

@@ -92,7 +92,7 @@ void SGO::ReadData(std::vector<char>buffer, tinyxml2::XMLElement* header, tinyxm
 			int nameoffset;
 			Read4BytesData(big_endian, seg, buffer, nodepos);
 			memcpy(&nameoffset, &seg, 4U);
-			namenode[i].name = ReadUnicode(buffer, nodepos + nameoffset);
+			namenode[i].name = ReadUnicode(buffer, nodepos + nameoffset, big_endian);
 
 			Read4BytesData(big_endian, seg, buffer, nodepos + 4);
 			memcpy(&namenode[i].id, &seg, 4U);
@@ -214,7 +214,7 @@ void SGO::ReadSGONode(bool big_endian, std::vector<char> buffer, int nodepos, st
 		memcpy(&stroffset, &seg, 4U);
 
 		if (strsize > 0)
-			datanode[i].strvalue = ReadUnicode(buffer, nodepos + stroffset);
+			datanode[i].strvalue = ReadUnicode(buffer, nodepos + stroffset, big_endian);
 		else
 			datanode[i].strvalue = L"";
 
@@ -382,7 +382,11 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 		ExtraDataPos.push_back(e_nodesize);
 		e_nodesize += ExtraData[i].bytes.size();
 	}
-	WstrPos = e_nodesize;
+	// 4 byte alignment
+	int ae_nodesize = e_nodesize;
+	if (e_nodesize % 4 != 0)
+		ae_nodesize = (e_nodesize / 4 + 1) * 4;
+	WstrPos = ae_nodesize;
 
 	// out string
 	std::sort(NodeString.begin(), NodeString.end());
@@ -390,7 +394,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	for (size_t i = 0; i < NodeString.size(); i++)
 	{
 		SGONodeName NN;
-		NN.id = e_nodesize + strpos;
+		NN.id = WstrPos + strpos;
 		NN.name = UTF8ToWide(NodeString[i]);
 		NodeWString.push_back(NN);
 		// Must be converted to UTF16 first, because UTF8 is not fixed length.
@@ -452,11 +456,17 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 		for (int i = (a_nodesize - i_NtotalSize); i > 0; --i)
 			bytes.push_back(0);
 	}
-	// write extra file
+	// write extra file 
 	for (size_t i = 0; i < ExtraData.size(); i++)
 	{
 		for (size_t j = 0; j < ExtraData[i].bytes.size(); j++)
 			bytes.push_back(ExtraData[i].bytes[j]);
+	}
+	// check alignment
+	if (ae_nodesize > e_nodesize)
+	{
+		for (int i = (ae_nodesize - e_nodesize); i > 0; --i)
+			bytes.push_back(0);
 	}
 	// write wide string
 	for (size_t i = 0; i < NodeWString.size(); i++)

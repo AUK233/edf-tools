@@ -135,20 +135,20 @@ struct MDB_TXTExporter
 						)
 						-- binormal
 						format "                    <binormal type=\"7\" channel=\"0\">\n                        <debug/>\n" to:output_file
-						zrm = rotateZMatrix 90
+						xrm = rotateXMatrix 90
 						for i = 1 to vertsnum do
 						(
-							meshbins[i] = meshnrms[i] * zrm
+							meshbins[i] = meshnrms[i] * xrm
 							format "                        <V x=\"%\" y=\"%\" z=\"%\" w=\"1\"/>\n" meshbins[i].x meshbins[i].y meshbins[i].z to:output_file
 							--format "                        <V x=\"%\" y=\"%\" z=\"%\" w=\"1\"/>\n" -meshnrms[i].y meshnrms[i].x meshnrms[i].z to:output_file
 						)
 						format "                    </binormal>\n" to:output_file
 						-- tangent
 						format "                    <tangent type=\"7\" channel=\"0\">\n                        <debug/>\n" to:output_file
-						xrm = rotateXMatrix 90
+						zrm = rotateZMatrix 90
 						for i = 1 to vertsnum do
 						(
-							meshtans[i] = meshnrms[i] * xrm
+							meshtans[i] = meshnrms[i] * zrm
 							format "                        <V x=\"%\" y=\"%\" z=\"%\" w=\"1\"/>\n" meshtans[i].x meshtans[i].y meshtans[i].z to:output_file
 						)
 						format "                    </tangent>\n" to:output_file
