@@ -498,6 +498,15 @@ void PushStringToVector(std::string strn, std::vector< char >* bytes)
 	bytes->push_back(0x0);
 }
 
+//Function to write a string to a char vector, but no tail
+void PushStringToVectorNoEnd(std::string strn, std::vector< char >* bytes)
+{
+	for (int i = 0; i < strn.size(); i++)
+	{
+		bytes->push_back(strn[i]);
+	}
+}
+
 ///Function to write a wstring to a char vector
 void PushWStringToVector( std::wstring strn, std::vector< char > *bytes )
 {

@@ -1183,7 +1183,7 @@ std::vector< char > BVMHeader::GenerateBytes()
 	std::vector< char > bytes;
 
 	//"BVM ".
-	PushStringToVector( headerString, &bytes );
+	PushStringToVectorNoEnd( headerString, &bytes );
 
 	//50 (P) 0 0 0
 	bytes.push_back( 0x50 );

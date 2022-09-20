@@ -168,13 +168,14 @@ void MAB::ReadBoneTypeData(int type, std::vector<char>& buffer, int ptrpos, tiny
 		memcpy(&fofs, &buffer[ptrpos + 0xC], 4U);
 		// set float group
 		xmlNode = xmlBPtr->InsertNewChildElement("floatgroup");
-		xmlNode->SetAttribute("name", "a");
+		xmlNode->SetAttribute("name", "location");
 		float vf[4];
 		memcpy(&vf, &buffer[fofs], 16U);
 		Read4FloatData(xmlNode, vf);
 
 		// get float
 		xmlNode = xmlBPtr->InsertNewChildElement("float");
+		xmlNode->SetAttribute("name", "scale");
 		float fvalue;
 		memcpy(&fvalue, &buffer[ptrpos + 0x10], 4U);
 		xmlNode->SetText(fvalue);
@@ -202,10 +203,10 @@ void MAB::ReadBoneTypeData(int type, std::vector<char>& buffer, int ptrpos, tiny
 			switch (j)
 			{
 			case 0:
-				xmlNode->SetAttribute("name", "a");
+				xmlNode->SetAttribute("name", "location");
 				break;
 			case 1:
-				xmlNode->SetAttribute("name", "b");
+				xmlNode->SetAttribute("name", "scale");
 				break;
 			default:
 				break;
@@ -238,7 +239,7 @@ void MAB::ReadBoneTypeData(int type, std::vector<char>& buffer, int ptrpos, tiny
 				xmlNode->SetAttribute("name", "location");
 				break;
 			case 1:
-				xmlNode->SetAttribute("name", "b");
+				xmlNode->SetAttribute("name", "scale");
 				break;
 			case 2:
 				xmlNode->SetAttribute("name", "rotation");
@@ -259,7 +260,7 @@ void MAB::ReadBoneTypeData(int type, std::vector<char>& buffer, int ptrpos, tiny
 		memcpy(&fofs1, &buffer[ptrpos + 0xC], 4U);
 		// set float group
 		xmlNode = xmlBPtr->InsertNewChildElement("floatgroup");
-		xmlNode->SetAttribute("name", "a");
+		xmlNode->SetAttribute("name", "location");
 		float vf1[4];
 		memcpy(&vf1, &buffer[fofs1], 16U);
 		Read4FloatData(xmlNode, vf1);
