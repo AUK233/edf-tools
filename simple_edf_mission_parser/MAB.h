@@ -44,12 +44,17 @@ public:
 	void GetMABString(std::string namestr);
 	void GetMABExtraDataName(tinyxml2::XMLElement* data);
 	void GetMABFloatGroup(tinyxml2::XMLElement* entry3);
+
 	MABExtraData GetExtraData(tinyxml2::XMLElement* entry, std::string dataName, tinyxml2::XMLNode* header, int pos);
+
 	int GetMABStringOffset(std::string namestr);
 	int GetMABExtraOffset(std::string namestr);
+
 	MABData GetMABBoneData(tinyxml2::XMLElement* entry2, int ptrpos);
 	MABData GetMABBonePtrData(tinyxml2::XMLElement* entry3);
+
 	int GetMABBonePtrValue(tinyxml2::XMLElement* entry);
+
 	MABData GetMABAnimeData(tinyxml2::XMLElement* entry2, int ptrpos, int nullpos);
 	MABData GetMABAnimePtrData(tinyxml2::XMLElement* entry3, int nullpos);
 

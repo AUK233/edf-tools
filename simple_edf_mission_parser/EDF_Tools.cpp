@@ -55,6 +55,7 @@ void init_locale(void)
 #include "MAB.h" //MAB parser
 
 #include "MDB.h" //MDB parser
+#include "CAS.h" //CAS parser
 
 #include "ModManager.h"
 
@@ -181,6 +182,12 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 			std::unique_ptr< MAB > mabReader = std::make_unique< MAB >();
 			mabReader->Read(strn);
 			mabReader.reset();
+		}
+		else if (extension == L"cas")
+		{
+			unique_ptr<CAS> casReader = make_unique<CAS>();
+			casReader->Read(strn);
+			casReader.reset();
 		}
 		else if (extension == L"xml")
 		{
@@ -372,109 +379,6 @@ std::wstring TestProccess( std::wstring input )
 	return parser.dbgOutput;
 }
 #endif
-
-void TestReadMab( )
-{
-	using namespace std;
-
-	std::ifstream file( L"edf41_2.mab", std::ios::binary | std::ios::ate );
-
-	std::streamsize size = file.tellg( );
-	file.seekg( 0, std::ios::beg );
-
-	std::vector<char> buffer( size );
-	if( file.read( buffer.data( ), size ) )
-	{
-		unsigned char seg[4];
-		int position = 0x1C - 4;
-
-		Read4Bytes( seg, buffer, position );
-		int ofs = GetIntFromChunk( seg );
-		Read4Bytes( seg, buffer, position + ofs );
-		ofs = GetIntFromChunk( seg );
-		wcout << L"->" + ReadUnicode( buffer, ofs ) + L"\n";
-
-		position += 4;
-
-		Read4Bytes( seg, buffer, position );
-		ofs = GetIntFromChunk( seg );
-
-		Read4BytesReversed( seg, buffer, position + ofs );
-		float f;
-		memcpy( &f, &seg, sizeof( f ) );
-		wcout << ToString( f ) + L"\n";
-
-		position += 4;
-
-		Read4Bytes( seg, buffer, position );
-		ofs = GetIntFromChunk( seg );
-		wcout << ReadUnicode( buffer, ofs ) + L"\n------------------------------------\n";
-
-		//
-		position = 0x3c - 12;
-
-		//Next node?
-		int numNodes = 0;
-		for( int i = 0; i < numNodes; i++ )
-		{
-			position += 12;
-			Read4Bytes( seg, buffer, position );
-			ofs = GetIntFromChunk( seg );
-			wcout << ReadUnicode( buffer, ofs ) + L"\n";
-			position += 4;
-
-			Read4Bytes( seg, buffer, position );
-			ofs = GetIntFromChunk( seg );
-			wcout << ReadUnicode( buffer, ofs ) + L"\n";
-			position += 4;
-			position += 4;
-
-			Read4Bytes( seg, buffer, position );
-			ofs = GetIntFromChunk( seg );
-
-			for( int j = 0; j < 4; ++j )
-			{
-				Read4BytesReversed( seg, buffer, ofs + ( i * 4 ) );
-
-				float f;
-				memcpy( &f, &seg, sizeof( f ) );
-				wcout << ToString( f ) + L" ";
-			}
-			wcout << L"\n";
-			position += 4;
-
-			Read4Bytes( seg, buffer, position );
-			ofs = GetIntFromChunk( seg );
-
-			for( int j = 0; j < 4; ++j )
-			{
-				Read4BytesReversed( seg, buffer, ofs + ( i * 4 ) );
-
-				float f;
-				memcpy( &f, &seg, sizeof( f ) );
-				wcout << ToString( f ) + L" ";
-			}
-			wcout << L"\n";
-			position += 4;
-
-			Read4Bytes( seg, buffer, position );
-			ofs = GetIntFromChunk( seg );
-
-			for( int j = 0; j < 4; ++j )
-			{
-				Read4BytesReversed( seg, buffer, ofs + ( j * 4 ) );
-
-				float f;
-				memcpy( &f, &seg, sizeof( f ) );
-				wcout << ToString( f ) + L" ";
-			}
-
-			wcout << L"\n";
-		}
-
-		system( "pause" );
-	}
-}
 
 int _tmain( int argc, wchar_t* argv[] )
 {

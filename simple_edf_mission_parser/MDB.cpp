@@ -427,7 +427,8 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 							std::wcout << L"parsing complete.\n";
 						}
 					}
-					//read the rest
+					//Clear temp
+					objects_layout.clear();
 					
 					//Read faces
 					int iNum = objects_info.back().indicesNum;
