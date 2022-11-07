@@ -2197,17 +2197,26 @@ void MissionFunction::CompileLine(std::wstring fnStrn)
 	{
 		if (whileStartPos.size() > 0)
 		{
-			bytes.push_back(0xA8);
-
+			// Jump back to conditions.
 			int ofs = whileStartPos.back() - bytes.size();
 			char* ofsBytes = IntToBytes(ofs);
 
+			bytes.push_back(0xA8);
 			bytes.push_back(ofsBytes[0]);
 			bytes.push_back(ofsBytes[1]);
 
 			free(ofsBytes);
-
 			whileStartPos.pop_back();
+
+			// Jump out of loop if false
+			ofs = whileConditionalPos.back();
+			char* ofsseg = IntToBytes(bytes.size() - ofs);
+
+			bytes[ofs+1] = ofsseg[0];
+			bytes[ofs+2] = ofsseg[1];
+
+			free(ofsseg);
+			whileConditionalPos.pop_back();
 		}
 
 		if (patchConditionalPos.size() > 0)
@@ -2274,12 +2283,12 @@ void MissionFunction::CompileLine(std::wstring fnStrn)
 		whileStartPos.push_back( bytes.size( ) );
 		CompileExpression( argsStrn );
 
+		whileConditionalPos.push_back(bytes.size());
 		bytes.push_back( 0xA6 ); //Jump if stack == 0
 		//Placeholder
 		//Now use double-byte jump
 		bytes.push_back( 0x00 );
 		bytes.push_back( 0x00 );
-		patchConditionalPos.push_back(bytes.size());
 	}
 	else if (preBracketString == L"else") //else
 	{
@@ -2304,6 +2313,93 @@ void MissionFunction::CompileLine(std::wstring fnStrn)
 			std::wstring byteString = argsStrn.substr( i, 2 );
 			char byte = (char)std::wcstol( byteString.c_str( ), NULL, 16 );
 			bytes.push_back( byte );
+		}
+	}
+	else if (preBracketString == L"_JUMPPOS_") // custom jump
+	{
+		// structure:
+		// _JUMPPOS_(pos name, type, extra offset);
+		if (argsStrn.size() > 0)
+		{
+			std::wstring arg;
+			bool succeed = false;
+			// Write the jump location name
+			arg = SimpleTokenise(argsStrn, L',');
+			str_RjumpPos.push_back(arg);
+
+			// Decide on the jump type
+			arg = SimpleTokenise(argsStrn, L',');
+			i_RjumpPos.push_back(bytes.size());
+
+			if (arg == L"false")
+				bytes.push_back(0xA6);
+			else if (arg == L"true")
+				bytes.push_back(0xA7);
+			else if (arg == L"always")
+				bytes.push_back(0xA8);
+			else if (arg == L"notEqual")
+				bytes.push_back(0xB4);
+			else if (arg == L"Equal")
+				bytes.push_back(0xB5);
+			// Write extra offset
+			i_RjumpOffset.push_back(stoi(argsStrn));
+
+			// Check that the location exists
+			if (str_LjumpPos.size() > 0)
+			{
+				for (size_t i = 0; i < str_LjumpPos.size(); i++)
+				{
+					if (str_LjumpPos[i] == str_RjumpPos.back())
+					{
+						int ofs = i_LjumpPos[i];
+						char* ofsseg = IntToBytes(ofs - i_RjumpPos.back() + i_RjumpOffset.back());
+						bytes.push_back(ofsseg[0]);
+						bytes.push_back(ofsseg[1]);
+						free(ofsseg);
+
+						succeed = true;
+						str_RjumpPos.pop_back();
+						i_RjumpPos.pop_back();
+						i_RjumpOffset.pop_back();
+
+						break;
+					}
+				}
+			}
+			//placeholder
+			if (!succeed)
+			{
+				bytes.push_back(0x00);
+				bytes.push_back(0x00);
+			}
+		}
+	}
+	else if (preBracketString == L"_GETPOS_") // custom jump
+	{
+		// structure:
+		// _GETPOS_(pos name);
+		if (argsStrn.size() > 0)
+		{
+			// Get the current location 
+			i_LjumpPos.push_back(bytes.size());
+			// Write the location name
+			str_LjumpPos.push_back(argsStrn);
+			// Check all requests
+			if (str_RjumpPos.size() > 0)
+			{
+				for (size_t i = 0; i < str_RjumpPos.size(); i++)
+				{
+					if (str_RjumpPos[i] == argsStrn)
+					{
+						int ofs = i_RjumpPos[i];
+						char* ofsseg = IntToBytes(bytes.size() - ofs + i_RjumpOffset[i]);
+						bytes[ofs + 1] = ofsseg[0];
+						bytes[ofs + 2] = ofsseg[1];
+						free(ofsseg);
+					}
+				}
+			}
+			// end
 		}
 	}
 	else //Expression

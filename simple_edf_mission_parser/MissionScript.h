@@ -48,6 +48,7 @@ struct MissionFunction
 	std::vector< int > patchConditionalPos;
 	std::vector< int > elseConditionalPos;
 	std::vector< int > whileStartPos;
+	std::vector< int > whileConditionalPos;
 
 	std::vector<std::wstring> ifArgs;
 
@@ -60,6 +61,15 @@ struct MissionFunction
 
 	//Function name debug.
 	std::vector<std::wstring> fnNameDebug;
+
+	//jump function
+	//request
+	std::vector< std::wstring > str_RjumpPos;
+	std::vector< int > i_RjumpPos;
+	std::vector< int > i_RjumpOffset;
+	//get pos
+	std::vector< std::wstring > str_LjumpPos;
+	std::vector< int > i_LjumpPos;
 
 	CMissionScript *myScript;
 };

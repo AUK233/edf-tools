@@ -174,9 +174,9 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 				int curtablepos = BoneOffset + (i * 0xC0);
 
 				bones.push_back(ReadBone(curtablepos, buffer));
-				//treat the first value as a name
+				//the 5th value is the name
 				tinyxml2::XMLElement* xmlBoneID = xmlBone->InsertNewChildElement("name");
-				int tempint = bones.back().index[0];
+				int tempint = bones.back().index[4];
 				xmlBoneID->SetAttribute("id", tempint);
 				utf8str = WideToUTF8(names[tempint].idname);
 				xmlBoneID->SetText(utf8str.c_str());
@@ -187,7 +187,7 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 				tinyxml2::XMLElement* xmlBoneIK = xmlBone->InsertNewChildElement("IK");
 				xmlBoneIK->SetAttribute("root", bones.back().index[2]);
 				xmlBoneIK->SetAttribute("next", bones.back().index[3]);
-				xmlBoneIK->SetAttribute("current", bones.back().index[4]);
+				xmlBoneIK->SetAttribute("current", bones.back().index[0]);
 
 				int tpos;
 				//Read bone weights, 3 groups?
@@ -437,8 +437,8 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					//Unify with the name in 3dmax
 					tinyxml2::XMLElement* xmlIndices = xmlMesh->InsertNewChildElement("Faces");
 					xmlIndices->SetAttribute("Count", iNum);
-
-					short int16;
+					// It is a uint16 value.
+					unsigned short uint16;
 					for (int k = 0; k < iNum; k++)
 					{
 						int newcurpos = curpos + objects_info.back().indicesOffset + (k * 2);
@@ -455,9 +455,9 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 							int16 |= seg[i];
 						}
 						*/
-						memcpy(&int16, &buffer[newcurpos], 2U);
+						memcpy(&uint16, &buffer[newcurpos], 2U);
 						//xmlNode->SetAttribute("pos", newcurpos);
-						xmlNode->SetAttribute("value", int16);
+						xmlNode->SetAttribute("value", uint16);
 						//xmlNode->SetText(ReadInt16(buffer, newcurpos));
 					}
 					std::wcout << L"complete.\n";
@@ -1545,7 +1545,7 @@ MDBBone CXMLToMDB::GetBone(tinyxml2::XMLElement* entry2, bool NoNameTable)
 	int nameid = entry3->IntAttribute("id");
 	if (!NoNameTable && nameid)
 	{
-		out.index[0] = nameid;
+		out.index[4] = nameid;
 	}
 	else
 	{
@@ -1557,13 +1557,13 @@ MDBBone CXMLToMDB::GetBone(tinyxml2::XMLElement* entry2, bool NoNameTable)
 			if (m_vecWNames[strID] == wstr)
 			{
 				found = true;
-				out.index[0] = strID;
+				out.index[4] = strID;
 				break;
 			}
 		}
 		if (!found)
 		{
-			out.index[0] = m_vecWNames.size();
+			out.index[4] = m_vecWNames.size();
 			m_vecWNames.push_back(wstr);
 			NameCount++;
 		}
@@ -1575,7 +1575,7 @@ MDBBone CXMLToMDB::GetBone(tinyxml2::XMLElement* entry2, bool NoNameTable)
 	entry3 = entry2->FirstChildElement("IK");
 	out.index[2] = entry3->IntAttribute("root");
 	out.index[3] = entry3->IntAttribute("next");
-	out.index[4] = entry3->IntAttribute("current");
+	out.index[0] = entry3->IntAttribute("current");
 
 	out.bytes.resize(0xC0);
 	memcpy(&out.bytes[0], &out.index[0], 20U);
@@ -2171,7 +2171,7 @@ void CXMLToMDB::GetModelVertex(int type, int num, tinyxml2::XMLElement* entry5, 
 MDBByte CXMLToMDB::GetIndicesInModel(tinyxml2::XMLElement* entry4, int size)
 {
 	MDBByte out;
-	short value;
+	unsigned short value;
 
 	out.bytes.resize(size * 2);
 
