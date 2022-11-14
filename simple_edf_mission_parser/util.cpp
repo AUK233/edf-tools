@@ -398,6 +398,14 @@ bool IsValidFloat( const std::wstring input )
 	return valid;
 }
 
+//Converts a int hex to float
+float IntHexAsFloat(int in)
+{
+	float out;
+	memcpy(&out, &in, 4U);
+	return out;
+}
+
 //Converts a string to lower case
 std::wstring ConvertToLower( std::wstring in )
 {

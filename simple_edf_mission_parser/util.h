@@ -45,9 +45,11 @@ void PushWStringToVector( std::wstring strn, std::vector< char > *bytes );
 
 //Checks if a string is a valid int
 bool IsValidInt( const std::wstring input );
-
 //Checks if a string is a valid float
 bool IsValidFloat( const std::wstring input );
+
+//Converts a int hex to float
+float IntHexAsFloat(int in);
 
 //Converts a string to lower case
 std::wstring ConvertToLower( std::wstring in );

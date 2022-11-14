@@ -10,10 +10,17 @@ public:
 	void ReadTControlData(tinyxml2::XMLElement* header, std::vector<char> buffer);
 	void ReadVControlData(tinyxml2::XMLElement* header, std::vector<char> buffer);
 	void ReadAnmGroupData(tinyxml2::XMLElement* header, std::vector<char> buffer);
+	void ReadAnmGroupNodeData(std::vector<char> buffer, int ptrpos, tinyxml2::XMLElement* xmlptr);
+	void ReadAnmGroupNodeDataPtrA(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
+	void ReadAnmGroupNodeDataPtrB(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
+	void ReadAnmGroupNodeDataPtrCommon(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
+	void ReadAnmGroupNodeDataCommon(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
 	void ReadBoneListData(tinyxml2::XMLElement* header, std::vector<char> buffer);
 
 private:
 	int CAS_Version;
+	// CasDataCommon length
+	int i_CasDCCount = 0;
 	int CANM_Offset;
 	int i_TControlCount = 0;
 	int i_TControlOffset = 0;

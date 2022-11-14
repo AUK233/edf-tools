@@ -31,16 +31,16 @@ void CAS::Read(std::wstring path)
 		xml.InsertEndChild(xmlHeader);
 
 		ReadData(buffer, xmlHeader);
-		/*
+		
 		std::string outfile = WideToUTF8(path) + "_CAS.xml";
 		xml.SaveFile(outfile.c_str());
-		*/
+		/*
 		tinyxml2::XMLPrinter printer;
 		xml.Accept(&printer);
 		auto xmlString = std::string{ printer.CStr() };
 
 		std::wcout << UTF8ToWide(xmlString) + L"\n";
-		
+		*/
 	}
 
 	//Clear buffers
@@ -59,9 +59,15 @@ void CAS::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
 	// read version
 	memcpy(&CAS_Version, &buffer[4], 4U);
 	if (CAS_Version == 512)
+	{
 		header->SetAttribute("version", "41");
+		i_CasDCCount = 9;
+	}
 	else if (CAS_Version == 515)
+	{
 		header->SetAttribute("version", "5");
+		i_CasDCCount = 13;
+	}
 
 	// read canm offset
 	memcpy(&CANM_Offset, &buffer[8], 4U);
@@ -89,6 +95,10 @@ void CAS::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
 	ReadAnmGroupData(header, buffer);
 	// bone data
 	ReadBoneListData(header, buffer);
+	// unk c data
+	tinyxml2::XMLElement* xmlunk = header->InsertNewChildElement("Unknown");
+	if (i_UnkCOffset > 0)
+		ReadAnmGroupNodeDataPtrCommon(buffer, xmlunk, i_UnkCOffset);
 }
 
 void CAS::ReadTControlData(tinyxml2::XMLElement* header, std::vector<char> buffer)
@@ -175,7 +185,6 @@ void CAS::ReadAnmGroupData(tinyxml2::XMLElement* header, std::vector<char> buffe
 		int value[3];
 		memcpy(&value, &buffer[curpos], 12U);
 		tinyxml2::XMLElement* xmlptr = xmlun->InsertNewChildElement("ptr");
-
 		// get string
 		std::wstring wstr;
 		// str
@@ -185,26 +194,145 @@ void CAS::ReadAnmGroupData(tinyxml2::XMLElement* header, std::vector<char> buffe
 			wstr = L"";
 		std::string utf8str = WideToUTF8(wstr);
 		xmlptr->SetAttribute("name", utf8str.c_str());
-
+		// get data
 		for (int j = 0; j < value[1]; j++)
 		{
 			int ptrpos = curpos + value[2] + (j * 0x24);
+			ReadAnmGroupNodeData(buffer, ptrpos, xmlptr);
+		}
+	}
+}
 
-			int ptrvalue[9];
-			memcpy(&ptrvalue, &buffer[ptrpos], 36U);
-			tinyxml2::XMLElement* xmlnode = xmlptr->InsertNewChildElement("node");
+void CAS::ReadAnmGroupNodeData(std::vector<char> buffer, int ptrpos, tinyxml2::XMLElement* xmlptr)
+{
+	int ptrvalue[9];
+	memcpy(&ptrvalue, &buffer[ptrpos], 36U);
+	tinyxml2::XMLElement* xmlnode = xmlptr->InsertNewChildElement("node");
+	// i0 is string offset
+	std::wstring wstr;
+	if (ptrvalue[0] > 0)
+		wstr = ReadUnicode(buffer, ptrpos + ptrvalue[0]);
+	else
+		wstr = L"";
+	std::string utf8str = WideToUTF8(wstr);
+	xmlnode->SetAttribute("name", utf8str.c_str());
+	// i1 is data1 offset
+	tinyxml2::XMLElement* xmldata1 = xmlnode->InsertNewChildElement("data1");
+	ReadAnmGroupNodeDataPtrA(buffer, xmldata1, ptrpos + ptrvalue[1]);
+	// i2 is data2 amount, i3 is offset
+	tinyxml2::XMLElement* xmldata2 = xmlnode->InsertNewChildElement("data2");
+	for (int i = 0; i < ptrvalue[2]; i++)
+	{
+		int data2pos = ptrpos + ptrvalue[3] + (i*0x20);
+		tinyxml2::XMLElement* xmldataptr = xmldata2->InsertNewChildElement("ptr");
+		ReadAnmGroupNodeDataPtrB(buffer, xmldataptr, data2pos);
+	}
+	// i4, i5, i6 is offset
+	tinyxml2::XMLElement* xmlptr1 = xmlnode->InsertNewChildElement("parametric1");
+	if (ptrvalue[4] > 0)
+		ReadAnmGroupNodeDataPtrCommon(buffer, xmlptr1, ptrpos + ptrvalue[4]);
+	tinyxml2::XMLElement* xmlptr2 = xmlnode->InsertNewChildElement("parametric2");
+	if (ptrvalue[5] > 0)
+		ReadAnmGroupNodeDataPtrCommon(buffer, xmlptr2, ptrpos + ptrvalue[5]);
+	tinyxml2::XMLElement* xmlptr3 = xmlnode->InsertNewChildElement("parametric3");
+	if (ptrvalue[6] > 0)
+		ReadAnmGroupNodeDataPtrCommon(buffer, xmlptr3, ptrpos + ptrvalue[6]);
+	//
+	xmlnode->SetAttribute("int1", ptrvalue[7]);
+	xmlnode->SetAttribute("int2", ptrvalue[8]);
+}
 
-			// i0 is string offset
-			if (ptrvalue[0] > 0)
-				wstr = ReadUnicode(buffer, ptrpos + ptrvalue[0]);
-			else
-				wstr = L"";
-			std::string utf8str = WideToUTF8(wstr);
-			xmlnode->SetAttribute("name", utf8str.c_str());
-			//
-			//
-			//
-			// undone
+void CAS::ReadAnmGroupNodeDataPtrA(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
+{
+	// not using it now
+	/*
+	union test
+	{
+		int i;
+		float f;
+	} value[7];
+	*/
+	int value[7];
+	memcpy(&value, &buffer[pos], 28U);
+	// simple type check
+	for (int i = 0; i < 7; i++)
+	{
+		tinyxml2::XMLElement* datanode;
+		if (abs(value[i]) < 10000)
+		{
+			datanode = xmldata->InsertNewChildElement("int");
+			datanode->SetText(value[i]);
+		}
+		else
+		{
+			datanode = xmldata->InsertNewChildElement("float");
+			datanode->SetText(IntHexAsFloat(value[i]));
+		}
+	}
+}
+
+void CAS::ReadAnmGroupNodeDataPtrB(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
+{
+	// not using it now
+	/*
+	union test
+	{
+		int i;
+		float f;
+	} value[7];
+	*/
+	int value[8];
+	memcpy(&value, &buffer[pos], 32U);
+	// simple type check
+	for (int i = 0; i < 8; i++)
+	{
+		tinyxml2::XMLElement* datanode;
+		if (abs(value[i]) < 10000)
+		{
+			datanode = xmldata->InsertNewChildElement("int");
+			datanode->SetText(value[i]);
+		}
+		else
+		{
+			datanode = xmldata->InsertNewChildElement("float");
+			datanode->SetText(IntHexAsFloat(value[i]));
+		}
+	}
+}
+
+void CAS::ReadAnmGroupNodeDataPtrCommon(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
+{
+	int value[2];
+	memcpy(&value, &buffer[pos], 8U);
+	
+	for (int i = 0; i < value[0]; i++)
+	{
+		int datapos = pos + value[1] + (i * i_CasDCCount * 4);
+		tinyxml2::XMLElement* xmlptr = xmldata->InsertNewChildElement("data");
+#if defined(_DEBUG_)
+		xmlptr->SetAttribute("debugpos", pos);
+#endif
+		ReadAnmGroupNodeDataCommon(buffer, xmlptr, datapos);
+	}
+}
+
+void CAS::ReadAnmGroupNodeDataCommon(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
+{
+	std::vector< int > value(i_CasDCCount);
+	memcpy(&value[0], &buffer[pos], i_CasDCCount * 4);
+	// simple type check
+	for (int i = 0; i < i_CasDCCount; i++)
+	{
+		tinyxml2::XMLElement* datanode;
+		if (abs(value[i]) < 10000)
+		{
+			datanode = xmldata->InsertNewChildElement("int");
+			datanode->SetText(value[i]);
+		}
+		else
+		{
+			datanode = xmldata->InsertNewChildElement("float");
+			datanode->SetText(IntHexAsFloat(value[i]));
 		}
 	}
 }
