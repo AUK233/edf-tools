@@ -5,12 +5,10 @@
 #include <Windows.h>
 #include <string>
 #include <vector>
-#include <codecvt>
 #include <sstream>
 
-#include <iostream>
-#include <locale>
 #include "util.h"
+#include "CANM.h"
 #include "CAS.h"
 #include "include/tinyxml2.h"
 
@@ -87,6 +85,18 @@ void CAS::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
 	// read unk C
 	memcpy(&i_UnkCOffset, &buffer[0x2C], 4U);
 
+	// output CANM Data
+	tinyxml2::XMLElement* xmlcanm = header->InsertNewChildElement("CanmData");
+	std::vector<char> newbuf;
+	// no data size, so copy remain
+	int filesize = buffer.size() - CANM_Offset;
+	for (int i = 0; i < filesize; i++)
+		newbuf.push_back(buffer[CANM_Offset + i]);
+	
+	std::unique_ptr< CANM > CANMReader = std::make_unique< CANM >();
+	CANMReader->ReadData(newbuf, xmlcanm);
+	CANMReader.reset();
+
 	// t control data
 	ReadTControlData(header, buffer);
 	// v control data
@@ -111,6 +121,10 @@ void CAS::ReadTControlData(tinyxml2::XMLElement* header, std::vector<char> buffe
 		int value[3];
 		memcpy(&value, &buffer[curpos], 12U);
 		tinyxml2::XMLElement* xmlptr = xmlTCD->InsertNewChildElement("ptr");
+
+#if defined(DEBUGMODE)
+		xmlptr->SetAttribute("index", i);
+#endif
 
 		// get string
 		std::wstring wstr;
@@ -147,6 +161,10 @@ void CAS::ReadVControlData(tinyxml2::XMLElement* header, std::vector<char> buffe
 		int value[3];
 		memcpy(&value, &buffer[curpos], 12U);
 		tinyxml2::XMLElement* xmlptr = xmlun->InsertNewChildElement("ptr");
+
+#if defined(DEBUGMODE)
+		xmlptr->SetAttribute("index", i);
+#endif
 
 		// get string
 		std::wstring wstr;
@@ -237,9 +255,14 @@ void CAS::ReadAnmGroupNodeData(std::vector<char> buffer, int ptrpos, tinyxml2::X
 	tinyxml2::XMLElement* xmlptr3 = xmlnode->InsertNewChildElement("parametric3");
 	if (ptrvalue[6] > 0)
 		ReadAnmGroupNodeDataPtrCommon(buffer, xmlptr3, ptrpos + ptrvalue[6]);
-	//
-	xmlnode->SetAttribute("int1", ptrvalue[7]);
-	xmlnode->SetAttribute("int2", ptrvalue[8]);
+	// check type
+	xmlnode->SetAttribute("type", ptrvalue[7]);
+	if (ptrvalue[7] == 0)
+		xmlnode->SetAttribute("float", IntHexAsFloat(ptrvalue[8]));
+	else if (ptrvalue[7] == 2)
+		xmlnode->SetAttribute("int", ptrvalue[8]);
+	else
+		std::wcout << L"Unknown type at position: " + ToString(ptrpos + 0x1C) + L" - Type: " + ToString(ptrvalue[7]) + L"\n";
 }
 
 void CAS::ReadAnmGroupNodeDataPtrA(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
@@ -258,7 +281,7 @@ void CAS::ReadAnmGroupNodeDataPtrA(std::vector<char> buffer, tinyxml2::XMLElemen
 	for (int i = 0; i < 7; i++)
 	{
 		tinyxml2::XMLElement* datanode;
-		if (abs(value[i]) < 10000)
+		if (abs(value[i]) < 0x1000)
 		{
 			datanode = xmldata->InsertNewChildElement("int");
 			datanode->SetText(value[i]);
@@ -269,6 +292,9 @@ void CAS::ReadAnmGroupNodeDataPtrA(std::vector<char> buffer, tinyxml2::XMLElemen
 			datanode->SetText(IntHexAsFloat(value[i]));
 		}
 	}
+#if defined(DEBUGMODE)
+	xmldata->SetAttribute("debugpos", pos);
+#endif
 }
 
 void CAS::ReadAnmGroupNodeDataPtrB(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
@@ -287,7 +313,7 @@ void CAS::ReadAnmGroupNodeDataPtrB(std::vector<char> buffer, tinyxml2::XMLElemen
 	for (int i = 0; i < 8; i++)
 	{
 		tinyxml2::XMLElement* datanode;
-		if (abs(value[i]) < 10000)
+		if (abs(value[i]) < 0x1000)
 		{
 			datanode = xmldata->InsertNewChildElement("int");
 			datanode->SetText(value[i]);
@@ -298,6 +324,9 @@ void CAS::ReadAnmGroupNodeDataPtrB(std::vector<char> buffer, tinyxml2::XMLElemen
 			datanode->SetText(IntHexAsFloat(value[i]));
 		}
 	}
+#if defined(DEBUGMODE)
+	xmldata->SetAttribute("debugpos", pos);
+#endif
 }
 
 void CAS::ReadAnmGroupNodeDataPtrCommon(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
@@ -309,8 +338,8 @@ void CAS::ReadAnmGroupNodeDataPtrCommon(std::vector<char> buffer, tinyxml2::XMLE
 	{
 		int datapos = pos + value[1] + (i * i_CasDCCount * 4);
 		tinyxml2::XMLElement* xmlptr = xmldata->InsertNewChildElement("data");
-#if defined(_DEBUG_)
-		xmlptr->SetAttribute("debugpos", pos);
+#if defined(DEBUGMODE)
+		xmlptr->SetAttribute("debugpos", datapos);
 #endif
 		ReadAnmGroupNodeDataCommon(buffer, xmlptr, datapos);
 	}
@@ -324,7 +353,7 @@ void CAS::ReadAnmGroupNodeDataCommon(std::vector<char> buffer, tinyxml2::XMLElem
 	for (int i = 0; i < i_CasDCCount; i++)
 	{
 		tinyxml2::XMLElement* datanode;
-		if (abs(value[i]) < 10000)
+		if (abs(value[i]) < 0x1000)
 		{
 			datanode = xmldata->InsertNewChildElement("int");
 			datanode->SetText(value[i]);

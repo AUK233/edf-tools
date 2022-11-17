@@ -5,11 +5,8 @@
 #include <Windows.h>
 #include <string>
 #include <vector>
-#include <codecvt>
 #include <sstream>
 
-#include <iostream>
-#include <locale>
 #include "util.h"
 #include "MDB.h"
 #include "include/tinyxml2.h"

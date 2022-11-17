@@ -5,12 +5,6 @@
 #include <Windows.h>
 #include <string>
 #include <vector>
-#include <locale>
-#include <codecvt>
-
-#include <iostream>
-#include <locale>
-#include <locale.h>
 
 #include "Middleware.h"
 #include "util.h"
