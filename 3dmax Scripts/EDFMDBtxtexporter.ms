@@ -34,6 +34,7 @@ struct MDB_TXTExporter
 						local meshbins = #()
 						local meshtans = #()
 						local meshtexs0 = #()
+						local meshtexs1 = #()
 						--Check the skin state at start
 						local skinstate = 0
 						local skinbonel = 0
@@ -95,15 +96,26 @@ struct MDB_TXTExporter
 							skinstate = 0
 							skinbonel = 0
 						)
-						format "            <Mesh MatID=\"0\">\n                <raw>000%0%00</raw>\n                <raw>00000000</raw>\n" skinstate skinbonel to:output_file
+						local matid = getUserProp Object "MaterialID"
+						if (matid == undefined) then ( matid = 0 ) 
+						format "            <Mesh MatID=\"%\">\n                <raw>000%0%00</raw>\n                <raw>00000000</raw>\n" matid skinstate skinbonel to:output_file
 						-- vertex
 						format "                <VertexList>\n" to:output_file
 						-- position
 						format "                    <position type=\"7\" channel=\"0\">\n                        <debug/>\n" to:output_file
 						for i = 1 to vertsnum do
 						(
+							-- get all data
 							meshverts[i] = getVert Object i
 							meshverts[i] /= 10.0
+							meshnrms[i] = getNormal Object i
+							meshtexs0[i] = getTVert Object i
+							-- calculate tangent
+							meshtans[i] = normalize (meshverts[i] / (meshtexs0[i].x - 1.0 + meshtexs0[i].y))
+							--meshbins[i] = normalize ([meshverts[i].z, meshverts[i].x, meshverts[i].y] / meshtexs0[i].x)
+							-- calculate binormal
+							meshbins[i] = cross meshnrms[i] meshtans[i]
+							-- out position
 							format "                        <V x=\"%\" y=\"%\" z=\"%\" w=\"1\"/>\n" meshverts[i].x meshverts[i].y meshverts[i].z to:output_file
 						)
 						format "                    </position>\n" to:output_file
@@ -111,7 +123,6 @@ struct MDB_TXTExporter
 						format "                    <normal type=\"7\" channel=\"0\">\n                        <debug/>\n" to:output_file
 						for i = 1 to vertsnum do
 						(
-							meshnrms[i] = getNormal Object i
 							format "                        <V x=\"%\" y=\"%\" z=\"%\" w=\"1\"/>\n" meshnrms[i].x meshnrms[i].y meshnrms[i].z to:output_file
 						)
 						format "                    </normal>\n" to:output_file
@@ -135,34 +146,42 @@ struct MDB_TXTExporter
 						)
 						-- binormal
 						format "                    <binormal type=\"7\" channel=\"0\">\n                        <debug/>\n" to:output_file
-						xrm = rotateXMatrix 90
 						for i = 1 to vertsnum do
 						(
-							meshbins[i] = meshnrms[i] * xrm
 							format "                        <V x=\"%\" y=\"%\" z=\"%\" w=\"1\"/>\n" meshbins[i].x meshbins[i].y meshbins[i].z to:output_file
 							--format "                        <V x=\"%\" y=\"%\" z=\"%\" w=\"1\"/>\n" -meshnrms[i].y meshnrms[i].x meshnrms[i].z to:output_file
 						)
 						format "                    </binormal>\n" to:output_file
 						-- tangent
 						format "                    <tangent type=\"7\" channel=\"0\">\n                        <debug/>\n" to:output_file
-						zrm = rotateZMatrix 90
 						for i = 1 to vertsnum do
 						(
-							meshtans[i] = meshnrms[i] * zrm
 							format "                        <V x=\"%\" y=\"%\" z=\"%\" w=\"1\"/>\n" meshtans[i].x meshtans[i].y meshtans[i].z to:output_file
 						)
 						format "                    </tangent>\n" to:output_file
-						-- texcoord
+						-- texcoord0
 						--selection[1].numtverts
 						--selection[1].numverts
 						format "                    <texcoord type=\"12\" channel=\"0\">\n                        <debug/>\n" to:output_file
 						for i = 1 to vertsnum do
 						(
-							meshtexs0[i] = getTVert Object i
 							--import is flipped, so export is flipped back
 							format "                        <V x=\"%\" y=\"%\"/>\n" meshtexs0[i].x (1.0-meshtexs0[i].y) to:output_file
 						)
 						format "                    </texcoord>\n" to:output_file
+						-- texcoord1
+						local hastex1 = getUserProp Object "Texcoord1"
+						if (hastex1 == true) then
+						(
+							format "                    <texcoord type=\"12\" channel=\"1\">\n                        <debug/>\n" to:output_file
+							for i = 1 to vertsnum do
+							(
+								meshtexs1[i] = meshop.getMapVert Object 2 i
+								--import is flipped, so export is flipped back
+								format "                        <V x=\"%\" y=\"%\"/>\n" meshtexs1[i].x (1.0-meshtexs1[i].y) to:output_file
+							)
+							format "                    </texcoord>\n" to:output_file
+						)
 						-- 
 						format "                </VertexList>\n" to:output_file
 

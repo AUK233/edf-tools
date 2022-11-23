@@ -10,6 +10,7 @@ fileIn "EDFMDBtxtimporter.ms"
 -- exporter
 fileIn "EDFCoordinateCalculation.ms"
 fileIn "EDFMDBtxtexporter.ms"
+fileIn "EDFMABPointCalculation.ms"
 -- other
 fileIn "EDFFixVertexUV.ms"
 
@@ -19,7 +20,7 @@ utility EDFTool "Sandlot EDF" silentErrors:false
 	group "About:"
 	( 
 		label Label1 "Sandlot EDF MaxTool"
-		label Label2 "09-03"
+		label Label2 "09-20"
 	)
 	
 	group "Import:"
@@ -39,6 +40,7 @@ utility EDFTool "Sandlot EDF" silentErrors:false
 
 		label labelexm "Model:"
 		button exportMDBtxt "Export MDB text" tooltip:"Export model to xml format. Only models can now be exported."
+		button OutputMABPoint "Output MAB Point" tooltip:"Export bone information for MAB mapping."
 	)
 
 	group "Other:"
@@ -202,6 +204,13 @@ utility EDFTool "Sandlot EDF" silentErrors:false
 
 			exporter.ExportModel mdbFilename
 		)
+	)
+	
+	on OutputMABPoint pressed do
+	(
+		local processor = EDFMABPoint()
+
+		processor.MABPoint()
 	)
 
 	-- other

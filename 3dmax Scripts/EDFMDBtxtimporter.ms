@@ -246,6 +246,7 @@ struct MDB_TXTLoader
 		skipToString file "count=\""
 		local num = readDelimitedString file "\"" as integer
 
+		local meshStart = filePos file
 		for i = 1 to num do
 		(
 			skipToString file "<Object"
@@ -256,8 +257,10 @@ struct MDB_TXTLoader
 			local meshId = readDelimitedString file "<"
 
 			maxMesh = #()
+			meshStart = filePos file
 			for j = 1 to meshnum do
 			(
+				seek file meshStart
 				skipToString file "<Mesh"
 				skipToString file "MatID=\""
 				local matid = (readDelimitedString file "\"" as integer) + 1
@@ -344,6 +347,7 @@ struct MDB_TXTLoader
 				local texcoord0 = #()
 				seek file tagStart
 				skipToString file "<texcoord"
+				skipToString file "channel=\"0\""
 				for k = 1 to vnum do
 				(
 					skipToString file "<V"
@@ -354,8 +358,10 @@ struct MDB_TXTLoader
 					--Flip Y for normal display
 					texcoord0[k] = point3 x (1.0-y) 0
 				)
+				local texEnd0 = filePos file
 				--
 				skipToString file "<Faces"
+				local tagEnd = filePos file
 				skipToString file "Count=\""
 				local inum = readDelimitedString file "\"" as integer
 				local faces = #()
@@ -372,6 +378,28 @@ struct MDB_TXTLoader
 					z = readDelimitedString file "\"" as integer
 					faces[k] = point3 (1 + x) (1 + y) (1 + z)
 				)
+				meshStart = filePos file
+				-- try channel 1
+				local texcoord1 = #()
+				seek file texEnd0
+				try (
+					skipToString file "<texcoord"
+					skipToString file "channel=\"1\""
+					if (filePos file < tagEnd) then
+					(
+						for k = 1 to vnum do
+						(
+							skipToString file "<V"
+							skipToString file "x=\""
+							x = readDelimitedString file "\"" as float
+							skipToString file "y=\""
+							y = readDelimitedString file "\"" as float
+							--Flip Y for normal display
+							texcoord1[k] = point3 x (1.0-y) 0
+						)
+					)
+					else( seek file meshStart )
+				) catch ()
 				--
 				if (meshId != "") then
 				(
@@ -383,11 +411,25 @@ struct MDB_TXTLoader
 
 				local newMesh = mesh name:meshName vertices:position tverts:texcoord0 faces:faces
 				newMesh.material = multimat.materialList[matid]
-				
+				-- set User Defined
+				setUserProp newMesh "MaterialID" (matid - 1)
+
 				if (texcoord0.count > 0) then
 				(
 					buildTVFaces newMesh
 					for k = 1 to newMesh.numfaces do (setTVFace newMesh k (getFace newMesh k))
+				)
+
+				if (texcoord1.count > 0) then
+				(
+					setUserProp newMesh "Texcoord1" true
+					meshop.setNumMaps newMesh 3 keep:true
+					meshop.setMapSupport newMesh 2 true
+					--for k = 1 to newMesh.numfaces do (meshop.setNumMapFaces newMesh 2 k keep:true keepCount:2)
+					for k = 1 to vnum do
+					(
+						meshop.setMapVert newMesh 2 k texcoord1[k]
+					)
 				)
 				
 				for k = 1 to vnum do (setNormal newMesh k normal[k])
@@ -438,8 +480,7 @@ struct MDB_TXTLoader
 						wv3 = weights[k].w
 						skinOps.SetVertexWeights skinMod k bi3 wv3
 					)
-					--skinOps.buttonWeightTable skinMod
-					--actionMan.executeAction 2146909361 "1405"
+					skinOps.RemoveZeroWeights skinMod
 				)
 				update newMesh	
 				

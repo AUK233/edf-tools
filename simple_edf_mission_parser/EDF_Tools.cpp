@@ -56,6 +56,7 @@ void init_locale(void)
 
 #include "MDB.h" //MDB parser
 #include "CAS.h" //CAS parser
+#include "CANM.h" //CANM parser
 
 #include "ModManager.h"
 
@@ -189,6 +190,12 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 			casReader->Read(strn);
 			casReader.reset();
 		}
+		else if (extension == L"canm")
+		{
+			unique_ptr<CANM> canmReader = make_unique<CANM>();
+			canmReader->Read(strn);
+			canmReader.reset();
+		}
 		else if (extension == L"xml")
 		{
 			size_t xmlIndex = strn.find_last_of(L"_");
@@ -202,6 +209,12 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 				// To MDB File, no need for multi-core.
 				unique_ptr< CXMLToMDB > script = make_unique< CXMLToMDB >();
 				script->Write(xmlStrn, false);
+				script.reset();
+			}
+			else if (xmlExtension == L"canm")
+			{
+				unique_ptr< CANM > script = make_unique< CANM >();
+				script->Write(xmlStrn);
 				script.reset();
 			}
 			else if (xmlExtension == L"data")
