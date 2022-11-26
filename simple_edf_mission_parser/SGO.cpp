@@ -297,7 +297,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	// if empty content, return empty sgo
 	if (!entry)
 	{
-		bytes.resize(0x20);
+		bytes.resize(0x20, 0);
 
 		bytes[0] = 0x53;
 		bytes[1] = 0x47;
@@ -420,7 +420,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	}
 
 	// push bytes!
-	bytes.resize(0x20);
+	bytes.resize(0x20, 0);
 	bytes[0] = 0x53;
 	bytes[1] = 0x47;
 	bytes[2] = 0x4F;
@@ -550,7 +550,7 @@ SGOExtraData SGO::GetExtraData(tinyxml2::XMLElement* entry, std::string dataName
 SGOExtraData SGO::GetNodeData(tinyxml2::XMLElement* entry, int size, int pos, std::vector< char > & NodeBytes)
 {
 	SGOExtraData out;
-	out.bytes.resize(12U);
+	out.bytes.resize(12U, 0);
 
 	std::string nodeType = entry->Name();
 	if (nodeType == "ptr")
@@ -645,7 +645,7 @@ SGOExtraData SGO::GetNodeData(tinyxml2::XMLElement* entry, int size, int pos, st
 SGOExtraData SGO::GetNodeName(tinyxml2::XMLElement* entry, int pos, int NodeIndex)
 {
 	SGOExtraData out;
-	out.bytes.resize(8U);
+	out.bytes.resize(8U, 0);
 
 	if (entry->Attribute("name"))
 	{

@@ -211,6 +211,12 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 				script->Write(xmlStrn, false);
 				script.reset();
 			}
+			else if (xmlExtension == L"cas")
+			{
+				unique_ptr< CAS > script = make_unique< CAS >();
+				script->Write(xmlStrn);
+				script.reset();
+			}
 			else if (xmlExtension == L"canm")
 			{
 				unique_ptr< CANM > script = make_unique< CANM >();

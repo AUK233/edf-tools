@@ -154,12 +154,12 @@ void CANM::ReadAnimationKeyData(tinyxml2::XMLElement* header, std::vector<char> 
 		// get float
 		float vf[6];
 		memcpy(&vf, &buffer[curpos + 4], 24U);
-		xmlptr->SetAttribute("px", vf[0]);
-		xmlptr->SetAttribute("py", vf[1]);
-		xmlptr->SetAttribute("pz", vf[2]);
-		xmlptr->SetAttribute("rx", vf[3]);
-		xmlptr->SetAttribute("ry", vf[4]);
-		xmlptr->SetAttribute("rz", vf[5]);
+		xmlptr->SetAttribute("ix", vf[0]);
+		xmlptr->SetAttribute("iy", vf[1]);
+		xmlptr->SetAttribute("iz", vf[2]);
+		xmlptr->SetAttribute("vx", vf[3]);
+		xmlptr->SetAttribute("vy", vf[4]);
+		xmlptr->SetAttribute("vz", vf[5]);
 
 		// keyframe offset
 		int offset;
@@ -173,7 +173,7 @@ void CANM::ReadAnimationKeyData(tinyxml2::XMLElement* header, std::vector<char> 
 				half_float::half vf[3];
 				memcpy(&vf, &buffer[datapos], 6U);
 
-				tinyxml2::XMLElement* xmlNode = xmlptr->InsertNewChildElement("frame");
+				tinyxml2::XMLElement* xmlNode = xmlptr->InsertNewChildElement("v");
 
 #if defined(DEBUGMODE)
 				xmlNode->SetAttribute("pos", datapos);
@@ -304,11 +304,11 @@ std::vector<char> CANM::WriteData(tinyxml2::XMLElement* Data)
 	std::vector< char > blbytes = WriteBoneList(i_BoneCount);
 
 	// generate header
-	bytes.resize(0x20);
+	bytes.resize(0x20, 0);
 	bytes[0] = 0x43;
 	bytes[1] = 0x41;
-	bytes[2] = 0x4D;
-	bytes[3] = 0x4E;
+	bytes[2] = 0x4E;
+	bytes[3] = 0x4D;
 	bytes[5] = 0x02;
 
 	// write animation point data
@@ -371,12 +371,12 @@ CANMAnmPoint CANM::WriteAnmPoint(tinyxml2::XMLElement* data, std::vector< char >
 	CANMAnmPoint out;
 
 	float fvalue[6];
-	fvalue[0] = data->FloatAttribute("px");
-	fvalue[1] = data->FloatAttribute("py");
-	fvalue[2] = data->FloatAttribute("pz");
-	fvalue[3] = data->FloatAttribute("rx");
-	fvalue[4] = data->FloatAttribute("ry");
-	fvalue[5] = data->FloatAttribute("rz");
+	fvalue[0] = data->FloatAttribute("ix");
+	fvalue[1] = data->FloatAttribute("iy");
+	fvalue[2] = data->FloatAttribute("iz");
+	fvalue[3] = data->FloatAttribute("vx");
+	fvalue[4] = data->FloatAttribute("vy");
+	fvalue[5] = data->FloatAttribute("vz");
 
 	short svalue[2];
 	svalue[0] = 0;
@@ -386,14 +386,14 @@ CANMAnmPoint CANM::WriteAnmPoint(tinyxml2::XMLElement* data, std::vector< char >
 	out.offset = bytes->size();
 	out.haskey = false;
 	// write keyframe
-	tinyxml2::XMLElement* entry = data->FirstChildElement("frame");
+	tinyxml2::XMLElement* entry = data->FirstChildElement("v");
 	if (entry != nullptr)
 	{
 		half_float::half hf[3];
 		char buffer[6];
 		short count = 0;
 
-		for (entry = data->FirstChildElement("frame"); entry != 0; entry = entry->NextSiblingElement("frame"))
+		for (entry = data->FirstChildElement("v"); entry != 0; entry = entry->NextSiblingElement("v"))
 		{
 			hf[0] = entry->FloatAttribute("x");
 			hf[1] = entry->FloatAttribute("y");
@@ -410,7 +410,7 @@ CANMAnmPoint CANM::WriteAnmPoint(tinyxml2::XMLElement* data, std::vector< char >
 		out.haskey = true;
 	}
 
-	out.bytes.resize(0x20);
+	out.bytes.resize(0x20, 0);
 	memcpy(&out.bytes[0], &svalue, 4U);
 	memcpy(&out.bytes[4], &fvalue, 24U);
 
@@ -420,7 +420,7 @@ CANMAnmPoint CANM::WriteAnmPoint(tinyxml2::XMLElement* data, std::vector< char >
 CANMAnmData CANM::WriteAnmData(tinyxml2::XMLElement* data, std::vector<char>* bytes)
 {
 	CANMAnmData out;
-	out.bytes.resize(0x1C);
+	out.bytes.resize(0x1C, 0);
 
 	out.pos = v_AnmData.size() * 0x1C;
 	out.offset = bytes->size();
@@ -486,7 +486,7 @@ CANMAnmData CANM::WriteAnmData(tinyxml2::XMLElement* data, std::vector<char>* by
 
 std::vector<char> CANM::WriteBoneList(int in)
 {
-	std::vector<char> out(in * 4);
+	std::vector<char> out(in * 4, 0);
 	// get string data
 	for (size_t i = 0; i < WBoneList.size(); i++)
 	{

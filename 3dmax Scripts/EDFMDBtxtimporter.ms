@@ -230,7 +230,6 @@ struct MDB_TXTLoader
 			mat = multimat.materialList[i]
 			mat.name = matId
 			mat.showinviewport = true
-			mat.twosided = false
 			tm = Bitmaptexture filename:(texpath + tex)
 			tm.alphasource = 0
 			mat.diffuseMap = tm
