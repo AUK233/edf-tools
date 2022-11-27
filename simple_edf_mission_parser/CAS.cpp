@@ -595,7 +595,7 @@ std::vector<char> CAS::WriteData(tinyxml2::XMLElement* Data)
 	int i_Alignment = bytes.size() % 16;
 	if (i_Alignment > 0)
 	{
-		for (int i = 0; i < i_Alignment; i++)
+		for (int i = i_Alignment; i < 16; i++)
 			bytes.push_back(0);
 	}
 	// write canm data

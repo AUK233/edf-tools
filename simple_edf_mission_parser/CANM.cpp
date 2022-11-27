@@ -170,18 +170,27 @@ void CANM::ReadAnimationKeyData(tinyxml2::XMLElement* header, std::vector<char> 
 			{
 				int datapos = curpos + offset + (j * 6);
 
-				half_float::half vf[3];
-				memcpy(&vf, &buffer[datapos], 6U);
-
 				tinyxml2::XMLElement* xmlNode = xmlptr->InsertNewChildElement("v");
 
+				// debug mode output int16
 #if defined(DEBUGMODE)
 				xmlNode->SetAttribute("pos", datapos);
-#endif
+
+				short vf[3];
+				memcpy(&vf, &buffer[datapos], 6U);
 
 				xmlNode->SetAttribute("x", vf[0]);
 				xmlNode->SetAttribute("y", vf[1]);
 				xmlNode->SetAttribute("z", vf[2]);
+#else
+				half_float::half vf[3];
+				memcpy(&vf, &buffer[datapos], 6U);
+
+				xmlNode->SetAttribute("x", vf[0]);
+				xmlNode->SetAttribute("y", vf[1]);
+				xmlNode->SetAttribute("z", vf[2]);
+#endif
+				// end
 			}
 		}
 	}
@@ -395,12 +404,21 @@ CANMAnmPoint CANM::WriteAnmPoint(tinyxml2::XMLElement* data, std::vector< char >
 
 		for (entry = data->FirstChildElement("v"); entry != 0; entry = entry->NextSiblingElement("v"))
 		{
+			// debug mode input int16
+#if defined(DEBUGMODE)
+			short vi[3];
+			vi[0] = entry->IntAttribute("x");
+			vi[1] = entry->IntAttribute("y");
+			vi[2] = entry->IntAttribute("z");
+			memcpy(&buffer, &vi, 6U);
+#else
 			hf[0] = entry->FloatAttribute("x");
 			hf[1] = entry->FloatAttribute("y");
 			hf[2] = entry->FloatAttribute("z");
-			count++;
-
 			memcpy(&buffer, &hf, 6U);
+#endif
+			// end
+			count++;
 			for (int i = 0; i < 6; i++)
 				bytes->push_back(buffer[i]);
 		}
