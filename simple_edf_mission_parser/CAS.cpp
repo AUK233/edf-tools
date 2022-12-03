@@ -246,15 +246,15 @@ void CAS::ReadAnmGroupNodeData(std::vector<char> buffer, int ptrpos, tinyxml2::X
 	xmlnode->SetAttribute("name", utf8str.c_str());
 	// i1 is data1 offset
 	tinyxml2::XMLElement* xmldata1 = xmlnode->InsertNewChildElement("data1");
-	// Type A is now unavailable
-	ReadAnmGroupNodeDataPtrB(buffer, xmldata1, ptrpos + ptrvalue[1]);
+	ReadAnmGroupNodeDataPtr(buffer, xmldata1, ptrpos + ptrvalue[1]);
 	// i2 is data2 amount, i3 is offset
 	tinyxml2::XMLElement* xmldata2 = xmlnode->InsertNewChildElement("data2");
 	for (int i = 0; i < ptrvalue[2]; i++)
 	{
 		int data2pos = ptrpos + ptrvalue[3] + (i*0x20);
 		tinyxml2::XMLElement* xmldataptr = xmldata2->InsertNewChildElement("ptr");
-		ReadAnmGroupNodeDataPtrB(buffer, xmldataptr, data2pos);
+		// Type B is now unavailable
+		ReadAnmGroupNodeDataPtr(buffer, xmldataptr, data2pos);
 	}
 	// i4, i5, i6 is offset
 	tinyxml2::XMLElement* xmlptr1 = xmlnode->InsertNewChildElement("parametric1");
@@ -276,36 +276,33 @@ void CAS::ReadAnmGroupNodeData(std::vector<char> buffer, int ptrpos, tinyxml2::X
 		std::wcout << L"Unknown type at position: " + ToString(ptrpos + 0x1C) + L" - Type: " + ToString(ptrvalue[7]) + L"\n";
 }
 
-void CAS::ReadAnmGroupNodeDataPtrA(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
+void CAS::ReadAnmGroupNodeDataPtr(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
 {
-	// not using it now
-	/*
-	union test
-	{
-		int i;
-		float f;
-	} value[7];
-	*/
-	int value[7];
-	memcpy(&value, &buffer[pos], 28U);
-	// simple type check
-	for (int i = 0; i < 7; i++)
-	{
-		tinyxml2::XMLElement* datanode;
-		if (abs(value[i]) < 0x1000)
-		{
-			datanode = xmldata->InsertNewChildElement("int");
-			datanode->SetText(value[i]);
-		}
-		else
-		{
-			datanode = xmldata->InsertNewChildElement("float");
-			datanode->SetText(IntHexAsFloat(value[i]));
-		}
-	}
+	int value[8];
+	memcpy(&value, &buffer[pos], 32U);
+
 #if defined(DEBUGMODE)
 	xmldata->SetAttribute("debugpos", pos);
 #endif
+
+	xmldata->SetAttribute("int1", value[0]);
+	xmldata->SetAttribute("float2", IntHexAsFloat(value[1]));
+	// check type
+	xmldata->SetAttribute("type", value[3]);
+	if (value[3] == 0)
+		xmldata->SetAttribute("value", IntHexAsFloat(value[4]));
+	else if (value[3] == 1)
+		xmldata->SetAttribute("value", value[4]);
+	else if (value[3] == 2)
+		xmldata->SetAttribute("value", value[4]);
+	// get unknown
+	xmldata->SetAttribute("int6", value[5]);
+	xmldata->SetAttribute("int7", value[6]);
+	xmldata->SetAttribute("int8", value[7]);
+	// get offset
+	tinyxml2::XMLElement* xmlptr1 = xmldata->InsertNewChildElement("parametric");
+	if (value[2] > 0)
+		ReadAnmGroupNodeDataPtrCommon(buffer, xmlptr1, pos + value[2]);
 }
 
 void CAS::ReadAnmGroupNodeDataPtrB(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
@@ -802,7 +799,7 @@ CASAnmGroup CAS::WriteAnimationSetData(tinyxml2::XMLElement* data, int subnum)
 		int value = cusofs + v_AnmSetData.size();
 		memcpy(&out.bytes[4], &value, 4U);
 
-		std::vector<char> buffer = WriteCASSpecialData(entry, 8);
+		std::vector<char> buffer = WriteMainAnimationDataA(entry);
 		for (size_t i = 0; i < buffer.size(); i++)
 			v_AnmSetData.push_back(buffer[i]);
 	}
@@ -812,16 +809,39 @@ CASAnmGroup CAS::WriteAnimationSetData(tinyxml2::XMLElement* data, int subnum)
 	{
 		int value = cusofs + v_AnmSetData.size();
 		memcpy(&out.bytes[0xC], &value, 4U);
-
+		// reset value
 		value = 0;
+		std::vector<int> dataPos;
 		for (tinyxml2::XMLElement* entry2 = entry->FirstChildElement("ptr"); entry2 != 0; entry2 = entry2->NextSiblingElement("ptr"))
 		{
 			value++;
-			std::vector<char> buffer = WriteCASSpecialData(entry2, 8);
+			// record location
+			dataPos.push_back(v_AnmSetData.size());
+			// read data
+			std::vector<char> buffer = WriteMainAnimationDataB(entry2);
 			for (size_t i = 0; i < buffer.size(); i++)
 				v_AnmSetData.push_back(buffer[i]);
 		}
 		memcpy(&out.bytes[0x8], &value, 4U);
+		// reset value
+		value = 0;
+		for (tinyxml2::XMLElement* entry2 = entry->FirstChildElement("ptr"); entry2 != 0; entry2 = entry2->NextSiblingElement("ptr"))
+		{
+			tinyxml2::XMLElement* entry3 = entry2->FirstChildElement("parametric");
+			if (entry3->FirstChildElement())
+			{
+				// write parameter offset
+				int curpos = dataPos[value];
+				int offset = v_AnmSetData.size() - curpos;
+				memcpy(&v_AnmSetData[curpos + 8], &offset, 4U);
+				// read parameter data
+				std::vector<char> buffer = WriteUnknownData(entry3);
+				for (size_t i = 0; i < buffer.size(); i++)
+					v_AnmSetData.push_back(buffer[i]);
+			}
+			// finally add "value"
+			value++;
+		}
 	}
 	// read parametric1
 	entry = data->FirstChildElement("parametric1");
@@ -856,6 +876,92 @@ CASAnmGroup CAS::WriteAnimationSetData(tinyxml2::XMLElement* data, int subnum)
 		for (size_t i = 0; i < buffer.size(); i++)
 			v_AnmSetData.push_back(buffer[i]);
 	}
+
+	return out;
+}
+
+std::vector<char> CAS::WriteMainAnimationDataA(tinyxml2::XMLElement* data)
+{
+	std::vector<char> out(0x20, 0);
+	// write unknown
+	int i1 = data->IntAttribute("int1");
+	memcpy(&out[0], &i1, 4U);
+	float f2 = data->FloatAttribute("float2");
+	memcpy(&out[4], &f2, 4U);
+	// check type
+	int type = data->IntAttribute("type");
+	memcpy(&out[0xC], &type, 4U);
+	if (type == 0)
+	{
+		float value = data->FloatAttribute("value");
+		memcpy(&out[0x10], &value, 4U);
+	}
+	else if (type == 1)
+	{
+		int value = data->IntAttribute("value");
+		memcpy(&out[0x10], &value, 4U);
+	}
+	else if (type == 2)
+	{
+		int value = data->IntAttribute("value");
+		memcpy(&out[0x10], &value, 4U);
+	}
+	// write unknown 2
+	int i6 = data->IntAttribute("int6");
+	memcpy(&out[0x14], &i6, 4U);
+	int i7 = data->IntAttribute("int7");
+	memcpy(&out[0x18], &i7, 4U);
+	int i8 = data->IntAttribute("int8");
+	memcpy(&out[0x1C], &i8, 4U);
+	// read offset data
+	tinyxml2::XMLElement* entry = data->FirstChildElement("parametric");
+	if (entry->FirstChildElement())
+	{
+		int value = 0x20;
+		memcpy(&out[0x8], &value, 4U);
+
+		std::vector<char> buffer = WriteUnknownData(entry);
+		for (size_t i = 0; i < buffer.size(); i++)
+			out.push_back(buffer[i]);
+	}
+
+	return out;
+}
+
+std::vector<char> CAS::WriteMainAnimationDataB(tinyxml2::XMLElement* data)
+{
+	std::vector<char> out(0x20, 0);
+	// write unknown
+	int i1 = data->IntAttribute("int1");
+	memcpy(&out[0], &i1, 4U);
+	float f2 = data->FloatAttribute("float2");
+	memcpy(&out[4], &f2, 4U);
+	// check type
+	int type = data->IntAttribute("type");
+	memcpy(&out[0xC], &type, 4U);
+	if (type == 0)
+	{
+		float value = data->FloatAttribute("value");
+		memcpy(&out[0x10], &value, 4U);
+	}
+	else if (type == 1)
+	{
+		int value = data->IntAttribute("value");
+		memcpy(&out[0x10], &value, 4U);
+	}
+	else if (type == 2)
+	{
+		int value = data->IntAttribute("value");
+		memcpy(&out[0x10], &value, 4U);
+	}
+	// write unknown 2
+	int i6 = data->IntAttribute("int6");
+	memcpy(&out[0x14], &i6, 4U);
+	int i7 = data->IntAttribute("int7");
+	memcpy(&out[0x18], &i7, 4U);
+	int i8 = data->IntAttribute("int8");
+	memcpy(&out[0x1C], &i8, 4U);
+	// offset data is not read here
 
 	return out;
 }

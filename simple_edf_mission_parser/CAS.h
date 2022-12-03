@@ -34,7 +34,7 @@ public:
 	void ReadVControlData(tinyxml2::XMLElement* header, std::vector<char> buffer);
 	void ReadAnmGroupData(tinyxml2::XMLElement* header, std::vector<char> buffer);
 	void ReadAnmGroupNodeData(std::vector<char> buffer, int ptrpos, tinyxml2::XMLElement* xmlptr, int index);
-	void ReadAnmGroupNodeDataPtrA(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
+	void ReadAnmGroupNodeDataPtr(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
 	void ReadAnmGroupNodeDataPtrB(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
 	void ReadAnmGroupNodeDataPtrCommon(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
 	void ReadAnmGroupNodeDataCommon(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
@@ -49,6 +49,8 @@ public:
 	std::vector< char > WriteCASSpecialData(tinyxml2::XMLElement* data, int num);
 	CASAnmGroup WriteAnimationGroupData(tinyxml2::XMLElement* data, int subnum);
 	CASAnmGroup WriteAnimationSetData(tinyxml2::XMLElement* data, int subnum);
+	std::vector< char > WriteMainAnimationDataA(tinyxml2::XMLElement* data);
+	std::vector< char > WriteMainAnimationDataB(tinyxml2::XMLElement* data);
 
 private:
 	int CAS_Version;
