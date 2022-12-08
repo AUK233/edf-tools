@@ -2,6 +2,23 @@
 #include "include/tinyxml2.h"
 #include "include/half.hpp"
 
+struct CANMAnmKeyframe
+{
+	half_float::half vf[3];
+	std::vector< char > bytes;
+};
+
+struct CANMAnmKey
+{
+	short vi[2];
+	float vf[6];
+	std::vector< CANMAnmKeyframe > kf;
+	// when to CANM
+	int pos;
+	int offset;
+	std::vector< char > bytes;
+};
+
 struct CANMAnmPoint
 {
 	int pos;
@@ -23,16 +40,23 @@ class CANM
 public:
 	void Read(std::wstring path);
 	void ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header);
+	// old
+	void ReadAnimationPointData(tinyxml2::XMLElement* header, std::vector<char> buffer);
+	// now
 	void ReadAnimationData(tinyxml2::XMLElement* header, std::vector<char> buffer);
-	void ReadAnimationKeyData(tinyxml2::XMLElement* header, std::vector<char> buffer);
+	void ReadAnimationDataWriteKeyFrame(tinyxml2::XMLElement* node, int num);
 	void ReadBoneListData(tinyxml2::XMLElement* header, std::vector<char> buffer);
+	CANMAnmKey ReadAnimationFrameData(std::vector<char> buffer, int pos);
+
 
 	void Write(const std::wstring& path);
 	std::vector< char > WriteData(tinyxml2::XMLElement* Data);
-
-	CANMAnmPoint WriteAnmPoint(tinyxml2::XMLElement* data, std::vector< char >* bytes);
-	CANMAnmData WriteAnmData(tinyxml2::XMLElement* data, std::vector< char >* bytes);
+	CANMAnmPoint WriteAnmPoint(tinyxml2::XMLElement* data, std::vector<char>* bytes);
+	CANMAnmData WriteAnmData(tinyxml2::XMLElement* data, std::vector<char>* bytes);
 	std::vector< char > WriteBoneList(int in);
+	// new
+	CANMAnmData WriteAnimationData(tinyxml2::XMLElement* data, std::vector<char>* bytes);
+	short WriteAnimationKeyFrame(tinyxml2::XMLElement* data);
 
 private:
 	int i_AnmDataCount = 0;
@@ -44,6 +68,8 @@ private:
 
 	std::vector< std::string > BoneList;
 	std::vector< std::wstring > WBoneList;
+
+	std::vector< CANMAnmKey > v_AnmKey;
 
 	std::vector< CANMAnmPoint > v_AnmPoint;
 	std::vector< CANMAnmData > v_AnmData;

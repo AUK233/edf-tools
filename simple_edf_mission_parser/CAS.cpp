@@ -98,13 +98,21 @@ void CAS::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
 	CANMReader.reset();
 
 	// t control data
+	std::wcout << L"Read t control list...... ";
 	ReadTControlData(header, buffer);
+	std::wcout << L"Complete!\n";
 	// v control data
+	std::wcout << L"Read v control list...... ";
 	ReadVControlData(header, buffer);
+	std::wcout << L"Complete!\n";
 	// animation group data
+	std::wcout << L"Read animation list...... ";
 	ReadAnmGroupData(header, buffer);
+	std::wcout << L"Complete!\n";
 	// bone data
+	std::wcout << L"Read bone list...... ";
 	ReadBoneListData(header, buffer);
+	std::wcout << L"Complete!\n";
 	// unk c data
 	tinyxml2::XMLElement* xmlunk = header->InsertNewChildElement("Unknown");
 	if (i_UnkCOffset > 0)
