@@ -96,6 +96,9 @@ void CAS::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
 	std::unique_ptr< CANM > CANMReader = std::make_unique< CANM >();
 	CANMReader->ReadData(newbuf, xmlcanm);
 	CANMReader.reset();
+	// read CANM animation name list
+	ReadCANMName(header, newbuf);
+	newbuf.clear();
 
 	// t control data
 	std::wcout << L"Read t control list...... ";
@@ -117,6 +120,23 @@ void CAS::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
 	tinyxml2::XMLElement* xmlunk = header->InsertNewChildElement("Unknown");
 	if (i_UnkCOffset > 0)
 		ReadAnmGroupNodeDataPtrCommon(buffer, xmlunk, i_UnkCOffset);
+}
+
+void CAS::ReadCANMName(tinyxml2::XMLElement* header, std::vector<char> buffer)
+{
+	int nameCount, nameOffset;
+	memcpy(&nameCount, &buffer[0x8], 4U);
+	memcpy(&nameOffset, &buffer[0xC], 4U);
+
+	for (int i = 0; i < nameCount; i++)
+	{
+		int curpos = nameOffset + (i * 0x1C);
+
+		int offset;
+		memcpy(&offset, &buffer[curpos+4], 4U);
+		std::wstring wstr = ReadUnicode(buffer, curpos + offset);
+		CANMAnimationList.push_back(wstr);
+	}
 }
 
 void CAS::ReadTControlData(tinyxml2::XMLElement* header, std::vector<char> buffer)
@@ -144,6 +164,8 @@ void CAS::ReadTControlData(tinyxml2::XMLElement* header, std::vector<char> buffe
 			wstr = L"";
 		std::string utf8str = WideToUTF8(wstr);
 		xmlptr->SetAttribute("name", utf8str.c_str());
+		// write name to list
+		CASAnimationList.push_back(wstr);
 
 		// read number
 		for (int j = 0; j < value[1]; j++)
@@ -152,9 +174,13 @@ void CAS::ReadTControlData(tinyxml2::XMLElement* header, std::vector<char> buffe
 
 			int number;
 			memcpy(&number, &buffer[numpos], 4U);
-
+			// now write readable name
+			/*
 			tinyxml2::XMLElement* xmlNode = xmlptr->InsertNewChildElement("value");
 			xmlNode->SetText(number);
+			*/
+			tinyxml2::XMLElement* xmlNode = xmlptr->InsertNewChildElement("anime");
+			xmlNode->SetText( WideToUTF8(CANMAnimationList[number]).c_str() );
 		}
 	}
 	// end
@@ -277,11 +303,24 @@ void CAS::ReadAnmGroupNodeData(std::vector<char> buffer, int ptrpos, tinyxml2::X
 	// check type
 	xmlnode->SetAttribute("type", ptrvalue[7]);
 	if (ptrvalue[7] == 0)
+	{
 		xmlnode->SetAttribute("value", IntHexAsFloat(ptrvalue[8]));
-	else if (ptrvalue[7] == 2)
+	}
+	else if (ptrvalue[7] == 1)
+	{
 		xmlnode->SetAttribute("value", ptrvalue[8]);
+	}
+	else if (ptrvalue[7] == 2)
+	{
+		// now write name instead of index
+		//xmlnode->SetAttribute("value", ptrvalue[8]);
+		xmlnode->SetAttribute("value", WideToUTF8( CASAnimationList[ptrvalue[8]]).c_str() );
+	}
 	else
-		std::wcout << L"Unknown type at position: " + ToString(ptrpos + 0x1C) + L" - Type: " + ToString(ptrvalue[7]) + L"\n";
+	{
+		std::wcout << L"Unknown type at position: " + ToString(ptrpos + 0x1C);
+		std::wcout << L" - Type: " + ToString(ptrvalue[7]) + L"\n";
+	}
 }
 
 void CAS::ReadAnmGroupNodeDataPtr(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
@@ -457,6 +496,14 @@ std::vector<char> CAS::WriteData(tinyxml2::XMLElement* Data)
 		i_CasDCCount = 13;
 	}
 
+	// get canm animation name
+	entry = Data->FirstChildElement("CanmData")->FirstChildElement("AnmData");
+	for (entry2 = entry->FirstChildElement("node"); entry2 != 0; entry2 = entry2->NextSiblingElement("node"))
+	{
+		// read name
+		std::wstring wstr = UTF8ToWide(entry2->Attribute("name"));
+		CANMAnimationList.push_back(wstr);
+	}
 
 	// read TControl data
 	entry = Data->FirstChildElement("TControl");
@@ -659,15 +706,40 @@ CASTControl CAS::WriteTControlData(tinyxml2::XMLElement* data, std::vector<char>
 	out.hasanm = false;
 	// write number
 	int count = 0;
-	tinyxml2::XMLElement* entry = data->FirstChildElement("value");
+	tinyxml2::XMLElement* entry = data->FirstChildElement();
 	if (entry != nullptr)
 	{
 		int number;
 		char buffer[4];
 
-		for (entry = data->FirstChildElement("value"); entry != 0; entry = entry->NextSiblingElement("value"))
+		for (entry = data->FirstChildElement(); entry != 0; entry = entry->NextSiblingElement())
 		{
-			number = entry->IntText();
+			std::string nodeType = entry->Name();
+			if (nodeType == "value")
+			{
+				number = entry->IntText();
+			}
+			else if (nodeType == "anime")
+			{
+				std::wstring wstr = UTF8ToWide(entry->GetText());
+				// check exist
+				bool isExist = false;
+				for (size_t i = 0; i < CANMAnimationList.size(); i++)
+				{
+					if (wstr == CANMAnimationList[i])
+					{
+						isExist = true;
+						number = i;
+						break;
+					}
+				}
+				// If it doesn't exist, it needs to be thrown and set to 0
+				if (!isExist)
+				{
+					std::wcout << L"!!!!!!Non-existent CANM animation: " + wstr + L"\n";
+					number = 0;
+				}
+			}
 			count++;
 
 			memcpy(&buffer, &number, 4U);
@@ -795,9 +867,34 @@ CASAnmGroup CAS::WriteAnimationSetData(tinyxml2::XMLElement* data, int subnum)
 		float value = data->FloatAttribute("value");
 		memcpy(&out.bytes[0x20], &value, 4U);
 	}
-	else if (type == 2)
+	else if (type == 1)
 	{
 		int value = data->IntAttribute("value");
+		memcpy(&out.bytes[0x20], &value, 4U);
+	}
+	else if (type == 2)
+	{
+		//int value = data->IntAttribute("value");
+		int value;
+		std::wstring tcstr = UTF8ToWide(data->Attribute("value"));
+		// check exist
+		bool isExist = false;
+		for (size_t i = 0; i < v_TControl.size(); i++)
+		{
+			if (tcstr == v_TControl[i].wstr)
+			{
+				isExist = true;
+				value = i;
+				break;
+			}
+		}
+		// If it doesn't exist, it needs to be thrown and set to 0
+		if (!isExist)
+		{
+			std::wcout << L"!!!!!!Non-existent CAS TControl: " + tcstr + L"\n";
+			value = 0;
+		}
+
 		memcpy(&out.bytes[0x20], &value, 4U);
 	}
 	// read data1

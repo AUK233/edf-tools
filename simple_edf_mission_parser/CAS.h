@@ -30,6 +30,7 @@ public:
 	void Read(std::wstring path);
 	void ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header);
 
+	void ReadCANMName(tinyxml2::XMLElement* header, std::vector<char> buffer);
 	void ReadTControlData(tinyxml2::XMLElement* header, std::vector<char> buffer);
 	void ReadVControlData(tinyxml2::XMLElement* header, std::vector<char> buffer);
 	void ReadAnmGroupData(tinyxml2::XMLElement* header, std::vector<char> buffer);
@@ -68,6 +69,10 @@ private:
 	int i_UnkCOffset = 0;
 
 	std::vector< std::wstring > WBoneList;
+	// List of animation name in CANM
+	std::vector< std::wstring > CANMAnimationList;
+	// List of TControl name in CAS
+	std::vector< std::wstring > CASAnimationList;
 
 	std::vector< CASTControl > v_TControl;
 	std::vector< CASVControl > v_VControl;
