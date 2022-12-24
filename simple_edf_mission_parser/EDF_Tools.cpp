@@ -53,6 +53,7 @@ void init_locale(void)
 #include "SGO.h" //SGO parser
 #include "Middleware.h" //Data middleware
 #include "MAB.h" //MAB parser
+#include "MTAB.h" //MTAB parser
 
 #include "MDB.h" //MDB parser
 #include "CAS.h" //CAS parser
@@ -183,6 +184,12 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 			std::unique_ptr< MAB > mabReader = std::make_unique< MAB >();
 			mabReader->Read(strn);
 			mabReader.reset();
+		}
+		else if (extension == L"mtab")
+		{
+			std::unique_ptr< MTAB > mtabReader = std::make_unique< MTAB >();
+			mtabReader->Read(strn);
+			mtabReader.reset();
 		}
 		else if (extension == L"cas")
 		{

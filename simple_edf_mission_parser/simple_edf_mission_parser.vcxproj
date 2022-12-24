@@ -92,6 +92,7 @@
     <ClInclude Include="Middleware.h" />
     <ClInclude Include="MissionScript.h" />
     <ClInclude Include="ModManager.h" />
+    <ClInclude Include="MTAB.h" />
     <ClInclude Include="RAB.h" />
     <ClInclude Include="RMPA.h" />
     <ClInclude Include="SGO.h" />
@@ -121,6 +122,9 @@
     <ClCompile Include="Middleware.cpp" />
     <ClCompile Include="MissionScript.cpp" />
     <ClCompile Include="ModManager.cpp" />
+    <ClCompile Include="MTAB.cpp">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
     <ClCompile Include="RAB.cpp" />
     <ClCompile Include="RMPA.cpp" />
     <ClCompile Include="SGO.cpp" />

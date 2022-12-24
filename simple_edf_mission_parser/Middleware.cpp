@@ -10,6 +10,7 @@
 #include "util.h"
 #include "SGO.h"
 #include "MAB.h"
+#include "MTAB.h"
 #include "include/tinyxml2.h"
 
 void CheckDataType(std::vector<char>& buffer, tinyxml2::XMLElement*& xmlHeader, std::string str)
@@ -19,6 +20,12 @@ void CheckDataType(std::vector<char>& buffer, tinyxml2::XMLElement*& xmlHeader, 
 	header[1] = buffer[1];
 	header[2] = buffer[2];
 	header[3] = buffer[3];
+
+	char mtabheader[4];
+	mtabheader[0] = buffer[0x10];
+	mtabheader[1] = buffer[0x11];
+	mtabheader[2] = buffer[0x12];
+	mtabheader[3] = buffer[0x13];
 
 	tinyxml2::XMLElement* NewXml = xmlHeader->InsertNewChildElement("Subdata");
 	NewXml->SetAttribute("name", str.c_str());
@@ -38,6 +45,14 @@ void CheckDataType(std::vector<char>& buffer, tinyxml2::XMLElement*& xmlHeader, 
 		std::unique_ptr< MAB > mabReader = std::make_unique< MAB >();
 		mabReader->ReadData(buffer, NewXml, xmlHeader);
 		mabReader.reset();
+	}
+	else if (mtabheader[0] == 0x4D && mtabheader[1] == 0x54 && mtabheader[2] == 0x41 && mtabheader[3] == 0x42 && header[2] == 0x00 && header[3] == 0x00)
+	{
+		NewXml->SetAttribute("header", "MTAB");
+
+		std::unique_ptr< MTAB > mtabReader = std::make_unique< MTAB >();
+		mtabReader->ReadData(buffer, NewXml, xmlHeader);
+		mtabReader.reset();
 	}
 	else
 	{
@@ -73,6 +88,12 @@ void CheckXMLHeader(std::wstring path)
 		writer->Write(path, header);
 		writer.reset();
 	}
+	else if (headerType == "MTAB")
+	{
+		std::unique_ptr< MTAB > writer = std::make_unique< MTAB >();
+		writer->Write(path, header);
+		writer.reset();
+	}
 }
 
 // Check for the extra file header
@@ -90,6 +111,12 @@ std::vector<char> CheckDataType(tinyxml2::XMLElement* Data, tinyxml2::XMLNode* h
 	else if (headerType == "MAB")
 	{
 		std::unique_ptr< MAB > writer = std::make_unique< MAB >();
+		bytes = writer->WriteData(Data, header);
+		writer.reset();
+	}
+	else if (headerType == "MTAB")
+	{
+		std::unique_ptr< MTAB > writer = std::make_unique< MTAB >();
 		bytes = writer->WriteData(Data, header);
 		writer.reset();
 	}

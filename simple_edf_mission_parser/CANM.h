@@ -1,10 +1,9 @@
 #pragma once
 #include "include/tinyxml2.h"
-#include "include/half.hpp"
 
 struct CANMAnmKeyframe
 {
-	half_float::half vf[3];
+	short vf[3];
 	std::vector< char > bytes;
 };
 

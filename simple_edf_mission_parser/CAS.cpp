@@ -415,8 +415,18 @@ void CAS::ReadAnmGroupNodeDataCommon(std::vector<char> buffer, tinyxml2::XMLElem
 		}
 		else
 		{
-			datanode = xmldata->InsertNewChildElement("float");
-			datanode->SetText(IntHexAsFloat(value[i]));
+			float vf = IntHexAsFloat(value[i]);
+			// here need to determine whether to output float
+			if (isnan(vf))
+			{
+				datanode = xmldata->InsertNewChildElement("int");
+				datanode->SetText(value[i]);
+			}
+			else
+			{
+				datanode = xmldata->InsertNewChildElement("float");
+				datanode->SetText(vf);
+			}
 		}
 	}
 }

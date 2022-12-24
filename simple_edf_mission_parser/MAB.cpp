@@ -550,7 +550,7 @@ std::vector<char> MAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNo
 	}
 
 	// push bytes!
-	bytes.resize(0x24);
+	bytes.resize(0x24, 0);
 	bytes[0] = 0x4D;
 	bytes[1] = 0x41;
 	bytes[2] = 0x42;

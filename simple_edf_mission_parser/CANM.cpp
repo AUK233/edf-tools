@@ -191,20 +191,19 @@ void CANM::ReadAnimationDataWriteKeyFrame(tinyxml2::XMLElement* node, int num)
 		for (int i = 0; i < v_AnmKey[num].kf.size(); i++)
 		{
 			tinyxml2::XMLElement* xmlNode = node->InsertNewChildElement("v");
-			// debug mode output int16
-#if defined(DEBUGMODE)
-			xmlNode->SetAttribute("pos", datapos);
 
-			short vf[3];
-			memcpy(&vf, &v_AnmKey[num].kf[i].vf, 6U);
-
-			xmlNode->SetAttribute("x", vf[0]);
-			xmlNode->SetAttribute("y", vf[1]);
-			xmlNode->SetAttribute("z", vf[2]);
-#else
 			xmlNode->SetAttribute("x", v_AnmKey[num].kf[i].vf[0]);
 			xmlNode->SetAttribute("y", v_AnmKey[num].kf[i].vf[1]);
 			xmlNode->SetAttribute("z", v_AnmKey[num].kf[i].vf[2]);
+			// debug mode output half
+#if defined(DEBUGMODE)
+			//xmlNode->SetAttribute("pos", v_AnmKey[num].pos);
+			half_float::half vf[3];
+			memcpy(&vf, &v_AnmKey[num].kf[i].vf, 6U);
+
+			xmlNode->SetAttribute("dx", vf[0]);
+			xmlNode->SetAttribute("dy", vf[1]);
+			xmlNode->SetAttribute("dz", vf[2]);
 #endif
 		}
 	}
@@ -471,7 +470,7 @@ std::vector<char> CANM::WriteData(tinyxml2::XMLElement* Data)
 	int i_Alignment = bytes.size() % 4;
 	if (i_Alignment > 0)
 	{
-		for (int i = 0; i < i_Alignment; i++)
+		for (int i = i_Alignment; i < 4; i++)
 			bytes.push_back(0);
 	}
 
@@ -752,26 +751,18 @@ short CANM::WriteAnimationKeyFrame(tinyxml2::XMLElement* data)
 		tinyxml2::XMLElement* entry = data->FirstChildElement("v");
 		if (entry != nullptr)
 		{
-			half_float::half hf[3];
+			short vi[3];
 			char buffer[6];
 			short count = 0;
 			CANMAnmKeyframe kfout;
 
 			for (entry = data->FirstChildElement("v"); entry != 0; entry = entry->NextSiblingElement("v"))
 			{
-				// debug mode input int16
-#if defined(DEBUGMODE)
-				short vi[3];
+				// now input int16
 				vi[0] = entry->IntAttribute("x");
 				vi[1] = entry->IntAttribute("y");
 				vi[2] = entry->IntAttribute("z");
 				memcpy(&buffer, &vi, 6U);
-#else
-				hf[0] = entry->FloatAttribute("x");
-				hf[1] = entry->FloatAttribute("y");
-				hf[2] = entry->FloatAttribute("z");
-				memcpy(&buffer, &hf, 6U);
-#endif
 				// end
 				count++;
 				for (int i = 0; i < 6; i++)
