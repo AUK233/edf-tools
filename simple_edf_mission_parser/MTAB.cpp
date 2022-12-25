@@ -78,7 +78,7 @@ void MTAB::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header, tiny
 	{
 		int curpos = position + (i * 0xC);
 
-		tinyxml2::XMLElement* xmlMA = header->InsertNewChildElement("group");
+		tinyxml2::XMLElement* xmlMA = header->InsertNewChildElement("material");
 		ReadMainActionData(buffer, curpos, xmlMA, xmlHeader);
 	}
 }
@@ -104,7 +104,7 @@ void MTAB::ReadMainActionData(std::vector<char>& buffer, int curpos, tinyxml2::X
 	{
 		int curofs = curpos + value[2] + (i * 0xC);
 
-		tinyxml2::XMLElement* xmlSA = xmlData->InsertNewChildElement("action");
+		tinyxml2::XMLElement* xmlSA = xmlData->InsertNewChildElement("parameter");
 		ReadSubActionData(buffer, curofs, xmlSA, xmlHeader);
 	}
 }
@@ -203,7 +203,7 @@ std::vector<char> MTAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLN
 	float headerTime = mainData->FloatAttribute("time");
 
 	// get main action
-	for (tinyxml2::XMLElement* entry = mainData->FirstChildElement("group"); entry != 0; entry = entry->NextSiblingElement("group"))
+	for (tinyxml2::XMLElement* entry = mainData->FirstChildElement("material"); entry != 0; entry = entry->NextSiblingElement("material"))
 	{
 		v_MainAction.push_back(WriteMainAction(entry));
 	}
@@ -353,7 +353,7 @@ MTABMainAction MTAB::WriteMainAction(tinyxml2::XMLElement* data)
 	// get sub action
 	out.saofs = v_SubAction.size();
 	int count = 0;
-	for (tinyxml2::XMLElement* entry = data->FirstChildElement("action"); entry != 0; entry = entry->NextSiblingElement("action"))
+	for (tinyxml2::XMLElement* entry = data->FirstChildElement("parameter"); entry != 0; entry = entry->NextSiblingElement("parameter"))
 	{
 		v_SubAction.push_back(WriteSubAction(entry));
 		count++;
