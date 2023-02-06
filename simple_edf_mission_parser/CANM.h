@@ -46,7 +46,8 @@ public:
 	void ReadAnimationDataWriteKeyFrame(tinyxml2::XMLElement* node, int num);
 	void ReadBoneListData(tinyxml2::XMLElement* header, std::vector<char> buffer);
 	CANMAnmKey ReadAnimationFrameData(std::vector<char> buffer, int pos);
-
+	// faster with the pointer version
+	CANMAnmKey ReadAnimationFrameData(std::vector<char> *buf, int pos, int mask);
 
 	void Write(const std::wstring& path);
 	std::vector< char > WriteData(tinyxml2::XMLElement* Data);

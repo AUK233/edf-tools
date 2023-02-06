@@ -72,12 +72,14 @@ void CANM::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
 	// animation key data
 	//ReadAnimationPointData(header, buffer);
 	std::wcout << L"Read animation frame list:\n0     in " + ToString(i_AnmPointCount);
+	std::vector<char> tempBuffer = buffer;
 	v_AnmKey.reserve(i_AnmPointCount);
 	for (int i = 0; i < i_AnmPointCount; i++)
 	{
 		int curpos = i_AnmPointOffset + (i * 0x20);
 
-		v_AnmKey.push_back(ReadAnimationFrameData(buffer, curpos));
+		//v_AnmKey.push_back(ReadAnimationFrameData(buffer, curpos));
+		v_AnmKey.push_back(ReadAnimationFrameData(&tempBuffer, curpos, 1));
 
 		std::wcout << L"\r" + ToString(i+1);
 		// now not displayed as a percentage
@@ -320,6 +322,32 @@ CANMAnmKey CANM::ReadAnimationFrameData(std::vector<char> buffer, int pos)
 
 			CANMAnmKeyframe kfout;
 			memcpy(&kfout.vf, &buffer[datapos], 6U);
+			out.kf.push_back(kfout);
+		}
+	}
+	// only debug
+	out.pos = pos;
+	return out;
+}
+
+// faster with the pointer version
+CANMAnmKey CANM::ReadAnimationFrameData(std::vector<char>* buf, int pos, int mask)
+{
+	CANMAnmKey out;
+
+	memcpy(&out.vi, &buf->data()[pos], 4U);
+	memcpy(&out.vf, &buf->data()[pos + 4], 24U);
+	// read keyframe offset
+	int offset;
+	memcpy(&offset, &buf->data()[pos + 28], 4U);
+	if (offset > 0)
+	{
+		for (int j = 0; j < out.vi[1]; j++)
+		{
+			int datapos = pos + offset + (j * 6);
+
+			CANMAnmKeyframe kfout;
+			memcpy(&kfout.vf, &buf->data()[datapos], 6U);
 			out.kf.push_back(kfout);
 		}
 	}
