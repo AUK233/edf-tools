@@ -15,6 +15,8 @@ uint16_t ReadUInt16(std::vector<char> buf, int pos, bool swapEndian = false);
 float ReadHalfFloat(std::vector<char> buf, int pos, bool swapEndian = false);
 
 int GetIntFromChunk( unsigned char *chunk );
+// Fast read of int32 using assembly
+int __fastcall ReadInt32(uintptr_t pdata, int swapEndian = 0);
 // Functions cannot be used to read float.
 
 char* IntToBytes( int i, bool flip = true );
