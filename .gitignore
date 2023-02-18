@@ -41,5 +41,5 @@
 .vs/*
 /Release/*
 /Debug/*
-/simple_edf_mission_parser/Release/*
-/simple_edf_mission_parser/Debug/*
+/EDF_Tools/Release/*
+/EDF_Tools/Debug/*

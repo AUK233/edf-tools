@@ -154,7 +154,7 @@ int GetIntFromChunk( unsigned char *chunk )
 }
 
 // Fast read of int32 using assembly
-__declspec(naked) int __fastcall ReadInt32(uintptr_t pdata, int swapEndian)
+__declspec(naked) int __fastcall ReadInt32(void const* pdata, int swapEndian)
 {
 	__asm {
 		cmp edx, 1

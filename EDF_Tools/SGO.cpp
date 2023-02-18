@@ -192,8 +192,9 @@ void SGO::ReadSGONode(bool big_endian, std::vector<char> buffer, int nodepos, st
 		break;
 	}
 	case 1:
-		Read4BytesData(big_endian, seg, buffer, nodepos + 8);
-		memcpy(&datanode[i].ivalue, &seg, 4U);
+		//Read4BytesData(big_endian, seg, buffer, nodepos + 8);
+		//memcpy(&datanode[i].ivalue, &seg, 4U);
+		datanode[i].ivalue = ReadInt32(&buffer[nodepos + 8], big_endian);
 
 		xmlNode = header->InsertNewChildElement("int");
 		xmlNode->SetText(datanode[i].ivalue);
