@@ -3,7 +3,7 @@
 
 struct CANMAnmKeyframe
 {
-	short vf[3];
+	UINT16 vf[3];
 	std::vector< char > bytes;
 };
 

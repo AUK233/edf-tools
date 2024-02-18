@@ -779,7 +779,7 @@ short CANM::WriteAnimationKeyFrame(tinyxml2::XMLElement* data)
 		tinyxml2::XMLElement* entry = data->FirstChildElement("v");
 		if (entry != nullptr)
 		{
-			short vi[3];
+			UINT16 vi[3];
 			char buffer[6];
 			short count = 0;
 			CANMAnmKeyframe kfout;

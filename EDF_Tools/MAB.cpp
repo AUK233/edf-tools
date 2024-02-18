@@ -620,6 +620,7 @@ std::vector<char> MAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNo
 	for (size_t i = 0; i < NodeWString.size(); i++)
 		PushWStringToVector(NodeWString[i].name, &bytes);
 
+
 	// debug only
 	/*
 	std::wcout << L"BoneCount: " + ToString(BoneCount) + L"\n";
