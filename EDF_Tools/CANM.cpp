@@ -162,7 +162,7 @@ void CANM::ReadAnimationData(tinyxml2::XMLElement* header, std::vector<char> buf
 			else
 				ReadAnimationDataWriteKeyFrame(xmlRot, number[2]);
 
-			tinyxml2::XMLElement* xmlVis = xmlNode->InsertNewChildElement("visibility");
+			tinyxml2::XMLElement* xmlVis = xmlNode->InsertNewChildElement("scaling");
 			if (number[3] < 0)
 				xmlVis->SetAttribute("type", "null");
 			else
@@ -737,7 +737,7 @@ CANMAnmData CANM::WriteAnimationData(tinyxml2::XMLElement* data, std::vector<cha
 			// read other
 			svalue[1] = WriteAnimationKeyFrame(entry->FirstChildElement("position"));
 			svalue[2] = WriteAnimationKeyFrame(entry->FirstChildElement("rotation"));
-			svalue[3] = WriteAnimationKeyFrame(entry->FirstChildElement("visibility"));
+			svalue[3] = WriteAnimationKeyFrame(entry->FirstChildElement("scaling"));
 			count++;
 			// write data
 			memcpy(&buffer, &svalue, 8U);

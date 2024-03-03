@@ -11,7 +11,8 @@ struct MDBBone
 {
 	int index[5];
 	// write need
-	unsigned char weight[3][4];
+	int childrenNum;
+	unsigned char weight[2][4];
 	float matrix1[4][4];
 	float matrix2[4][4];
 	float fg[2][4];

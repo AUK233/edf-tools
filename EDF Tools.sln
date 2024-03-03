@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32126.315
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EDF Tools", "EDF_Tools\EDF_Tools.vcxproj", "{C4C1EF46-CD8D-41CF-A2AA-008CA025AC7D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelScale", "ModelScale\ModelScale.vcxproj", "{DEA2F8A0-ABD4-4122-9743-D11454D4F48B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +21,14 @@ Global
 		{C4C1EF46-CD8D-41CF-A2AA-008CA025AC7D}.Release|Win32.ActiveCfg = Release|Win32
 		{C4C1EF46-CD8D-41CF-A2AA-008CA025AC7D}.Release|Win32.Build.0 = Release|Win32
 		{C4C1EF46-CD8D-41CF-A2AA-008CA025AC7D}.Release|x64.ActiveCfg = Release|Win32
+		{DEA2F8A0-ABD4-4122-9743-D11454D4F48B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DEA2F8A0-ABD4-4122-9743-D11454D4F48B}.Debug|Win32.Build.0 = Debug|Win32
+		{DEA2F8A0-ABD4-4122-9743-D11454D4F48B}.Debug|x64.ActiveCfg = Debug|x64
+		{DEA2F8A0-ABD4-4122-9743-D11454D4F48B}.Debug|x64.Build.0 = Debug|x64
+		{DEA2F8A0-ABD4-4122-9743-D11454D4F48B}.Release|Win32.ActiveCfg = Release|Win32
+		{DEA2F8A0-ABD4-4122-9743-D11454D4F48B}.Release|Win32.Build.0 = Release|Win32
+		{DEA2F8A0-ABD4-4122-9743-D11454D4F48B}.Release|x64.ActiveCfg = Release|x64
+		{DEA2F8A0-ABD4-4122-9743-D11454D4F48B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

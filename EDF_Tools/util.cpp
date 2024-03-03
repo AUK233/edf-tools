@@ -149,7 +149,6 @@ int GetIntFromChunk( unsigned char *chunk )
 		num <<= 8;
 		num |= chunk[i];
 	}
-
 	return num;
 }
 

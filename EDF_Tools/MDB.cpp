@@ -185,12 +185,14 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 				xmlBoneIK->SetAttribute("root", bones.back().index[2]);
 				xmlBoneIK->SetAttribute("next", bones.back().index[3]);
 				xmlBoneIK->SetAttribute("current", bones.back().index[0]);
+				tinyxml2::XMLElement* xmlBoneChild = xmlBone->InsertNewChildElement("childrenNum");
+				xmlBoneChild->SetAttribute("value", bones.back().childrenNum);
 
 				int tpos;
-				//Read bone weights, 3 groups?
-				for (int j = 0; j < 3; j++)
+				//Read bone weights, 2 groups?
+				for (int j = 0; j < 2; j++)
 				{
-					tpos = curtablepos + 0x14 + (j * 0x4);
+					tpos = curtablepos + 0x18 + (j * 0x4);
 
 					tinyxml2::XMLElement* xmlBNode = xmlBone->InsertNewChildElement("weight");
 					unsigned char seg[4];
@@ -654,6 +656,11 @@ MDBBone CMDBtoXML::ReadBone(int pos, std::vector<char> buffer)
 	position = pos + 0x10;
 	Read4Bytes(seg, buffer, position);
 	out.index[4] = GetIntFromChunk(seg);
+
+	// number of bones currently connected to the current bone
+	position = pos + 0x14;
+	Read4Bytes(seg, buffer, position);
+	out.childrenNum = GetIntFromChunk(seg);
 
 	return out;
 }
@@ -1576,8 +1583,14 @@ MDBBone CXMLToMDB::GetBone(tinyxml2::XMLElement* entry2, bool NoNameTable)
 
 	out.bytes.resize(0xC0);
 	memcpy(&out.bytes[0], &out.index[0], 20U);
-	// ubyte 4x3
-	for (int i = 0; i < 3; i++)
+
+	// childrenNum
+	entry3 = entry2->FirstChildElement("childrenNum");
+	out.childrenNum = entry3->IntAttribute("value");
+	memcpy(&out.bytes[0x14], &out.childrenNum, 4U);
+
+	// ubyte 4x2
+	for (int i = 0; i < 2; i++)
 	{
 		entry3 = entry3->NextSiblingElement();
 		out.weight[i][0] = entry3->IntAttribute("x");
@@ -1585,7 +1598,7 @@ MDBBone CXMLToMDB::GetBone(tinyxml2::XMLElement* entry2, bool NoNameTable)
 		out.weight[i][2] = entry3->IntAttribute("z");
 		out.weight[i][3] = entry3->IntAttribute("w");
 	}
-	memcpy(&out.bytes[0x14], &out.weight[0][0], 12U);
+	memcpy(&out.bytes[0x18], &out.weight[0][0], 8U);
 	// matrix1 4x4
 	for (int i = 0; i < 4; i++)
 	{
