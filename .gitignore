@@ -43,3 +43,7 @@
 /Debug/*
 /EDF_Tools/Release/*
 /EDF_Tools/Debug/*
+/ModelScale/Release/*
+/ModelScale/Debug/*
+/Dxbc2Asm/Release/*
+/Dxbc2Asm/Debug/*
