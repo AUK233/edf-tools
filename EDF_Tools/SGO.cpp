@@ -359,10 +359,10 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	int i_NdataCount = DataNodeCount * 0xC;
 	// 16 byte alignment
 	int a_dataCount = i_NdataCount;
-	/*
+	/**/
 	if (i_NdataCount % 16 != 0)
 		a_dataCount = (i_NdataCount / 16 + 1) * 16;
-	*/
+	
 	int i_NptrCount = nodePtrNum * 0xC;
 	int i_NnameCount = DataNameCount * 0x8;
 	int i_NdataSize = 0x20 + a_dataCount + i_NptrCount;
@@ -385,8 +385,8 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	}
 	// 4 byte alignment
 	int ae_nodesize = e_nodesize;
-	if (e_nodesize % 4 != 0)
-		ae_nodesize = (e_nodesize / 4 + 1) * 4;
+	if (e_nodesize % 16 != 0)
+		ae_nodesize = (e_nodesize / 16 + 1) * 16;
 	WstrPos = ae_nodesize;
 
 	// out string
@@ -404,7 +404,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	}
 
 	// get node data
-	std::vector< char > NodeBytes(a_dataCount);
+	std::vector< char > NodeBytes(a_dataCount, 0);
 	//NodeBytes.resize(i_NdataCount);
 	std::vector< SGOExtraData > NodeData;
 	std::vector< SGOExtraData > NodeName;
@@ -545,6 +545,17 @@ SGOExtraData SGO::GetExtraData(tinyxml2::XMLElement* entry, std::string dataName
 	SGOExtraData out;
 	out.name = dataName;
 	out.bytes = CheckDataType(entry, header);
+
+	size_t dataSize = out.bytes.size();
+	out.size = dataSize;
+	size_t alignSize = dataSize % 16;
+	if (alignSize) {
+		alignSize = 16 - alignSize;
+		for (size_t i = 0; i < alignSize; i++) {
+			out.bytes.push_back(0);
+		}
+	}
+
 	return out;
 }
 
@@ -631,7 +642,7 @@ SGOExtraData SGO::GetNodeData(tinyxml2::XMLElement* entry, int size, int pos, st
 			if (ExtraData[i].name == out.name)
 			{
 				int value[2];
-				value[0] = ExtraData[i].bytes.size();
+				value[0] = ExtraData[i].size;
 				value[1] = ExtraDataPos[i] - pos;
 				memcpy(&out.bytes[4], &value, 8U);
 

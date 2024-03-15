@@ -25,6 +25,7 @@ struct SGOExtraData
 {
 	std::string name;
 	std::vector< char > bytes;
+	size_t size;
 };
 
 class SGO
