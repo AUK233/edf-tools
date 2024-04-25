@@ -158,6 +158,7 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 		}
 		else if (extension == L"mdb")
 		{
+			/*
 			wstring scstr;
 			wcout << L"Single Core? (0 is false, 1 is true) : ";
 			wcin >> scstr;
@@ -168,9 +169,10 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 				wcout << L"\nWill now use a single core to read the file!";
 			}
 			wcout << L"\n\n";
+			*/
 
 			unique_ptr<CMDBtoXML> script = make_unique<CMDBtoXML>();
-			script->Read(strn, onecore);
+			script->Read(strn, true);
 			script.reset();
 		}
 		else if (extension == L"sgo")
@@ -420,19 +422,51 @@ int _tmain( int argc, wchar_t* argv[] )
 			std::unique_ptr< RAB > rabReader = std::make_unique< RAB >( );
 
 			rabReader->bUseFakeCompression = false;
+			rabReader->bIsMultipleThreads = false;
+			rabReader->bIsMultipleCores = false;
+			rabReader->customizeThreads = 0;
+			rabReader->mdbFileNum = 0;
 
 			int fileArgNum = 2;
 
-			if( argc > 3 && !lstrcmpW( argv[2], L"-fc" ) )
+			if( argc > 3)
 			{
-				rabReader->bUseFakeCompression = true;
-				fileArgNum++;
+				if (!lstrcmpW(argv[2], L"-fc")) {
+					rabReader->bUseFakeCompression = true;
+					fileArgNum++;
+				}
+				else if (!lstrcmpW(argv[2], L"-mt")) {
+					rabReader->bIsMultipleThreads = true;
+					fileArgNum++;
+				}
+				else if (!lstrcmpW(argv[2], L"-mc")) {
+					rabReader->bIsMultipleThreads = true;
+					rabReader->bIsMultipleCores = true;
+					fileArgNum++;
+				}
+				else if (!lstrcmpW(argv[2], L"-cmtn")) {
+					rabReader->bIsMultipleThreads = true;
+					rabReader->bIsMultipleCores = true;
+					rabReader->customizeThreads = 4;
+					fileArgNum++;
+					if (argc > 4) {
+						rabReader->customizeThreads = stoi(argv[3]);
+						fileArgNum++;
+					}
+				}
 			}
 
-			rabReader->CreateFromDirectory( argv[fileArgNum] );
-
 			wstring fileName = argv[fileArgNum];
-			fileName += L".rab";
+
+			rabReader->CreateFromDirectory(fileName);
+
+			if (rabReader->mdbFileNum > 1)
+			{
+				fileName += L".mrab";
+			}
+			else {
+				fileName += L".rab";
+			}
 
 			rabReader->Write( fileName );
 			rabReader.reset( );

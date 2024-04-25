@@ -1,5 +1,24 @@
 #pragma once
 
+struct RABMTFile
+{
+	HANDLE hnd;
+	uint32_t isActive;
+	size_t size;
+	std::vector< char > data;
+};
+
+struct RABMTParameter
+{
+	LPCRITICAL_SECTION cs;
+	RABMTFile* task;
+	size_t taskNum;
+	size_t index;
+	std::wstring fileName;
+	std::vector< char > data;
+};
+
+DWORD WINAPI RABWriteMTCompress(LPVOID lpParam);
 
 struct RABFile
 {
@@ -45,6 +64,9 @@ struct RAB
 
 	//Tool properties.
 	bool bUseFakeCompression;
+	bool bIsMultipleThreads;
+	bool bIsMultipleCores;
+	int customizeThreads;
 
 	//Stored Data
 	int numFiles;
@@ -54,6 +76,8 @@ struct RAB
 	int dataStartOfs;
 
 	int largestFileSize;
+
+	int mdbFileNum;
 
 	std::vector< std::wstring> folders;
 	std::vector< std::unique_ptr<RABFile> > files;

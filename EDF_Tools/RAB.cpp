@@ -265,8 +265,8 @@ void RAB::CreateFromDirectory( std::wstring path )
 				//Exclude certain files.
 				if( lstrcmpW( fileData.cFileName, L"Excluded" ) && lstrcmpW( fileData.cFileName, L"Exclude" ) )
 				{
-					folders.push_back( fileData.cFileName );
-					AddFilesInDirectory( path + L"\\" + fileData.cFileName );
+					folders.push_back(fileData.cFileName);
+					AddFilesInDirectory(path + L"\\" + fileData.cFileName);
 				}
 			}
 		}
@@ -322,6 +322,16 @@ void RAB::AddFilesInDirectory( std::wstring path )
 			std::wcout << L"FILE:" + fileName + L"\n";
 
 			AddFile( path + L"\\" + fileName );
+
+			size_t lastindex = fileName.find_last_of(L".");
+			if (lastindex != std::wstring::npos)
+			{
+				std::wstring extension = fileName.substr(lastindex + 1, extension.size() - lastindex);
+				extension = ConvertToLower(extension);
+				if (extension == L"mdb") {
+					mdbFileNum++;
+				}
+			}
 
 #ifdef MULTITHREAD
 			if( threads.size( ) < MAX_MULTITHREADED_FILES - 1 )
@@ -672,51 +682,145 @@ void RAB::Write( std::wstring rabName )
 
 	//File contents:
 	int largestCompressedFile = 0;
-	for( int i = 0; i < files.size( ); ++i )
+	if (bIsMultipleThreads)
 	{
-		seg = IntToBytes( data.size( ) );
-		for( int j = 0; j < 4; ++j )
-			data[fileOffsPos[i] + j] = seg[j];
-		free( seg );
+		CRITICAL_SECTION *CriticalSection = new CRITICAL_SECTION;
+		InitializeCriticalSectionAndSpinCount(CriticalSection, 0x00000400);
 
-		bool shouldCompress = true;
-		if( shouldCompress )
-		{
-			std::wcout << L"Compressing file: " + files[i]->fileName + L"\n";
+		size_t inVFileSize = files.size();
+		RABMTFile* v_MTFile = new RABMTFile[inVFileSize]; 
+		HANDLE* v_handle = new HANDLE[inVFileSize];
 
-			CMPLHandler compresser = CMPLHandler( files[i]->data );
-			compresser.bUseFakeCompression = bUseFakeCompression;
+		for (size_t i = 0; i < inVFileSize; ++i) {
+			RABMTParameter *InPtr = new RABMTParameter;
+			InPtr->index = i;
+			InPtr->task = v_MTFile;
+			InPtr->cs = CriticalSection;
+			InPtr->fileName = files[i]->fileName;
+			InPtr->data = files[i]->data;
+			InPtr->taskNum = inVFileSize;
 
-			std::vector< char > compressedFile = compresser.Compress( );
-
-			if( largestCompressedFile < compressedFile.size( ) )
-				largestCompressedFile = compressedFile.size( );
-
-			seg = IntToBytes( compressedFile.size( ) );
-			for( int j = 0; j < 4; ++j )
-				data[fileCompressedSizePos[i] + j] = seg[j];
-			free( seg );
-
-			for( int j = 0; j < compressedFile.size( ); ++j )
-			{
-				data.push_back( compressedFile[j] );
+			HANDLE hnd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RABWriteMTCompress, InPtr, CREATE_SUSPENDED, 0);
+			if (hnd) {
+				v_handle[i] = hnd;
+				v_MTFile[i].hnd = hnd;
 			}
-			compressedFile.clear( );
-			compresser.data.clear( );
-		}
-		else
-		{
-			if( largestCompressedFile < files[i]->data.size( ) )
-				largestCompressedFile = files[i]->data.size( );
-
-			for( int j = 0; j < files[i]->data.size( ); ++j )
-			{
-				data.push_back( files[i]->data[j] );
+			else {
+				DWORD errorCode = GetLastError();
+				std::wcout << errorCode;
+				std::wcout << L"\n";
+				system("pause");
 			}
+			v_MTFile[i].isActive = 0;
+			v_MTFile[i].size = 0;
 		}
 
+		// Set a limit of enabled threads
+		size_t activeThreadsNum = 4;
+		if (customizeThreads > 0) {
+			activeThreadsNum = customizeThreads;
+		}
+		else {
+			SYSTEM_INFO sysInfo;
+			GetSystemInfo(&sysInfo);
+			int threads_num = sysInfo.dwNumberOfProcessors;
+			if (bIsMultipleCores) {
+				threads_num /= 2;
+			}
+			else {
+				threads_num -= 1;
+			}
+			if (inVFileSize > threads_num) {
+				activeThreadsNum = threads_num;
+			}
+			else {
+				activeThreadsNum = inVFileSize;
+			}
+		}
 
-		std::wcout << L"File: " + files[i]->fileName + L" Archived\n";
+		std::wcout << L"Set the number of threads active: " + std::to_wstring(activeThreadsNum) + L"\n";
+		for (size_t i = 0; i < activeThreadsNum; ++i) {
+			v_MTFile[i].isActive = 1;
+			ResumeThread(v_MTFile[i].hnd);
+		}
+		// end
+
+		DWORD result = WaitForMultipleObjects(inVFileSize, v_handle, TRUE, INFINITE);
+		if (result == WAIT_OBJECT_0) {
+			for (size_t i = 0; i < inVFileSize; ++i) {
+				CloseHandle(v_handle[i]);
+			}
+			delete[] v_handle;
+
+			DeleteCriticalSection(CriticalSection);
+			delete CriticalSection;
+
+			for (size_t i = 0; i < inVFileSize; ++i) {
+				if (largestCompressedFile < v_MTFile[i].size)
+				{
+					largestCompressedFile = v_MTFile[i].size;
+				}
+
+				uint32_t tempFileOffset = data.size();
+				memcpy(&data[fileOffsPos[i]], &tempFileOffset, 4U);
+
+				uint32_t* pFilePos = (uint32_t*)&data[fileCompressedSizePos[i]];
+				*pFilePos = v_MTFile[i].size;
+
+				for (int j = 0; j < v_MTFile[i].size; ++j)
+				{
+					data.push_back(v_MTFile[i].data[j]);
+				}
+				v_MTFile[i].data.clear();
+			}
+			delete[] v_MTFile;
+		}
+	}
+	else {
+		for (int i = 0; i < files.size(); ++i)
+		{
+			seg = IntToBytes(data.size());
+			for (int j = 0; j < 4; ++j)
+				data[fileOffsPos[i] + j] = seg[j];
+			free(seg);
+			bool shouldCompress = true;
+			if (shouldCompress)
+			{
+				std::wcout << L"Compressing file: " + files[i]->fileName + L"\n";
+
+				CMPLHandler compresser = CMPLHandler(files[i]->data);
+				compresser.bUseFakeCompression = bUseFakeCompression;
+
+				std::vector< char > compressedFile = compresser.Compress();
+
+				if (largestCompressedFile < compressedFile.size())
+					largestCompressedFile = compressedFile.size();
+
+				seg = IntToBytes(compressedFile.size());
+				for (int j = 0; j < 4; ++j)
+					data[fileCompressedSizePos[i] + j] = seg[j];
+				free(seg);
+
+				for (int j = 0; j < compressedFile.size(); ++j)
+				{
+					data.push_back(compressedFile[j]);
+				}
+				compressedFile.clear();
+				compresser.data.clear();
+			}
+			else
+			{
+				if (largestCompressedFile < files[i]->data.size())
+					largestCompressedFile = files[i]->data.size();
+
+				for (int j = 0; j < files[i]->data.size(); ++j)
+				{
+					data.push_back(files[i]->data[j]);
+				}
+			}
+
+			std::wcout << L"File: " + files[i]->fileName + L" Archived\n";
+		}
 	}
 
 	//Update "largest compressed file" int:
@@ -750,6 +854,34 @@ void RAB::Write( std::wstring rabName )
 	data.clear( );
 
 	std::wcout << L"RAB Archive operation completed!\n";
+}
+
+DWORD WINAPI RABWriteMTCompress(LPVOID lpParam)
+{
+	RABMTParameter* InPtr = (RABMTParameter*)lpParam;
+	EnterCriticalSection(InPtr->cs);
+	std::wcout << L"Compressing file: " + InPtr->fileName + L"\n";
+	LeaveCriticalSection(InPtr->cs);
+
+	CMPLHandler compresser = CMPLHandler(InPtr->data);
+	compresser.bUseFakeCompression = false;
+
+	InPtr->task[InPtr->index].data = compresser.Compress();
+	InPtr->task[InPtr->index].size = InPtr->task[InPtr->index].data.size();
+	compresser.data.clear();
+
+	EnterCriticalSection(InPtr->cs);
+	std::wcout << L"File compression completed: " + InPtr->fileName + L"\n";
+	for (size_t i = 0; i < InPtr->taskNum; ++i) {
+		if (InPtr->task[i].isActive == 0) {
+			InPtr->task[i].isActive = 1;
+			ResumeThread(InPtr->task[i].hnd);
+		}
+	}
+	LeaveCriticalSection(InPtr->cs);
+
+	delete InPtr;
+	return 0;
 }
 
 RABFile::RABFile( std::wstring name, int fID, std::wstring fullPath )
