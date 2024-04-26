@@ -689,38 +689,96 @@ void RAB::Write( std::wstring rabName )
 
 		size_t inVFileSize = files.size();
 		RABMTFile* v_MTFile = new RABMTFile[inVFileSize]; 
-		HANDLE* v_handle = new HANDLE[inVFileSize];
-
-		for (size_t i = 0; i < inVFileSize; ++i) {
-			RABMTParameter *InPtr = new RABMTParameter;
-			InPtr->index = i;
-			InPtr->task = v_MTFile;
-			InPtr->cs = CriticalSection;
-			InPtr->fileName = files[i]->fileName;
-			InPtr->data = files[i]->data;
-			InPtr->taskNum = inVFileSize;
-
-			HANDLE hnd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RABWriteMTCompress, InPtr, CREATE_SUSPENDED, 0);
-			if (hnd) {
-				v_handle[i] = hnd;
-				v_MTFile[i].hnd = hnd;
-			}
-			else {
-				DWORD errorCode = GetLastError();
-				std::wcout << errorCode;
-				std::wcout << L"\n";
-				system("pause");
-			}
-			v_MTFile[i].isActive = 0;
-			v_MTFile[i].size = 0;
-		}
+		HANDLE* v_handle = 0;
+		size_t handleNum = inVFileSize;
+		RABFileList* FileWaitList = 0;
 
 		// Set a limit of enabled threads
 		size_t activeThreadsNum = 4;
 		if (customizeThreads > 0) {
+			FileWaitList = new RABFileList;
+			FileWaitList->next = 0;
+
 			activeThreadsNum = customizeThreads;
+
+			if (inVFileSize > activeThreadsNum) {
+				handleNum = activeThreadsNum;
+
+				RABFileList* BeforeNode = 0;
+				for (size_t i = handleNum; i < inVFileSize; ++i) {
+					RABFileList* currentNode = new RABFileList;
+					currentNode->pList = FileWaitList;
+					currentNode->pTask = &v_MTFile[i];
+					currentNode->fileName = files[i]->fileName;
+					currentNode->data = files[i]->data;
+					currentNode->next = 0;
+					if (BeforeNode) {
+						BeforeNode->next = currentNode;
+					}
+
+					BeforeNode = currentNode;
+					if (!FileWaitList->next) {
+						FileWaitList->next = currentNode;
+					}
+				}
+			}
+
+			v_handle = new HANDLE[handleNum];
+
+			for (size_t i = 0; i < handleNum; ++i) {
+				RABMTParameter* InPtr = new RABMTParameter;
+				InPtr->index = i;
+				InPtr->task = &v_MTFile[i];
+				InPtr->cs = CriticalSection;
+				InPtr->fileName = files[i]->fileName;
+				InPtr->data = files[i]->data;
+				InPtr->pList = FileWaitList;
+
+				HANDLE hnd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RABWriteMTCompress2, InPtr, CREATE_SUSPENDED, 0);
+				if (hnd) {
+					v_handle[i] = hnd;
+					v_MTFile[i].hnd = hnd;
+				}
+				else {
+					DWORD errorCode = GetLastError();
+					std::wcout << errorCode;
+					std::wcout << L"\n";
+					system("pause");
+				}
+				v_MTFile[i].size = 0;
+			}
+
+			for (size_t i = 0; i < handleNum; ++i) {
+				ResumeThread(v_handle[i]);
+			}
 		}
 		else {
+			v_handle = new HANDLE[handleNum];
+
+			for (size_t i = 0; i < inVFileSize; ++i) {
+				RABMTParameter* InPtr = new RABMTParameter;
+				InPtr->index = i;
+				InPtr->task = v_MTFile;
+				InPtr->cs = CriticalSection;
+				InPtr->fileName = files[i]->fileName;
+				InPtr->data = files[i]->data;
+				InPtr->taskNum = inVFileSize;
+
+				HANDLE hnd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RABWriteMTCompress, InPtr, CREATE_SUSPENDED, 0);
+				if (hnd) {
+					v_handle[i] = hnd;
+					v_MTFile[i].hnd = hnd;
+				}
+				else {
+					DWORD errorCode = GetLastError();
+					std::wcout << errorCode;
+					std::wcout << L"\n";
+					system("pause");
+				}
+				v_MTFile[i].isActive = 0;
+				v_MTFile[i].size = 0;
+			}
+
 			SYSTEM_INFO sysInfo;
 			GetSystemInfo(&sysInfo);
 			int threads_num = sysInfo.dwNumberOfProcessors;
@@ -736,21 +794,25 @@ void RAB::Write( std::wstring rabName )
 			else {
 				activeThreadsNum = inVFileSize;
 			}
-		}
 
-		std::wcout << L"Set the number of threads active: " + std::to_wstring(activeThreadsNum) + L"\n";
-		for (size_t i = 0; i < activeThreadsNum; ++i) {
-			v_MTFile[i].isActive = 1;
-			ResumeThread(v_MTFile[i].hnd);
+			for (size_t i = 0; i < activeThreadsNum; ++i) {
+				v_MTFile[i].isActive = 1;
+				ResumeThread(v_MTFile[i].hnd);
+			}
 		}
+		std::wcout << L"Set the number of threads active: " + std::to_wstring(activeThreadsNum) + L"\n\n";
 		// end
 
-		DWORD result = WaitForMultipleObjects(inVFileSize, v_handle, TRUE, INFINITE);
+		DWORD result = WaitForMultipleObjects(handleNum, v_handle, TRUE, INFINITE);
 		if (result == WAIT_OBJECT_0) {
-			for (size_t i = 0; i < inVFileSize; ++i) {
+			for (size_t i = 0; i < handleNum; ++i) {
 				CloseHandle(v_handle[i]);
 			}
 			delete[] v_handle;
+
+			if (FileWaitList) {
+				delete FileWaitList;
+			}
 
 			DeleteCriticalSection(CriticalSection);
 			delete CriticalSection;
@@ -882,6 +944,72 @@ DWORD WINAPI RABWriteMTCompress(LPVOID lpParam)
 
 	delete InPtr;
 	return 0;
+}
+
+DWORD WINAPI RABWriteMTCompress2(LPVOID lpParam)
+{
+	RABMTParameter* InPtr = (RABMTParameter*)lpParam;
+	DWORD_PTR AffinityMask = 1;
+	DWORD_PTR CPUMark = InPtr->index * 2;
+	if (CPUMark > 0) {
+		AffinityMask <<= CPUMark;
+	}
+	SetThreadAffinityMask(GetCurrentThread(), AffinityMask);
+
+	EnterCriticalSection(InPtr->cs);
+	std::wcout << L"Compressing file: " + InPtr->fileName + L"\n";
+	LeaveCriticalSection(InPtr->cs);
+
+	CMPLHandler compresser = CMPLHandler(InPtr->data);
+	compresser.bUseFakeCompression = false;
+
+	InPtr->task->data = compresser.Compress();
+	InPtr->task->size = InPtr->task->data.size();
+	compresser.data.clear();
+
+	RABFileList* pFile = 0;
+	EnterCriticalSection(InPtr->cs);
+	std::wcout << L"File compression completed: " + InPtr->fileName + L"\n";
+	pFile = InPtr->pList->next;
+	if (pFile) {
+		InPtr->pList->next = pFile->next;
+	}
+	LeaveCriticalSection(InPtr->cs);
+
+	while (pFile) {
+		pFile = RABWriteMTCompressNext(pFile, InPtr->cs);
+	}
+
+	delete InPtr;
+	return 0;
+}
+
+RABFileList* __fastcall RABWriteMTCompressNext(RABFileList* File, LPCRITICAL_SECTION cs)
+{
+	File->next = 0;
+
+	EnterCriticalSection(cs);
+	std::wcout << L"Compressing file: " + File->fileName + L"\n";
+	LeaveCriticalSection(cs);
+
+	CMPLHandler compresser = CMPLHandler(File->data);
+	compresser.bUseFakeCompression = false;
+
+	File->pTask->data = compresser.Compress();
+	File->pTask->size = File->pTask->data.size();
+	compresser.data.clear();
+
+	RABFileList* pFile = 0;
+	EnterCriticalSection(cs);
+	std::wcout << L"File compression completed: " + File->fileName + L"\n";
+	pFile = File->pList->next;
+	if (pFile) {
+		File->pList->next = pFile->next;
+	}
+	LeaveCriticalSection(cs);
+
+	delete File;
+	return pFile;
 }
 
 RABFile::RABFile( std::wstring name, int fID, std::wstring fullPath )

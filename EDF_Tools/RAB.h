@@ -6,6 +6,17 @@ struct RABMTFile
 	uint32_t isActive;
 	size_t size;
 	std::vector< char > data;
+	BYTE pad[40];
+};
+
+struct RABFileList
+{
+	RABFileList* next;
+	RABMTFile* pTask;
+	std::wstring fileName;
+	std::vector< char > data;
+	RABFileList* pList;
+	BYTE pad[16];
 };
 
 struct RABMTParameter
@@ -16,9 +27,13 @@ struct RABMTParameter
 	size_t index;
 	std::wstring fileName;
 	std::vector< char > data;
+	RABFileList* pList;
+	BYTE pad[8];
 };
 
 DWORD WINAPI RABWriteMTCompress(LPVOID lpParam);
+DWORD WINAPI RABWriteMTCompress2(LPVOID lpParam);
+RABFileList* __fastcall RABWriteMTCompressNext(RABFileList* File, LPCRITICAL_SECTION cs);
 
 struct RABFile
 {

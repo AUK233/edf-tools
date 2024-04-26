@@ -450,7 +450,11 @@ int _tmain( int argc, wchar_t* argv[] )
 					rabReader->customizeThreads = 4;
 					fileArgNum++;
 					if (argc > 4) {
-						rabReader->customizeThreads = stoi(argv[3]);
+						int tempThreadNum = stoi(argv[3]);
+						if (tempThreadNum > 16) {
+							tempThreadNum = 16;
+						}
+						rabReader->customizeThreads = tempThreadNum;
 						fileArgNum++;
 					}
 				}
