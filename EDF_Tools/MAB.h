@@ -30,16 +30,16 @@ struct MABData
 class MAB
 {
 public:
-	void Read(std::wstring path);
-	void ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader);
-	void ReadBoneData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlBone, tinyxml2::XMLElement* xmlHeader);
-	void ReadBoneTypeData(int type, std::vector<char>& buffer, int ptrpos, tinyxml2::XMLElement* xmlBPtr);
+	void Read(const std::wstring& path);
+	void ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader);
+	void ReadBoneData(const std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlBone, tinyxml2::XMLElement* xmlHeader);
+	void ReadBoneTypeData(int type, const std::vector<char>& buffer, int ptrpos, tinyxml2::XMLElement* xmlBPtr);
 	void Read4FloatData(tinyxml2::XMLElement* xmlNode, float* vf);
-	void ReadExtraSGO(std::string& namestr, std::vector<char>& buffer, int pos, tinyxml2::XMLElement*& xmlHeader);
-	void ReadAnimeData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlAnm, tinyxml2::XMLElement* xmlHeader);
-	void ReadAnimeDataA(std::vector<char>& buffer, int pos, tinyxml2::XMLElement* xmlNode, tinyxml2::XMLElement* xmlHeader);
+	void ReadExtraSGO(std::string& namestr, const std::vector<char>& buffer, int pos, tinyxml2::XMLElement*& xmlHeader);
+	void ReadAnimeData(const std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlAnm, tinyxml2::XMLElement* xmlHeader);
+	void ReadAnimeDataA(const std::vector<char>& buffer, int pos, tinyxml2::XMLElement* xmlNode, tinyxml2::XMLElement* xmlHeader);
 
-	void Write(std::wstring path, tinyxml2::XMLNode* header);
+	void Write(const std::wstring& path, tinyxml2::XMLNode* header);
 	std::vector< char > WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNode* header);
 	void GetMABString(std::string namestr);
 	void GetMABExtraDataName(tinyxml2::XMLElement* data);
@@ -47,8 +47,8 @@ public:
 
 	MABExtraData GetExtraData(tinyxml2::XMLElement* entry, std::string dataName, tinyxml2::XMLNode* header, int pos);
 
-	int GetMABStringOffset(std::string namestr);
-	int GetMABExtraOffset(std::string namestr);
+	int GetMABStringOffset(const std::string& namestr);
+	int GetMABExtraOffset(const std::string& namestr);
 
 	MABData GetMABBoneData(tinyxml2::XMLElement* entry2, int ptrpos);
 	MABData GetMABBonePtrData(tinyxml2::XMLElement* entry3);

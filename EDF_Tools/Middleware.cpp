@@ -13,7 +13,7 @@
 #include "MTAB.h"
 #include "include/tinyxml2.h"
 
-void CheckDataType(std::vector<char>& buffer, tinyxml2::XMLElement*& xmlHeader, std::string str)
+void CheckDataType(const std::vector<char>& buffer, tinyxml2::XMLElement*& xmlHeader, const std::string& str)
 {
 	char header[4];
 	header[0] = buffer[0];
@@ -64,7 +64,7 @@ void CheckDataType(std::vector<char>& buffer, tinyxml2::XMLElement*& xmlHeader, 
 }
 
 // Check the header to determine the output type
-void CheckXMLHeader(std::wstring path)
+void CheckXMLHeader(const std::wstring& path)
 {
 	std::wstring sourcePath = path + L"_data.xml";
 	std::string UTF8Path = WideToUTF8(sourcePath);

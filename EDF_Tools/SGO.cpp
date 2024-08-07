@@ -18,7 +18,7 @@
 #include "include/tinyxml2.h"
 
 //Read data from SGO
-void SGO::Read( std::wstring path )
+void SGO::Read( const std::wstring& path )
 {
 	std::ifstream file(path + L".sgo", std::ios::binary | std::ios::ate | std::ios::in);
 
@@ -29,7 +29,7 @@ void SGO::Read( std::wstring path )
 	if( file.read( buffer.data( ), size ) )
 	{
 		// create xml
-		tinyxml2::XMLDocument xml = new tinyxml2::XMLDocument();
+		tinyxml2::XMLDocument xml;
 		xml.InsertFirstChild(xml.NewDeclaration());
 		tinyxml2::XMLElement* xmlHeader = xml.NewElement("EDFDATA");
 		xml.InsertEndChild(xmlHeader);
@@ -55,7 +55,7 @@ void SGO::Read( std::wstring path )
 	file.close( );
 }
 
-void SGO::ReadData(std::vector<char>buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader)
+void SGO::ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader)
 {
 	bool big_endian = false;
 	int position = 0;
@@ -122,7 +122,7 @@ void SGO::ReadData(std::vector<char>buffer, tinyxml2::XMLElement* header, tinyxm
 	}
 }
 
-void SGO::Read4BytesData(bool big_endian, unsigned char *seg, std::vector<char> buffer, int position)
+void SGO::Read4BytesData(bool big_endian, unsigned char *seg, const std::vector<char>& buffer, int position)
 {
 	if (big_endian)
 		Read4Bytes(seg, buffer, position);
@@ -130,7 +130,7 @@ void SGO::Read4BytesData(bool big_endian, unsigned char *seg, std::vector<char> 
 		Read4BytesReversed(seg, buffer, position);
 }
 
-void SGO::ReadSGOHeader( bool big_endian, std::vector<char> buffer)
+void SGO::ReadSGOHeader( bool big_endian, const std::vector<char>& buffer)
 {
 	unsigned char seg[4];
 	// read data node count
@@ -159,7 +159,7 @@ void SGO::ReadSGOHeader( bool big_endian, std::vector<char> buffer)
 	memcpy(&DataUnkOffset, &seg, 4U);
 }
 
-void SGO::ReadSGONode(bool big_endian, std::vector<char> buffer, int nodepos, std::vector<SGONode>& datanode, int i, tinyxml2::XMLElement*& xmlNode, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader)
+void SGO::ReadSGONode(bool big_endian, const std::vector<char>& buffer, int nodepos, std::vector<SGONode>& datanode, int i, tinyxml2::XMLElement*& xmlNode, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader)
 {
 	int type = 0;
 	unsigned char seg[4];
@@ -252,9 +252,7 @@ void SGO::ReadSGONode(bool big_endian, std::vector<char> buffer, int nodepos, st
 		{
 			SubDataGroup.push_back(namestr);
 
-			std::vector<char> newbuf;
-			for (int i = 0; i < filesize; i++)
-				newbuf.push_back(buffer[curpos + i]);
+			std::vector<char> newbuf(buffer.begin() + curpos, buffer.begin() + curpos + filesize);
 
 			CheckDataType(newbuf, xmlHeader, namestr);
 		}
@@ -269,7 +267,7 @@ void SGO::ReadSGONode(bool big_endian, std::vector<char> buffer, int nodepos, st
 	//xmlNode->SetAttribute("debugPos", nodepos);
 }
 
-void SGO::Write(std::wstring path, tinyxml2::XMLNode* header)
+void SGO::Write(const std::wstring& path, tinyxml2::XMLNode* header)
 {
 	std::wcout << "Will output SGO file.\n";
 
@@ -281,10 +279,7 @@ void SGO::Write(std::wstring path, tinyxml2::XMLNode* header)
 	//Final write.
 	std::ofstream newFile(path + L".sgo", std::ios::binary | std::ios::out | std::ios::ate);
 
-	for (int i = 0; i < bytes.size(); i++)
-	{
-		newFile << bytes[i];
-	}
+	newFile.write(bytes.data(), bytes.size());
 
 	newFile.close();
 	std::wcout << L"Conversion completed: " + path + L".sgo\n";
@@ -437,8 +432,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	// unknown
 	memcpy(&bytes[0x1C], &i_NtotalSize, 4U);
 	// write node data
-	for (size_t i = 0; i < NodeBytes.size(); i++)
-		bytes.push_back(NodeBytes[i]);
+	bytes.insert(bytes.end(), NodeBytes.begin(), NodeBytes.end());
 	// check alignment
 	if (a_datasize > i_NdataSize)
 	{
@@ -448,8 +442,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	// write node type
 	for (size_t i = 0; i < NodeName.size(); i++)
 	{
-		for (size_t j = 0; j < NodeName[i].bytes.size(); j++)
-			bytes.push_back(NodeName[i].bytes[j]);
+		bytes.insert(bytes.end(), NodeName[i].bytes.begin(), NodeName[i].bytes.end());
 	}
 	// check alignment
 	if (a_nodesize > i_NtotalSize)
@@ -460,8 +453,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	// write extra file 
 	for (size_t i = 0; i < ExtraData.size(); i++)
 	{
-		for (size_t j = 0; j < ExtraData[i].bytes.size(); j++)
-			bytes.push_back(ExtraData[i].bytes[j]);
+		bytes.insert(bytes.end(), ExtraData[i].bytes.begin(), ExtraData[i].bytes.end());
 	}
 	// check alignment
 	if (ae_nodesize > e_nodesize)

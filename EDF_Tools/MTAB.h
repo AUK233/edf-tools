@@ -23,14 +23,14 @@ struct MTABMainAction
 class MTAB
 {
 public:
-	void Read(std::wstring path);
-	void ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader);
-	void ReadMainActionData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader);
-	void ReadSubActionData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader);
-	void ReadNodeData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader);
+	void Read(const std::wstring& path);
+	void ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader);
+	void ReadMainActionData(const std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader);
+	void ReadSubActionData(const std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader);
+	void ReadNodeData(const std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader);
 
 	// write
-	void Write(std::wstring path, tinyxml2::XMLNode* header);
+	void Write(const std::wstring& path, tinyxml2::XMLNode* header);
 	std::vector< char > WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNode* header);
 	MTABMainAction WriteMainAction(tinyxml2::XMLElement* data);
 	MTABMainAction WriteSubAction(tinyxml2::XMLElement* data);

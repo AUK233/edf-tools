@@ -104,7 +104,7 @@ int CRMPA::Read( const std::wstring& path )
 	}
 }
 
-void CRMPA::ReadRoutes( std::vector<char> buffer )
+void CRMPA::ReadRoutes( const std::vector<char>& buffer )
 {
 	unsigned char seg[4];
 
@@ -159,7 +159,7 @@ void CRMPA::ReadRoutes( std::vector<char> buffer )
 	}
 }
 
-void CRMPA::ReadSpawnpoints( std::vector<char> buffer )
+void CRMPA::ReadSpawnpoints( const std::vector<char>& buffer )
 {
 	unsigned char seg[4];
 
@@ -214,7 +214,7 @@ void CRMPA::ReadSpawnpoints( std::vector<char> buffer )
 	}
 }
 
-RMPASpawnPoint CRMPA::ReadSpawnpoint( int pos, std::vector<char> buffer )
+RMPASpawnPoint CRMPA::ReadSpawnpoint( int pos, const std::vector<char>& buffer )
 {
 	unsigned char seg[] = { 0x0, 0x0, 0x0, 0x0 };
 
@@ -303,7 +303,7 @@ RMPASpawnPoint CRMPA::ReadSpawnpoint( int pos, std::vector<char> buffer )
 	return point;
 }
 
-RMPARoute CRMPA::ReadRoute( int pos, std::vector<char> buffer )
+RMPARoute CRMPA::ReadRoute( int pos, const std::vector<char>& buffer )
 {
 	unsigned char seg[] = { 0x0, 0x0, 0x0, 0x0 };
 

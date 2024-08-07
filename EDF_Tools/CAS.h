@@ -27,19 +27,19 @@ struct CASAnmGroup
 class CAS
 {
 public:
-	void Read(std::wstring path);
-	void ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header);
+	void Read(const std::wstring& path);
+	void ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header);
 
-	void ReadCANMName(tinyxml2::XMLElement* header, std::vector<char> buffer);
-	void ReadTControlData(tinyxml2::XMLElement* header, std::vector<char> buffer);
-	void ReadVControlData(tinyxml2::XMLElement* header, std::vector<char> buffer);
-	void ReadAnmGroupData(tinyxml2::XMLElement* header, std::vector<char> buffer);
-	void ReadAnmGroupNodeData(std::vector<char> buffer, int ptrpos, tinyxml2::XMLElement* xmlptr, int index);
-	void ReadAnmGroupNodeDataPtr(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
-	void ReadAnmGroupNodeDataPtrB(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
-	void ReadAnmGroupNodeDataPtrCommon(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
-	void ReadAnmGroupNodeDataCommon(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos);
-	void ReadBoneListData(tinyxml2::XMLElement* header, std::vector<char> buffer);
+	void ReadCANMName(tinyxml2::XMLElement* header, const std::vector<char>& buffer);
+	void ReadTControlData(tinyxml2::XMLElement* header, const std::vector<char>& buffer);
+	void ReadVControlData(tinyxml2::XMLElement* header, const std::vector<char>& buffer);
+	void ReadAnmGroupData(tinyxml2::XMLElement* header, const std::vector<char>& buffer);
+	void ReadAnmGroupNodeData(const std::vector<char>& buffer, int ptrpos, tinyxml2::XMLElement* xmlptr, int index);
+	void ReadAnmGroupNodeDataPtr(const std::vector<char>& buffer, tinyxml2::XMLElement* xmldata, int pos);
+	void ReadAnmGroupNodeDataPtrB(const std::vector<char>& buffer, tinyxml2::XMLElement* xmldata, int pos);
+	void ReadAnmGroupNodeDataPtrCommon(const std::vector<char>& buffer, tinyxml2::XMLElement* xmldata, int pos);
+	void ReadAnmGroupNodeDataCommon(const std::vector<char>& buffer, tinyxml2::XMLElement* xmldata, int pos);
+	void ReadBoneListData(tinyxml2::XMLElement* header, const std::vector<char>& buffer);
 	// to cas
 	void Write(const std::wstring& path);
 	std::vector< char > WriteData(tinyxml2::XMLElement* Data);

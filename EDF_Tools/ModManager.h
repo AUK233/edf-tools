@@ -10,7 +10,7 @@ public:
 	long __stdcall HandleWindow( HWND window, unsigned int msg, WPARAM wp, LPARAM lp );
 
 protected:
-	void AddButton( std::wstring strn );
+	void AddButton( const std::wstring& strn );
 
 	void LoadFiles( );
 	std::wstring strPathToWeaponList;

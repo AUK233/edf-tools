@@ -37,15 +37,15 @@ struct CANMAnmData
 class CANM
 {
 public:
-	void Read(std::wstring path);
-	void ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header);
+	void Read(const std::wstring& path);
+	void ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header);
 	// old
-	void ReadAnimationPointData(tinyxml2::XMLElement* header, std::vector<char> buffer);
+	void ReadAnimationPointData(tinyxml2::XMLElement* header, const std::vector<char>& buffer);
 	// now
-	void ReadAnimationData(tinyxml2::XMLElement* header, std::vector<char> buffer);
+	void ReadAnimationData(tinyxml2::XMLElement* header, const std::vector<char>& buffer);
 	void ReadAnimationDataWriteKeyFrame(tinyxml2::XMLElement* node, int num);
-	void ReadBoneListData(tinyxml2::XMLElement* header, std::vector<char> buffer);
-	CANMAnmKey ReadAnimationFrameData(std::vector<char> buffer, int pos);
+	void ReadBoneListData(tinyxml2::XMLElement* header, const std::vector<char>& buffer);
+	CANMAnmKey ReadAnimationFrameData(const std::vector<char>& buffer, int pos);
 	// faster with the pointer version
 	CANMAnmKey ReadAnimationFrameData(std::vector<char> *buf, int pos, int mask);
 

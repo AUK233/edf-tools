@@ -13,7 +13,7 @@
 #include "include/tinyxml2.h"
 
 //Read data from MAB
-void MAB::Read(std::wstring path)
+void MAB::Read(const std::wstring& path)
 {
 	std::ifstream file(path + L".mab", std::ios::binary | std::ios::ate | std::ios::in);
 
@@ -24,7 +24,7 @@ void MAB::Read(std::wstring path)
 	if (file.read(buffer.data(), size))
 	{
 		// create xml
-		tinyxml2::XMLDocument xml = new tinyxml2::XMLDocument();
+		tinyxml2::XMLDocument xml;
 		xml.InsertFirstChild(xml.NewDeclaration());
 		tinyxml2::XMLElement* xmlHeader = xml.NewElement("EDFDATA");
 		xml.InsertEndChild(xmlHeader);
@@ -50,7 +50,7 @@ void MAB::Read(std::wstring path)
 	file.close();
 }
 
-void MAB::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader)
+void MAB::ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader)
 {
 	int position = 0;
 	unsigned char seg[4];
@@ -90,7 +90,7 @@ void MAB::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header, tinyx
 	}
 }
 
-void MAB::ReadBoneData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlBone, tinyxml2::XMLElement* xmlHeader)
+void MAB::ReadBoneData(const std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlBone, tinyxml2::XMLElement* xmlHeader)
 {
 	// get int16
 	short value[2];
@@ -151,7 +151,7 @@ void MAB::ReadBoneData(std::vector<char>& buffer, int curpos, tinyxml2::XMLEleme
 	// end
 }
 
-void MAB::ReadBoneTypeData(int type, std::vector<char>& buffer, int ptrpos, tinyxml2::XMLElement* xmlBPtr)
+void MAB::ReadBoneTypeData(int type, const std::vector<char>& buffer, int ptrpos, tinyxml2::XMLElement* xmlBPtr)
 {
 	if (type == 0)
 	{
@@ -297,7 +297,7 @@ void MAB::Read4FloatData(tinyxml2::XMLElement* xmlNode, float* vf)
 	*/
 }
 
-void MAB::ReadExtraSGO(std::string& namestr, std::vector<char>& buffer, int pos, tinyxml2::XMLElement*& xmlHeader)
+void MAB::ReadExtraSGO(std::string& namestr, const std::vector<char>& buffer, int pos, tinyxml2::XMLElement*& xmlHeader)
 {
 	// check for duplicate data
 	bool subexist = false;
@@ -314,17 +314,14 @@ void MAB::ReadExtraSGO(std::string& namestr, std::vector<char>& buffer, int pos,
 	{
 		SubDataGroup.push_back(namestr);
 
-		std::vector<char> newbuf;
 		// no data size, so copy remain
-		int filesize = buffer.size() - pos;
-		for (int i = 0; i < filesize; i++)
-			newbuf.push_back(buffer[pos + i]);
+		std::vector<char> newbuf(buffer.begin() + pos, buffer.end());
 
 		CheckDataType(newbuf, xmlHeader, namestr);
 	}
 }
 
-void MAB::ReadAnimeData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlAnm, tinyxml2::XMLElement* xmlHeader)
+void MAB::ReadAnimeData(const std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlAnm, tinyxml2::XMLElement* xmlHeader)
 {
 	// get value
 	int value[4];
@@ -365,7 +362,7 @@ void MAB::ReadAnimeData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElem
 	}
 }
 
-void MAB::ReadAnimeDataA(std::vector<char>& buffer, int pos, tinyxml2::XMLElement* xmlNode, tinyxml2::XMLElement* xmlHeader)
+void MAB::ReadAnimeDataA(const std::vector<char>& buffer, int pos, tinyxml2::XMLElement* xmlNode, tinyxml2::XMLElement* xmlHeader)
 {
 	tinyxml2::XMLElement* xmlptr = xmlNode->InsertNewChildElement("value");
 	//xmlptr->SetAttribute("debugpos", pos);
@@ -397,7 +394,7 @@ void MAB::ReadAnimeDataA(std::vector<char>& buffer, int pos, tinyxml2::XMLElemen
 	ReadExtraSGO(namestr, buffer, sgoofs, xmlHeader);
 }
 
-void MAB::Write(std::wstring path, tinyxml2::XMLNode* header)
+void MAB::Write(const std::wstring& path, tinyxml2::XMLNode* header)
 {
 	std::wcout << "Will output MAB file.\n";
 
@@ -410,10 +407,7 @@ void MAB::Write(std::wstring path, tinyxml2::XMLNode* header)
 	/**/
 	std::ofstream newFile(path + L".mab", std::ios::binary | std::ios::out | std::ios::ate);
 
-	for (int i = 0; i < bytes.size(); i++)
-	{
-		newFile << bytes[i];
-	}
+	newFile.write(bytes.data(), bytes.size());
 
 	newFile.close();
 	
@@ -570,27 +564,23 @@ std::vector<char> MAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNo
 	// write bone
 	for (size_t i = 0; i < boneData.size(); i++)
 	{
-		for (size_t j = 0; j < boneData[i].bytes.size(); j++)
-			bytes.push_back(boneData[i].bytes[j]);
+		bytes.insert(bytes.end(), boneData[i].bytes.begin(), boneData[i].bytes.end());
 	}
 
 	for (size_t i = 0; i < bonePtrData.size(); i++)
 	{
-		for (size_t j = 0; j < bonePtrData[i].bytes.size(); j++)
-			bytes.push_back(bonePtrData[i].bytes[j]);
+		bytes.insert(bytes.end(), bonePtrData[i].bytes.begin(), bonePtrData[i].bytes.end());
 	}
 
 	// write anime
 	for (size_t i = 0; i < animeData.size(); i++)
 	{
-		for (size_t j = 0; j < animeData[i].bytes.size(); j++)
-			bytes.push_back(animeData[i].bytes[j]);
+		bytes.insert(bytes.end(), animeData[i].bytes.begin(), animeData[i].bytes.end());
 	}
 
 	for (size_t i = 0; i < animePtrData.size(); i++)
 	{
-		for (size_t j = 0; j < animePtrData[i].bytes.size(); j++)
-			bytes.push_back(animePtrData[i].bytes[j]);
+		bytes.insert(bytes.end(), animePtrData[i].bytes.begin(), animePtrData[i].bytes.end());
 	}
 
 	// write null pointer
@@ -606,15 +596,13 @@ std::vector<char> MAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNo
 	// write float group
 	for (size_t i = 0; i < FloatGroup.size(); i++)
 	{
-		for (size_t j = 0; j < FloatGroup[i].bytes.size(); j++)
-			bytes.push_back(FloatGroup[i].bytes[j]);
+		bytes.insert(bytes.end(), FloatGroup[i].bytes.begin(), FloatGroup[i].bytes.end());
 	}
 
 	// write extra file
 	for (size_t i = 0; i < ExtraData.size(); i++)
 	{
-		for (size_t j = 0; j < ExtraData[i].bytes.size(); j++)
-			bytes.push_back(ExtraData[i].bytes[j]);
+		bytes.insert(bytes.end(), ExtraData[i].bytes.begin(), ExtraData[i].bytes.end());
 	}
 	// write wide string
 	for (size_t i = 0; i < NodeWString.size(); i++)
@@ -718,7 +706,7 @@ MABExtraData MAB::GetExtraData(tinyxml2::XMLElement* entry, std::string dataName
 	return out;
 }
 
-int MAB::GetMABStringOffset(std::string namestr)
+int MAB::GetMABStringOffset(const std::string& namestr)
 {
 	int pos = 0;
 
@@ -735,7 +723,7 @@ int MAB::GetMABStringOffset(std::string namestr)
 	return pos;
 }
 
-int MAB::GetMABExtraOffset(std::string namestr)
+int MAB::GetMABExtraOffset(const std::string& namestr)
 {
 	int pos = 0;
 

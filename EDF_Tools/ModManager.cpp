@@ -126,7 +126,7 @@ bool CWpnListMgr::RunUI( )
 	return success;
 }
 
-void CWpnListMgr::AddButton( std::wstring strn )
+void CWpnListMgr::AddButton( const std::wstring& strn )
 {
 	HWND hwndButton = CreateWindowW(
 		L"BUTTON",  // Predefined class; Unicode assumed 

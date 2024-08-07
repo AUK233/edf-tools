@@ -10,7 +10,7 @@
 
 //#define RABREADER_DEBUG
 
-void RAB::Read( std::wstring path, bool isMRAB )
+void RAB::Read( const std::wstring& path, bool isMRAB )
 {
 	std::wstring ext;
 	if( isMRAB )
@@ -188,11 +188,7 @@ void RAB::Read( std::wstring path, bool isMRAB )
 			std::wstring correctedPath = path + L"\\" + folderName + L"\\" + fileName;
 
 			//Extract a file to a local file vector:
-			std::vector< char > tempFile;
-			for( int j = 0; j < fileSize; ++j )
-			{
-				tempFile.push_back(buffer[fileStart + j]);
-			}
+			std::vector< char > tempFile(buffer.begin() + fileStart, buffer.begin() + fileStart + fileSize);
 
 			bool shouldDecompress = true;
 
@@ -205,10 +201,7 @@ void RAB::Read( std::wstring path, bool isMRAB )
 
 				//Output
 				std::ofstream file = std::ofstream( correctedPath, std::ios::binary | std::ios::out | std::ios::ate );
-				for( int j = 0; j < decompressedFile.size(); ++j )
-				{
-					file << decompressedFile[j];
-				}
+				file.write(decompressedFile.data(), decompressedFile.size());
 				file.close( );
 
 				decompressedFile.clear( );
@@ -217,10 +210,7 @@ void RAB::Read( std::wstring path, bool isMRAB )
 			{
 				//Output
 				std::ofstream file = std::ofstream( correctedPath, std::ios::binary | std::ios::out | std::ios::ate );
-				for( int j = 0; j < tempFile.size( ); ++j )
-				{
-					file << tempFile[j];
-				}
+				file.write(tempFile.data(), tempFile.size());
 				file.close( );
 			}
 
@@ -240,7 +230,7 @@ void RAB::Read( std::wstring path, bool isMRAB )
 	}
 }
 
-void RAB::CreateFromDirectory( std::wstring path )
+void RAB::CreateFromDirectory( const std::wstring& path )
 {
 	largestFileSize = 0;
 
@@ -296,7 +286,7 @@ void MultithreadCompressFile( RABFile *file )
 
 #endif
 
-void RAB::AddFilesInDirectory( std::wstring path )
+void RAB::AddFilesInDirectory( const std::wstring& path )
 {
 	std::wcout << L"Writing path " + path + L"!\n";
 
@@ -323,7 +313,7 @@ void RAB::AddFilesInDirectory( std::wstring path )
 
 			AddFile( path + L"\\" + fileName );
 
-			size_t lastindex = fileName.find_last_of(L".");
+			size_t lastindex = fileName.find_last_of(L'.');
 			if (lastindex != std::wstring::npos)
 			{
 				std::wstring extension = fileName.substr(lastindex + 1, extension.size() - lastindex);
@@ -409,7 +399,7 @@ bool CompRabFolders( const std::unique_ptr<RABFile> &a, const std::unique_ptr<RA
 	return a->folderID > b->folderID;
 }
 
-void RAB::Write( std::wstring rabName )
+void RAB::Write( const std::wstring& rabName )
 {
 	//Sort inputs:
 	std::sort( files.begin( ), files.end( ), CompRabFolders );
@@ -829,10 +819,7 @@ void RAB::Write( std::wstring rabName )
 				uint32_t* pFilePos = (uint32_t*)&data[fileCompressedSizePos[i]];
 				*pFilePos = v_MTFile[i].size;
 
-				for (int j = 0; j < v_MTFile[i].size; ++j)
-				{
-					data.push_back(v_MTFile[i].data[j]);
-				}
+				data.insert(data.end(), v_MTFile[i].data.begin(), v_MTFile[i].data.end());
 				v_MTFile[i].data.clear();
 			}
 			delete[] v_MTFile;
@@ -863,10 +850,7 @@ void RAB::Write( std::wstring rabName )
 					data[fileCompressedSizePos[i] + j] = seg[j];
 				free(seg);
 
-				for (int j = 0; j < compressedFile.size(); ++j)
-				{
-					data.push_back(compressedFile[j]);
-				}
+				data.insert(data.end(), compressedFile.begin(), compressedFile.end());
 				compressedFile.clear();
 				compresser.data.clear();
 			}
@@ -875,10 +859,7 @@ void RAB::Write( std::wstring rabName )
 				if (largestCompressedFile < files[i]->data.size())
 					largestCompressedFile = files[i]->data.size();
 
-				for (int j = 0; j < files[i]->data.size(); ++j)
-				{
-					data.push_back(files[i]->data[j]);
-				}
+				data.insert(data.end(), files[i]->data.begin(), files[i]->data.end());
 			}
 
 			std::wcout << L"File: " + files[i]->fileName + L" Archived\n";
@@ -893,10 +874,7 @@ void RAB::Write( std::wstring rabName )
 
 	//Write RAB
 	std::ofstream file = std::ofstream( rabName, std::ios::binary | std::ios::out | std::ios::ate );
-	for( int j = 0; j < data.size( ); ++j )
-	{
-		file << data[j];
-	}
+	file.write(data.data(), data.size());
 	file.close( );
 
 	data.clear( );
@@ -1012,7 +990,7 @@ RABFileList* __fastcall RABWriteMTCompressNext(RABFileList* File, LPCRITICAL_SEC
 	return pFile;
 }
 
-RABFile::RABFile( std::wstring name, int fID, std::wstring fullPath )
+RABFile::RABFile( std::wstring name, int fID, const std::wstring& fullPath )
 {
 	fileName = name;
 	folderID = fID;
@@ -1082,6 +1060,7 @@ std::vector< char > CMPLHandler::Decompress(  )
 	unsigned char seg[4];
 	Read4BytesReversed( seg, data, 4 );
 	int desiredSize = GetIntFromChunk( seg );
+	out.reserve(desiredSize);
 
 	int streamPos = 8;
 

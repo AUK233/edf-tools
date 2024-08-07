@@ -12,7 +12,7 @@
 #include "CAS.h"
 #include "include/tinyxml2.h"
 
-void CAS::Read(std::wstring path)
+void CAS::Read(const std::wstring& path)
 {
 	std::ifstream file(path + L".cas", std::ios::binary | std::ios::ate | std::ios::in);
 
@@ -23,7 +23,7 @@ void CAS::Read(std::wstring path)
 	if (file.read(buffer.data(), size))
 	{
 		// create xml
-		tinyxml2::XMLDocument xml = new tinyxml2::XMLDocument();
+		tinyxml2::XMLDocument xml;
 		xml.InsertFirstChild(xml.NewDeclaration());
 		tinyxml2::XMLElement* xmlHeader = xml.NewElement("CAS");
 		xml.InsertEndChild(xmlHeader);
@@ -46,7 +46,7 @@ void CAS::Read(std::wstring path)
 	file.close();
 }
 
-void CAS::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
+void CAS::ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header)
 {
 	int position = 0;
 	unsigned char seg[4];
@@ -87,11 +87,8 @@ void CAS::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
 
 	// output CANM Data
 	tinyxml2::XMLElement* xmlcanm = header->InsertNewChildElement("CanmData");
-	std::vector<char> newbuf;
 	// no data size, so copy remain
-	int filesize = buffer.size() - CANM_Offset;
-	for (int i = 0; i < filesize; i++)
-		newbuf.push_back(buffer[CANM_Offset + i]);
+	std::vector<char> newbuf(buffer.begin() + CANM_Offset, buffer.end());
 	
 	std::unique_ptr< CANM > CANMReader = std::make_unique< CANM >();
 	CANMReader->ReadData(newbuf, xmlcanm);
@@ -122,7 +119,7 @@ void CAS::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
 		ReadAnmGroupNodeDataPtrCommon(buffer, xmlunk, i_UnkCOffset);
 }
 
-void CAS::ReadCANMName(tinyxml2::XMLElement* header, std::vector<char> buffer)
+void CAS::ReadCANMName(tinyxml2::XMLElement* header, const std::vector<char>& buffer)
 {
 	int nameCount, nameOffset;
 	memcpy(&nameCount, &buffer[0x8], 4U);
@@ -139,7 +136,7 @@ void CAS::ReadCANMName(tinyxml2::XMLElement* header, std::vector<char> buffer)
 	}
 }
 
-void CAS::ReadTControlData(tinyxml2::XMLElement* header, std::vector<char> buffer)
+void CAS::ReadTControlData(tinyxml2::XMLElement* header, const std::vector<char>& buffer)
 {
 	tinyxml2::XMLElement* xmlTCD = header->InsertNewChildElement("TControl");
 	for (int i = 0; i < i_TControlCount; i++)
@@ -186,7 +183,7 @@ void CAS::ReadTControlData(tinyxml2::XMLElement* header, std::vector<char> buffe
 	// end
 }
 
-void CAS::ReadVControlData(tinyxml2::XMLElement* header, std::vector<char> buffer)
+void CAS::ReadVControlData(tinyxml2::XMLElement* header, const std::vector<char>& buffer)
 {
 	tinyxml2::XMLElement* xmlun = header->InsertNewChildElement("VControl");
 	for (int i = 0; i < i_VControlCount; i++)
@@ -225,7 +222,7 @@ void CAS::ReadVControlData(tinyxml2::XMLElement* header, std::vector<char> buffe
 	}
 }
 
-void CAS::ReadAnmGroupData(tinyxml2::XMLElement* header, std::vector<char> buffer)
+void CAS::ReadAnmGroupData(tinyxml2::XMLElement* header, const std::vector<char>& buffer)
 {
 	tinyxml2::XMLElement* xmlun = header->InsertNewChildElement("AnmGroup");
 	for (int i = 0; i < i_AnmGroupCount; i++)
@@ -259,7 +256,7 @@ void CAS::ReadAnmGroupData(tinyxml2::XMLElement* header, std::vector<char> buffe
 	}
 }
 
-void CAS::ReadAnmGroupNodeData(std::vector<char> buffer, int ptrpos, tinyxml2::XMLElement* xmlptr, int index)
+void CAS::ReadAnmGroupNodeData(const std::vector<char>& buffer, int ptrpos, tinyxml2::XMLElement* xmlptr, int index)
 {
 	int ptrvalue[9];
 	memcpy(&ptrvalue, &buffer[ptrpos], 36U);
@@ -323,7 +320,7 @@ void CAS::ReadAnmGroupNodeData(std::vector<char> buffer, int ptrpos, tinyxml2::X
 	}
 }
 
-void CAS::ReadAnmGroupNodeDataPtr(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
+void CAS::ReadAnmGroupNodeDataPtr(const std::vector<char>& buffer, tinyxml2::XMLElement* xmldata, int pos)
 {
 	int value[8];
 	memcpy(&value, &buffer[pos], 32U);
@@ -352,7 +349,7 @@ void CAS::ReadAnmGroupNodeDataPtr(std::vector<char> buffer, tinyxml2::XMLElement
 		ReadAnmGroupNodeDataPtrCommon(buffer, xmlptr1, pos + value[2]);
 }
 
-void CAS::ReadAnmGroupNodeDataPtrB(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
+void CAS::ReadAnmGroupNodeDataPtrB(const std::vector<char>& buffer, tinyxml2::XMLElement* xmldata, int pos)
 {
 	// not using it now
 	/*
@@ -384,7 +381,7 @@ void CAS::ReadAnmGroupNodeDataPtrB(std::vector<char> buffer, tinyxml2::XMLElemen
 #endif
 }
 
-void CAS::ReadAnmGroupNodeDataPtrCommon(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
+void CAS::ReadAnmGroupNodeDataPtrCommon(const std::vector<char>& buffer, tinyxml2::XMLElement* xmldata, int pos)
 {
 	int value[2];
 	memcpy(&value, &buffer[pos], 8U);
@@ -400,7 +397,7 @@ void CAS::ReadAnmGroupNodeDataPtrCommon(std::vector<char> buffer, tinyxml2::XMLE
 	}
 }
 
-void CAS::ReadAnmGroupNodeDataCommon(std::vector<char> buffer, tinyxml2::XMLElement* xmldata, int pos)
+void CAS::ReadAnmGroupNodeDataCommon(const std::vector<char>& buffer, tinyxml2::XMLElement* xmldata, int pos)
 {
 	std::vector< int > value(i_CasDCCount);
 	memcpy(&value[0], &buffer[pos], i_CasDCCount * 4);
@@ -431,7 +428,7 @@ void CAS::ReadAnmGroupNodeDataCommon(std::vector<char> buffer, tinyxml2::XMLElem
 	}
 }
 
-void CAS::ReadBoneListData(tinyxml2::XMLElement* header, std::vector<char> buffer)
+void CAS::ReadBoneListData(tinyxml2::XMLElement* header, const std::vector<char>& buffer)
 {
 	tinyxml2::XMLElement* xmlbone = header->InsertNewChildElement("BoneList");
 	for (int i = 0; i < i_BoneCount; i++)
@@ -478,10 +475,7 @@ void CAS::Write(const std::wstring& path)
 	/**/
 	std::ofstream newFile(path + L".cas", std::ios::binary | std::ios::out | std::ios::ate);
 
-	for (size_t i = 0; i < bytes.size(); i++)
-	{
-		newFile << bytes[i];
-	}
+	newFile.write(bytes.data(), bytes.size());
 
 	newFile.close();
 	
@@ -597,12 +591,10 @@ std::vector<char> CAS::WriteData(tinyxml2::XMLElement* Data)
 	{
 		// need to save this location
 		v_TControl[i].pos = bytes.size();
-		for (size_t j = 0; j < v_TControl[i].bytes.size(); j++)
-			bytes.push_back(v_TControl[i].bytes[j]);
+		bytes.insert(bytes.end(), v_TControl[i].bytes.begin(), v_TControl[i].bytes.end());
 	}
 	// write number data
-	for (size_t i = 0; i < aibytes.size(); i++)
-		bytes.push_back(aibytes[i]);
+	bytes.insert(bytes.end(), aibytes.begin(), aibytes.end());
 	memcpy(&bytes[0x0C], &i_TControlCount, 4U);
 	memcpy(&bytes[0x10], &i_TControlOffset, 4U);
 
@@ -612,22 +604,19 @@ std::vector<char> CAS::WriteData(tinyxml2::XMLElement* Data)
 	{
 		// need to save this location
 		v_VControl[i].pos = bytes.size();
-		for (size_t j = 0; j < v_VControl[i].bytes.size(); j++)
-			bytes.push_back(v_VControl[i].bytes[j]);
+		bytes.insert(bytes.end(), v_VControl[i].bytes.begin(), v_VControl[i].bytes.end());
 	}
 	memcpy(&bytes[0x14], &i_VControlCount, 4U);
 	memcpy(&bytes[0x18], &i_VControlOffset, 4U);
 
 	// write bone list data (all 0)
 	i_BoneOffset = bytes.size();
-	for (size_t i = 0; i < blbytes.size(); i++)
-		bytes.push_back(blbytes[i]);
+	bytes.insert(bytes.end(), blbytes.begin(), blbytes.end());
 	memcpy(&bytes[0x24], &i_BoneCount, 4U);
 	memcpy(&bytes[0x28], &i_BoneOffset, 4U);
 	// write unknown data
 	i_UnkCOffset = bytes.size();
-	for (size_t i = 0; i < unkbytes.size(); i++)
-		bytes.push_back(unkbytes[i]);
+	bytes.insert(bytes.end(), unkbytes.begin(), unkbytes.end());
 	memcpy(&bytes[0x2C], &i_UnkCOffset, 4U);
 
 	// write animation group data
@@ -636,8 +625,7 @@ std::vector<char> CAS::WriteData(tinyxml2::XMLElement* Data)
 	{
 		// need to save this location
 		v_AnmGroup[i].pos = bytes.size();
-		for (size_t j = 0; j < v_AnmGroup[i].bytes.size(); j++)
-			bytes.push_back(v_AnmGroup[i].bytes[j]);
+		bytes.insert(bytes.end(), v_AnmGroup[i].bytes.begin(), v_AnmGroup[i].bytes.end());
 	}
 	memcpy(&bytes[0x1C], &i_AnmGroupCount, 4U);
 	memcpy(&bytes[0x20], &i_AnmGroupOffset, 4U);
@@ -646,12 +634,10 @@ std::vector<char> CAS::WriteData(tinyxml2::XMLElement* Data)
 	{
 		// need to save this location
 		v_AnmSet[i].pos = bytes.size();
-		for (size_t j = 0; j < v_AnmSet[i].bytes.size(); j++)
-			bytes.push_back(v_AnmSet[i].bytes[j]);
+		bytes.insert(bytes.end(), v_AnmSet[i].bytes.begin(), v_AnmSet[i].bytes.end());
 	}
 	// write animation other data
-	for (size_t i = 0; i < v_AnmSetData.size(); i++)
-		bytes.push_back(v_AnmSetData[i]);
+	bytes.insert(bytes.end(), v_AnmSetData.begin(), v_AnmSetData.end());
 
 	// 16-byte alignment is required
 	int i_Alignment = bytes.size() % 16;
@@ -662,8 +648,7 @@ std::vector<char> CAS::WriteData(tinyxml2::XMLElement* Data)
 	}
 	// write canm data
 	CANM_Offset = bytes.size();
-	for (size_t i = 0; i < canmbytes.size(); i++)
-		bytes.push_back(canmbytes[i]);
+	bytes.insert(bytes.end(), canmbytes.begin(), canmbytes.end());
 	memcpy(&bytes[0x8], &CANM_Offset, 4U);
 
 	// write TControl string
@@ -803,8 +788,7 @@ std::vector<char> CAS::WriteUnknownData(tinyxml2::XMLElement* data)
 			std::vector<char> buffer = WriteCASSpecialData(entry, i_CasDCCount);
 			count++;
 
-			for (size_t i = 0; i < buffer.size(); i++)
-				out.push_back(buffer[i]);
+			out.insert(out.end(), buffer.begin(), buffer.end());
 		}
 	}
 	memcpy(&out[0], &count, 4U);
@@ -915,8 +899,7 @@ CASAnmGroup CAS::WriteAnimationSetData(tinyxml2::XMLElement* data, int subnum)
 		memcpy(&out.bytes[4], &value, 4U);
 
 		std::vector<char> buffer = WriteMainAnimationDataA(entry);
-		for (size_t i = 0; i < buffer.size(); i++)
-			v_AnmSetData.push_back(buffer[i]);
+		v_AnmSetData.insert(v_AnmSetData.end(), buffer.begin(), buffer.end());
 	}
 	// read data2
 	entry = data->FirstChildElement("data2");
@@ -934,8 +917,7 @@ CASAnmGroup CAS::WriteAnimationSetData(tinyxml2::XMLElement* data, int subnum)
 			dataPos.push_back(v_AnmSetData.size());
 			// read data
 			std::vector<char> buffer = WriteMainAnimationDataB(entry2);
-			for (size_t i = 0; i < buffer.size(); i++)
-				v_AnmSetData.push_back(buffer[i]);
+			v_AnmSetData.insert(v_AnmSetData.end(), buffer.begin(), buffer.end());
 		}
 		memcpy(&out.bytes[0x8], &value, 4U);
 		// reset value
@@ -951,8 +933,7 @@ CASAnmGroup CAS::WriteAnimationSetData(tinyxml2::XMLElement* data, int subnum)
 				memcpy(&v_AnmSetData[curpos + 8], &offset, 4U);
 				// read parameter data
 				std::vector<char> buffer = WriteUnknownData(entry3);
-				for (size_t i = 0; i < buffer.size(); i++)
-					v_AnmSetData.push_back(buffer[i]);
+				v_AnmSetData.insert(v_AnmSetData.end(), buffer.begin(), buffer.end());
 			}
 			// finally add "value"
 			value++;
@@ -966,8 +947,7 @@ CASAnmGroup CAS::WriteAnimationSetData(tinyxml2::XMLElement* data, int subnum)
 		memcpy(&out.bytes[0x10], &value, 4U);
 
 		std::vector<char> buffer = WriteUnknownData(entry);
-		for (size_t i = 0; i < buffer.size(); i++)
-			v_AnmSetData.push_back(buffer[i]);
+		v_AnmSetData.insert(v_AnmSetData.end(), buffer.begin(), buffer.end());
 	}
 	// read parametric2
 	entry = data->FirstChildElement("parametric2");
@@ -977,8 +957,7 @@ CASAnmGroup CAS::WriteAnimationSetData(tinyxml2::XMLElement* data, int subnum)
 		memcpy(&out.bytes[0x14], &value, 4U);
 
 		std::vector<char> buffer = WriteUnknownData(entry);
-		for (size_t i = 0; i < buffer.size(); i++)
-			v_AnmSetData.push_back(buffer[i]);
+		v_AnmSetData.insert(v_AnmSetData.end(), buffer.begin(), buffer.end());
 	}
 	// read parametric3
 	entry = data->FirstChildElement("parametric3");
@@ -988,8 +967,7 @@ CASAnmGroup CAS::WriteAnimationSetData(tinyxml2::XMLElement* data, int subnum)
 		memcpy(&out.bytes[0x18], &value, 4U);
 
 		std::vector<char> buffer = WriteUnknownData(entry);
-		for (size_t i = 0; i < buffer.size(); i++)
-			v_AnmSetData.push_back(buffer[i]);
+		v_AnmSetData.insert(v_AnmSetData.end(), buffer.begin(), buffer.end());
 	}
 
 	return out;
@@ -1036,8 +1014,7 @@ std::vector<char> CAS::WriteMainAnimationDataA(tinyxml2::XMLElement* data)
 		memcpy(&out[0x8], &value, 4U);
 
 		std::vector<char> buffer = WriteUnknownData(entry);
-		for (size_t i = 0; i < buffer.size(); i++)
-			out.push_back(buffer[i]);
+		out.insert(out.end(), buffer.begin(), buffer.end());
 	}
 
 	return out;
