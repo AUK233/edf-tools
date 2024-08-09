@@ -64,7 +64,7 @@ std::string ReadRaw(const std::vector<char>& buf, int pos, int num)
 		if (chunk < 0x10)
 			str += "0";
 
-		str += itoa(chunk, tempbuffer, 16);
+		str += _itoa(chunk, tempbuffer, 16);
 	}
 	return str;
 }
@@ -150,6 +150,17 @@ int GetIntFromChunk( unsigned char *chunk )
 		num |= chunk[i];
 	}
 	return num;
+}
+
+int __fastcall ReadInt32(void const* pdata, int swapEndian)
+{
+	if (swapEndian) {
+		return _byteswap_ulong(*(int*)pdata);
+	}
+	else
+	{
+		return *(int*)pdata;
+	}
 }
 
 char* IntToBytes( int i, bool flip )

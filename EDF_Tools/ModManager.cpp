@@ -4,7 +4,7 @@
 #include <iostream>
 #include "ModManager.h"
 
-long __stdcall CWpnListMgr::WindowFns( HWND window, unsigned int msg, WPARAM wp, LPARAM lp )
+LRESULT CALLBACK CWpnListMgr::WindowFns( HWND window, unsigned int msg, WPARAM wp, LPARAM lp )
 {
 	CWpnListMgr* me = (CWpnListMgr*)( GetWindowLongPtr( window, GWLP_USERDATA ) );
 	if( me )
@@ -19,7 +19,7 @@ long __stdcall CWpnListMgr::WindowFns( HWND window, unsigned int msg, WPARAM wp,
 	return DefWindowProc( window, msg, wp, lp );
 }
 
-long __stdcall CWpnListMgr::HandleWindow( HWND window, unsigned int msg, WPARAM wp, LPARAM lp )
+LRESULT CALLBACK CWpnListMgr::HandleWindow( HWND window, unsigned int msg, WPARAM wp, LPARAM lp )
 {
 	switch( msg )
 	{
@@ -30,7 +30,7 @@ long __stdcall CWpnListMgr::HandleWindow( HWND window, unsigned int msg, WPARAM 
 
 		AppendMenu( hSubMenu, MF_STRING, 9001, LPCWSTR("Open") );
 		AppendMenu( hSubMenu, MF_STRING, 9002, LPCWSTR( "Exit" ) );
-		AppendMenu( hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, LPCWSTR( "File" ) );
+		AppendMenu( hMenu, MF_STRING | MF_POPUP, (UINT_PTR)hSubMenu, LPCWSTR( "File" ) );
 
 		AppendMenu( hMenu, MF_STRING, 9003, LPCWSTR( "Help" ) );
 
@@ -138,11 +138,11 @@ void CWpnListMgr::AddButton( const std::wstring& strn )
 		100,        // Button height
 		window,     // Parent window
 		NULL,       // No menu.
-		(HINSTANCE)GetWindowLong( window, GWL_HINSTANCE ),
+		(HINSTANCE)GetWindowLongPtr( window, GWLP_HINSTANCE ),
 		NULL );      // Pointer not needed.
 }
 
-std::wstring OpenFileDialogue( wchar_t *filter = L"All Files (*.*)\0*.*\0", HWND owner = NULL )
+std::wstring OpenFileDialogue( const wchar_t *filter = L"All Files (*.*)\0*.*\0", HWND owner = NULL )
 {
 	OPENFILENAMEW ofn;
 	wchar_t fileName[MAX_PATH] = L"";

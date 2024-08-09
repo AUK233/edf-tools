@@ -59,8 +59,7 @@ void init_locale(void)
 #include "CAS.h" //CAS parser
 #include "CANM.h" //CANM parser
 
-// In 64-bit, it has errors and does not use it now.
-//#include "ModManager.h"
+#include "ModManager.h"
 
 #define FLAG_VERBOSE 1
 #define FLAG_CREATE_FOLDER 2
