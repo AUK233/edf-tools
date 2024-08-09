@@ -718,6 +718,9 @@ void RAB::Write( const std::wstring& rabName )
 			for (size_t i = 0; i < handleNum; ++i) {
 				RABMTParameter* InPtr = new RABMTParameter;
 				InPtr->index = i;
+				if (bIsMultipleCores) {
+					InPtr->index *= 2;
+				}
 				InPtr->task = &v_MTFile[i];
 				InPtr->cs = CriticalSection;
 				InPtr->fileName = files[i]->fileName;
@@ -896,6 +899,106 @@ void RAB::Write( const std::wstring& rabName )
 	std::wcout << L"RAB Archive operation completed!\n";
 }
 
+// Helper function to count set bits in the processor mask.
+DWORD RAB::CountSetBits(ULONG_PTR bitMask)
+{
+	DWORD LSHIFT = sizeof(ULONG_PTR) * 8 - 1;
+	DWORD bitSetCount = 0;
+	ULONG_PTR bitTest = (ULONG_PTR)1 << LSHIFT;
+	DWORD i;
+
+	for (i = 0; i <= LSHIFT; ++i)
+	{
+		bitSetCount += ((bitMask & bitTest) ? 1 : 0);
+		bitTest /= 2;
+	}
+
+	return bitSetCount;
+}
+
+void RAB::WriteInitMTInfo()
+{
+	PSYSTEM_LOGICAL_PROCESSOR_INFORMATION pCPUInfo = 0;
+	DWORD lCPUInfo = 0;
+	GetLogicalProcessorInformation(pCPUInfo, &lCPUInfo);
+	pCPUInfo = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)malloc(lCPUInfo);
+	if (pCPUInfo) {
+		DWORD byteOffset = 0;
+		DWORD logicalProcessorCount = 0;
+		DWORD numaNodeCount = 0;
+		DWORD processorCoreCount = 0;
+		DWORD processorL1CacheCount = 0;
+		DWORD processorL2CacheCount = 0;
+		DWORD processorL3CacheCount = 0;
+		DWORD processorPackageCount = 0;
+		PCACHE_DESCRIPTOR Cache;
+
+		GetLogicalProcessorInformation(pCPUInfo, &lCPUInfo);
+		PSYSTEM_LOGICAL_PROCESSOR_INFORMATION ptrCPU = pCPUInfo;
+		while (byteOffset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) <= lCPUInfo) {
+			switch (ptrCPU->Relationship) {
+			case RelationNumaNode:
+				// Non-NUMA systems report a single record of this type.
+				numaNodeCount++;
+				break;
+
+			case RelationProcessorCore:
+				processorCoreCount++;
+
+				// A hyperthreaded core supplies more than one logical processor.
+				logicalProcessorCount += CountSetBits(ptrCPU->ProcessorMask);
+				break;
+
+			case RelationCache:
+				// Cache data is in ptr->Cache, one CACHE_DESCRIPTOR structure for each cache. 
+				Cache = &ptrCPU->Cache;
+				if (Cache->Level == 1)
+				{
+					processorL1CacheCount++;
+				}
+				else if (Cache->Level == 2)
+				{
+					processorL2CacheCount++;
+				}
+				else if (Cache->Level == 3)
+				{
+					processorL3CacheCount++;
+				}
+				break;
+
+			case RelationProcessorPackage:
+				// Logical processors share a physical package.
+				processorPackageCount++;
+				break;
+
+			default:
+				break;
+			}
+
+			byteOffset += sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
+			ptrCPU++;
+		}
+
+		if (processorCoreCount > 1) {
+			bIsMultipleThreads = true;
+
+			DWORD threadRemainder = logicalProcessorCount - processorCoreCount;
+
+			if (threadRemainder) {
+				// Only 16 threads are active at maximum
+				if (threadRemainder > 16) {
+					threadRemainder = 16;
+				}
+
+				customizeThreads = threadRemainder;
+				bIsMultipleCores = true;
+			}
+		}
+
+		free(pCPUInfo);
+	}
+}
+
 DWORD WINAPI RABWriteMTCompress(LPVOID lpParam)
 {
 	RABMTParameter* InPtr = (RABMTParameter*)lpParam;
@@ -928,7 +1031,7 @@ DWORD WINAPI RABWriteMTCompress2(LPVOID lpParam)
 {
 	RABMTParameter* InPtr = (RABMTParameter*)lpParam;
 	DWORD_PTR AffinityMask = 1;
-	DWORD_PTR CPUMark = InPtr->index * 2;
+	DWORD_PTR CPUMark = InPtr->index;
 	if (CPUMark > 0) {
 		AffinityMask <<= CPUMark;
 	}

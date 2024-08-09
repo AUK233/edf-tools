@@ -54,10 +54,10 @@ public:
 	std::vector< char > WriteMainAnimationDataB(tinyxml2::XMLElement* data);
 
 private:
-	int CAS_Version;
+	int CAS_Version = 0;
 	// CasDataCommon length
 	int i_CasDCCount = 0;
-	int CANM_Offset;
+	int CANM_Offset = 0;
 	int i_TControlCount = 0;
 	int i_TControlOffset = 0;
 	int i_VControlCount = 0;

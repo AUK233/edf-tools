@@ -59,7 +59,8 @@ void init_locale(void)
 #include "CAS.h" //CAS parser
 #include "CANM.h" //CANM parser
 
-#include "ModManager.h"
+// In 64-bit, it has errors and does not use it now.
+//#include "ModManager.h"
 
 #define FLAG_VERBOSE 1
 #define FLAG_CREATE_FOLDER 2
@@ -440,8 +441,8 @@ int _tmain( int argc, wchar_t* argv[] )
 					fileArgNum++;
 				}
 				else if (!lstrcmpW(argv[2], L"-mc")) {
-					rabReader->bIsMultipleThreads = true;
-					rabReader->bIsMultipleCores = true;
+					// Initialize thread information
+					rabReader->WriteInitMTInfo();
 					fileArgNum++;
 				}
 				else if (!lstrcmpW(argv[2], L"-cmtn")) {

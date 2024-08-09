@@ -704,7 +704,7 @@ CASTControl CAS::WriteTControlData(tinyxml2::XMLElement* data, std::vector<char>
 	tinyxml2::XMLElement* entry = data->FirstChildElement();
 	if (entry != nullptr)
 	{
-		int number;
+		int number = 0;
 		char buffer[4];
 
 		for (entry = data->FirstChildElement(); entry != 0; entry = entry->NextSiblingElement())

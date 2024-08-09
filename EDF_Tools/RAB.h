@@ -1,12 +1,14 @@
 #pragma once
 
+// Need to be a multiple of 32 bytes
 struct RABMTFile
 {
 	HANDLE hnd;
 	uint32_t isActive;
+	BYTE pad1[4];
 	size_t size;
 	std::vector< char > data;
-	BYTE pad[40];
+	BYTE pad2[16];
 };
 
 struct RABFileList
@@ -28,7 +30,6 @@ struct RABMTParameter
 	std::wstring fileName;
 	std::vector< char > data;
 	RABFileList* pList;
-	BYTE pad[8];
 };
 
 DWORD WINAPI RABWriteMTCompress(LPVOID lpParam);
@@ -67,6 +68,7 @@ struct CMPLHandler
 
 struct RAB
 {
+public:
 	//Read
 	void Read( const std::wstring& path, bool isMRAB );
 
@@ -76,23 +78,25 @@ struct RAB
 	void AddFilesInDirectory( const std::wstring& path );
 	void AddFile( std::wstring filePath );
 	void Write( const std::wstring& rabName );
+	DWORD CountSetBits(ULONG_PTR bitMask);
+	void WriteInitMTInfo();
 
 	//Tool properties.
 	bool bUseFakeCompression;
 	bool bIsMultipleThreads;
 	bool bIsMultipleCores;
 	int customizeThreads;
-
 	//Stored Data
 	int numFiles;
 	int numFolders;
+	int mdbFileNum;
+
+private:
 	int nameTablePos;
 	int fileTreeStructPos;
 	int dataStartOfs;
 
 	int largestFileSize;
-
-	int mdbFileNum;
 
 	std::vector< std::wstring> folders;
 	std::vector< std::unique_ptr<RABFile> > files;

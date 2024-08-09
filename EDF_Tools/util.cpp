@@ -152,20 +152,6 @@ int GetIntFromChunk( unsigned char *chunk )
 	return num;
 }
 
-// Fast read of int32 using assembly
-__declspec(naked) int __fastcall ReadInt32(void const* pdata, int swapEndian)
-{
-	__asm {
-		cmp edx, 1
-		je BEdata
-		mov eax, [ecx]
-		ret
-	BEdata:
-		movbe eax, [ecx]
-		ret
-	}
-}
-
 char* IntToBytes( int i, bool flip )
 {
 	char *bytes = (char*)malloc( sizeof( char ) * 4 );
