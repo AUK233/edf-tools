@@ -39,6 +39,9 @@
     <ClInclude Include="VMState.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="ModManager.h">
+      <Filter>Source Files\UITools</Filter>
+    </ClInclude>
     <ClInclude Include="JSONAMLParser.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -92,6 +95,9 @@
     <ClCompile Include="EDF_Tools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ModManager.cpp">
+      <Filter>Source Files\UITools</Filter>
+    </ClCompile>
     <ClCompile Include="JSONAMLParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -125,10 +131,5 @@
     <ClCompile Include="MTAB.cpp">
       <Filter>Source Files\Formats</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="ASMutil.asm">
-      <Filter>Header Files</Filter>
-    </MASM>
   </ItemGroup>
 </Project>

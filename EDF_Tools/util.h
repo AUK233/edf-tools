@@ -15,6 +15,8 @@ uint16_t ReadUInt16(const std::vector<char>& buf, int pos, bool swapEndian = fal
 float ReadHalfFloat(const std::vector<char>& buf, int pos, bool swapEndian = false);
 
 int GetIntFromChunk( unsigned char *chunk );
+// Fast read of int32
+int __fastcall ReadInt32(void const* pdata, int swapEndian = 0);
 // Functions cannot be used to read float.
 char* IntToBytes( int i, bool flip = true );
 
@@ -76,9 +78,3 @@ void FindAndReplaceAll(std::string& data, const std::string& toSearch, const std
 //Convert UTF8 to wide string
 std::wstring UTF8ToWide(const std::string& source);
 std::string WideToUTF8(const std::wstring& source);
-
-// in ASM
-extern "C" {
-// Fast read of int32 using assembly
-int __fastcall ASMReadInt32(void const* pdata, int swapEndian = 0);
-}
