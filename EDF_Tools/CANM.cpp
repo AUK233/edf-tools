@@ -12,7 +12,7 @@
 #include "include/tinyxml2.h"
 #include "include/half.hpp"
 
-void CANM::Read(std::wstring path)
+void CANM::Read(const std::wstring& path)
 {
 	std::ifstream file(path + L".canm", std::ios::binary | std::ios::ate | std::ios::in);
 
@@ -23,7 +23,7 @@ void CANM::Read(std::wstring path)
 	if (file.read(buffer.data(), size))
 	{
 		// create xml
-		tinyxml2::XMLDocument xml = new tinyxml2::XMLDocument();
+		tinyxml2::XMLDocument xml;
 		xml.InsertFirstChild(xml.NewDeclaration());
 		tinyxml2::XMLElement* xmlHeader = xml.NewElement("CANM");
 		xml.InsertEndChild(xmlHeader);
@@ -46,7 +46,7 @@ void CANM::Read(std::wstring path)
 	file.close();
 }
 
-void CANM::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
+void CANM::ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header)
 {
 	int position = 0;
 	unsigned char seg[4];
@@ -94,7 +94,7 @@ void CANM::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header)
 	std::wcout << L"===>CANM parsing completed!\n";
 }
 
-void CANM::ReadAnimationData(tinyxml2::XMLElement* header, std::vector<char> buffer)
+void CANM::ReadAnimationData(tinyxml2::XMLElement* header, const std::vector<char>& buffer)
 {
 	tinyxml2::XMLElement* xmldata = header->InsertNewChildElement("AnmData");
 	for (int i = 0; i < i_AnmDataCount; i++)
@@ -211,7 +211,7 @@ void CANM::ReadAnimationDataWriteKeyFrame(tinyxml2::XMLElement* node, int num)
 	}
 }
 
-void CANM::ReadAnimationPointData(tinyxml2::XMLElement* header, std::vector<char> buffer)
+void CANM::ReadAnimationPointData(tinyxml2::XMLElement* header, const std::vector<char>& buffer)
 {
 	tinyxml2::XMLElement* xmldata = header->InsertNewChildElement("AnmKey");
 	for (int i = 0; i < i_AnmPointCount; i++)
@@ -276,7 +276,7 @@ void CANM::ReadAnimationPointData(tinyxml2::XMLElement* header, std::vector<char
 	// end
 }
 
-void CANM::ReadBoneListData(tinyxml2::XMLElement* header, std::vector<char> buffer)
+void CANM::ReadBoneListData(tinyxml2::XMLElement* header, const std::vector<char>& buffer)
 {
 	tinyxml2::XMLElement* xmlbone = header->InsertNewChildElement("BoneList");
 	for (int i = 0; i < i_BoneCount; i++)
@@ -305,7 +305,7 @@ void CANM::ReadBoneListData(tinyxml2::XMLElement* header, std::vector<char> buff
 	}
 }
 
-CANMAnmKey CANM::ReadAnimationFrameData(std::vector<char> buffer, int pos)
+CANMAnmKey CANM::ReadAnimationFrameData(const std::vector<char>& buffer, int pos)
 {
 	CANMAnmKey out;
 
@@ -374,10 +374,7 @@ void CANM::Write(const std::wstring& path)
 	/**/
 	std::ofstream newFile(path + L".CANM", std::ios::binary | std::ios::out | std::ios::ate);
 
-	for (int i = 0; i < bytes.size(); i++)
-	{
-		newFile << bytes[i];
-	}
+	newFile.write(bytes.data(), bytes.size());
 
 	newFile.close();
 	
@@ -453,8 +450,7 @@ std::vector<char> CANM::WriteData(tinyxml2::XMLElement* Data)
 		{
 			int offset = kfbytes.size() + size_AnmPoint - v_AnmKey[i].pos;
 			memcpy(&v_AnmKey[i].bytes[0x1C], &offset, 4U);
-			for (size_t j = 0; j < v_AnmKey[i].kf[0].bytes.size(); j++)
-				kfbytes.push_back(v_AnmKey[i].kf[0].bytes[j]);
+			kfbytes.insert(kfbytes.end(), v_AnmKey[i].kf[0].bytes.begin(), v_AnmKey[i].kf[0].bytes.end());
 		}
 		std::wcout << L"\r" + std::to_wstring(i + 1);
 	}
@@ -476,20 +472,14 @@ std::vector<char> CANM::WriteData(tinyxml2::XMLElement* Data)
 	std::wcout << L"Write CANM animation keyframe......";
 	for (size_t i = 0; i < v_AnmKey.size(); i++)
 	{
-		for (size_t j = 0; j < v_AnmKey[i].bytes.size(); j++)
-			bytes.push_back(v_AnmKey[i].bytes[j]);
+		bytes.insert(bytes.end(), v_AnmKey[i].bytes.begin(), v_AnmKey[i].bytes.end());
 		//std::wcout << L"\r" + std::to_wstring(i + 1);
 	}
 	//std::wcout << L" Complete!\n";
 	// write keyframe data
 	//std::wcout << L"Write CANM animation keyframe data......";
 	//float progress = kfbytes.size() / 100.0f;
-	for (size_t i = 0; i < kfbytes.size(); i++)
-	{
-		bytes.push_back(kfbytes[i]);
-		// progress is not shown because it is too slow to show it!
-		//std::wcout << L"\r" + std::to_wstring((i + 1)/ progress) +L"\%";
-	}
+	bytes.insert(bytes.end(), kfbytes.begin(), kfbytes.end());
 	std::wcout << L" Complete!\n";
 	// write animation point header
 	bytes[0x14] = 0x20;
@@ -509,22 +499,19 @@ std::vector<char> CANM::WriteData(tinyxml2::XMLElement* Data)
 	{
 		// need to save this location
 		v_AnmData[i].pos = bytes.size();
-		for (size_t j = 0; j < v_AnmData[i].bytes.size(); j++)
-			bytes.push_back(v_AnmData[i].bytes[j]);
+		bytes.insert(bytes.end(), v_AnmData[i].bytes.begin(), v_AnmData[i].bytes.end());
 		//std::wcout << L"\r" + std::to_wstring(i + 1);
 	}
 	std::wcout << L" Complete!\n";
 	// write bone data
-	for (size_t i = 0; i < bdbytes.size(); i++)
-		bytes.push_back(bdbytes[i]);
+	bytes.insert(bytes.end(), bdbytes.begin(), bdbytes.end());
 	// write animation data header
 	memcpy(&bytes[0x8], &i_AnmDataCount, 4U);
 	memcpy(&bytes[0xC], &i_AnmDataOffset, 4U);
 
 	// write bone list
 	i_BoneOffset = bytes.size();
-	for (size_t i = 0; i < blbytes.size(); i++)
-		bytes.push_back(blbytes[i]);
+	bytes.insert(bytes.end(), blbytes.begin(), blbytes.end());
 	// write bone list header
 	memcpy(&bytes[0x18], &i_BoneCount, 4U);
 	memcpy(&bytes[0x1C], &i_BoneOffset, 4U);

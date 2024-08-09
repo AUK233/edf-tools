@@ -30,7 +30,7 @@ void VMState::printstatics() const
 {
     for (int i = 0; i < static_RAS.size(); ++i)
     {
-        printf("%ls", static_RAS[i].name);
+        printf("%ls", static_RAS[i].name.c_str());
         if (static_RAS[i].initialized)
         {
             printf(" = %d;\n", static_RAS[i].value);

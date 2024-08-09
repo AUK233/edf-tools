@@ -104,7 +104,7 @@ public:
 	//Decompiler
 	void LoadLanguage( std::wstring path, int id );
 	int Read( const std::wstring& path );
-	void ReadFn( int position, std::vector<char> buffer, int numArgs, int nextFunctionStart );
+	void ReadFn( int position, const std::vector<char>& buffer, int numArgs, int nextFunctionStart );
 
 	std::vector< int > m_vecFuncOffsets;
 	std::vector< std::wstring > m_vecMissionStrns;

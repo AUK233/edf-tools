@@ -72,7 +72,7 @@ void ProcessFile( const std::wstring& path, int extraFlags )
     using namespace std;
 
 	//Get file extension:
-	size_t lastindex = path.find_last_of( L"." );
+	size_t lastindex = path.find_last_of( L'.' );
 
 	if( lastindex != wstring::npos )
 	{ 
@@ -207,7 +207,7 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 		}
 		else if (extension == L"xml")
 		{
-			size_t xmlIndex = strn.find_last_of(L"_");
+			size_t xmlIndex = strn.find_last_of(L'_');
 			wstring xmlExtension = strn.substr(xmlIndex + 1, xmlExtension.size() - xmlIndex);
 			wstring xmlStrn = strn.substr(0, xmlIndex);
 
@@ -571,10 +571,7 @@ int _tmain( int argc, wchar_t* argv[] )
 			std::vector< char > comprFile = compressor.Decompress( );
 
 			std::ofstream file = std::ofstream( L"decompressed_" + path, std::ios::binary | std::ios::out | std::ios::ate );
-			for( int i = 0; i < comprFile.size(); ++i )
-			{
-				file << comprFile[i];
-			}
+			file.write(comprFile.data(), comprFile.size());
 			file.close( );
 
 			comprFile.clear( );

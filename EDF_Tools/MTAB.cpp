@@ -12,7 +12,7 @@
 #include "MTAB.h"
 #include "include/tinyxml2.h"
 
-void MTAB::Read(std::wstring path)
+void MTAB::Read(const std::wstring& path)
 {
 	std::ifstream file(path + L".mtab", std::ios::binary | std::ios::ate | std::ios::in);
 
@@ -23,7 +23,7 @@ void MTAB::Read(std::wstring path)
 	if (file.read(buffer.data(), size))
 	{
 		// create xml
-		tinyxml2::XMLDocument xml = new tinyxml2::XMLDocument();
+		tinyxml2::XMLDocument xml;
 		xml.InsertFirstChild(xml.NewDeclaration());
 		tinyxml2::XMLElement* xmlHeader = xml.NewElement("EDFDATA");
 		xml.InsertEndChild(xmlHeader);
@@ -49,7 +49,7 @@ void MTAB::Read(std::wstring path)
 	file.close();
 }
 
-void MTAB::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader)
+void MTAB::ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader)
 {
 	int position = 0;
 	unsigned char seg[4];
@@ -83,7 +83,7 @@ void MTAB::ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header, tiny
 	}
 }
 
-void MTAB::ReadMainActionData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader)
+void MTAB::ReadMainActionData(const std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader)
 {
 
 #if defined(DEBUGMODE)
@@ -109,7 +109,7 @@ void MTAB::ReadMainActionData(std::vector<char>& buffer, int curpos, tinyxml2::X
 	}
 }
 
-void MTAB::ReadSubActionData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader)
+void MTAB::ReadSubActionData(const std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader)
 {
 
 #if defined(DEBUGMODE)
@@ -135,7 +135,7 @@ void MTAB::ReadSubActionData(std::vector<char>& buffer, int curpos, tinyxml2::XM
 	}
 }
 
-void MTAB::ReadNodeData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader)
+void MTAB::ReadNodeData(const std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlData, tinyxml2::XMLElement* xmlHeader)
 {
 
 #if defined(DEBUGMODE)
@@ -171,7 +171,7 @@ void MTAB::ReadNodeData(std::vector<char>& buffer, int curpos, tinyxml2::XMLElem
 	}
 }
 
-void MTAB::Write(std::wstring path, tinyxml2::XMLNode* header)
+void MTAB::Write(const std::wstring& path, tinyxml2::XMLNode* header)
 {
 	std::wcout << "Will output MTAB file.\n";
 
@@ -184,10 +184,7 @@ void MTAB::Write(std::wstring path, tinyxml2::XMLNode* header)
 	/**/
 	std::ofstream newFile(path + L".mtab", std::ios::binary | std::ios::out | std::ios::ate);
 
-	for (int i = 0; i < bytes.size(); i++)
-	{
-		newFile << bytes[i];
-	}
+	newFile.write(bytes.data(), bytes.size());
 
 	newFile.close();
 
@@ -232,8 +229,7 @@ std::vector<char> MTAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLN
 	for (size_t i = 0; i < v_MainAction.size(); i++)
 	{
 		v_MainAction[i].pos = bytes.size();
-		for (size_t j = 0; j < v_MainAction[i].bytes.size(); j++)
-			bytes.push_back(v_MainAction[i].bytes[j]);
+		bytes.insert(bytes.end(), v_MainAction[i].bytes.begin(), v_MainAction[i].bytes.end());
 	}
 	// write sub action
 	for (size_t i = 0; i < v_SubAction.size(); i++)
@@ -251,8 +247,7 @@ std::vector<char> MTAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLN
 		}
 
 		v_SubAction[i].pos = safpos;
-		for (size_t j = 0; j < v_SubAction[i].bytes.size(); j++)
-			bytes.push_back(v_SubAction[i].bytes[j]);
+		bytes.insert(bytes.end(), v_SubAction[i].bytes.begin(), v_SubAction[i].bytes.end());
 	}
 
 	// write data 1
@@ -271,8 +266,7 @@ std::vector<char> MTAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLN
 		}
 
 		v_Data[i].pos = d1_pos;
-		for (size_t j = 0; j < v_Data[i].bytes1.size(); j++)
-			bytes.push_back(v_Data[i].bytes1[j]);
+		bytes.insert(bytes.end(), v_Data[i].bytes1.begin(), v_Data[i].bytes1.end());
 	}
 	// 16-byte alignment is required
 	int i_Alignment = bytes.size() % 16;
@@ -290,8 +284,7 @@ std::vector<char> MTAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLN
 		int d2_ofs = d2_pos - d1_pos;
 		memcpy(&bytes[d1_pos + 0x10], &d2_ofs, 4U);
 
-		for (size_t j = 0; j < v_Data[i].bytes2.size(); j++)
-			bytes.push_back(v_Data[i].bytes2[j]);
+		bytes.insert(bytes.end(), v_Data[i].bytes2.begin(), v_Data[i].bytes2.end());
 	}
 
 	// write string

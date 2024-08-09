@@ -221,7 +221,7 @@ int CMissionScript::Read( const std::wstring& path )
 	return 1;
 }
 
-void CMissionScript::ReadFn( int position, std::vector<char> buffer, int numArgs, int nextFunctionStart )
+void CMissionScript::ReadFn( int position, const std::vector<char>& buffer, int numArgs, int nextFunctionStart )
 {
 	int ofs = 0;
 	int numLocalVars = 0;
@@ -1708,10 +1708,7 @@ void CMissionScript::Write( const std::wstring& path, int flags )
 	//value + 0x56 + m_vecVarNames[i]
 	if (hasInitFn)
 	{
-		for (int i = 0; i < InitBytes.size(); i++)
-		{
-			bytes.push_back(InitBytes[i]);
-		}
+		bytes.insert(bytes.end(), InitBytes.begin(), InitBytes.end());
 	}
 	else
 	{
@@ -1719,16 +1716,10 @@ void CMissionScript::Write( const std::wstring& path, int flags )
 	}
 
 	//Push function bytes
-	for( int i = 0; i < Fnbytes.size( ); i++ )
-	{
-		bytes.push_back( Fnbytes[i] );
-	}
+	bytes.insert(bytes.end(), Fnbytes.begin(), Fnbytes.end());
 
 	//Push function pointers
-	for( int i = 0; i < fnPointerBytes.size( ); i++ )
-	{
-		bytes.push_back( fnPointerBytes[i] );
-	}
+	bytes.insert(bytes.end(), fnPointerBytes.begin(), fnPointerBytes.end());
 
 	//Push strings
 	for( int i = 0; i < m_vecMissionStrns.size( ); i++ ) 
@@ -1797,10 +1788,7 @@ void CMissionScript::Write( const std::wstring& path, int flags )
 	/* The above seems better
 	if (fnArgBytes.size() > 0)
 	{
-		for (int i = 0; i < fnArgBytes.size(); i++)
-		{
-			bytes.push_back(fnArgBytes[i]);
-		}
+		bytes.insert(bytes.end(), fnArgBytes.begin(), fnArgBytes.end());
 	}*/
 
 	////Variable names
@@ -1883,10 +1871,7 @@ void CMissionScript::Write( const std::wstring& path, int flags )
 	free(eofseg);
 	
 	//Final write.
-	for( int i = 0; i < bytes.size(); i++ )
-	{
-		newMission << bytes[i];
-	}
+	newMission.write(bytes.data(), bytes.size());
 
 	newMission.close();
 

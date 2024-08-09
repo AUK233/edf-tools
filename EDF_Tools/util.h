@@ -1,18 +1,18 @@
 #pragma once
 
-void Read2Bytes( unsigned char *chunk, std::vector<char> buf, int pos );
-void Read2BytesReversed( unsigned char *chunk, std::vector<char> buf, int pos );
-void Read4Bytes(unsigned char* chunk, std::vector<char> buf, int pos);
-void Read4BytesReversed(unsigned char* chunk, std::vector<char> buf, int pos);
+void Read2Bytes( unsigned char *chunk, const std::vector<char>& buf, int pos );
+void Read2BytesReversed( unsigned char *chunk, const std::vector<char>& buf, int pos );
+void Read4Bytes(unsigned char* chunk, const std::vector<char>& buf, int pos);
+void Read4BytesReversed(unsigned char* chunk, const std::vector<char>& buf, int pos);
 //Read specified number of bytes, which should be a multiple of 2
-void ReadNBytesReversed(unsigned char* chunk, std::vector<char> buf, int pos, int num);
+void ReadNBytesReversed(unsigned char* chunk, const std::vector<char>& buf, int pos, int num);
 
-std::string ReadRaw(std::vector<char> buf, int pos, int num);
+std::string ReadRaw(const std::vector<char>& buf, int pos, int num);
 //wrong reading, do not use.
-short ReadInt16(std::vector<char> buf, int pos, bool swapEndian = false);
-uint16_t ReadUInt16(std::vector<char> buf, int pos, bool swapEndian = false);
+short ReadInt16(const std::vector<char>& buf, int pos, bool swapEndian = false);
+uint16_t ReadUInt16(const std::vector<char>& buf, int pos, bool swapEndian = false);
 //Poor performance as a float and should not be used
-float ReadHalfFloat(std::vector<char> buf, int pos, bool swapEndian = false);
+float ReadHalfFloat(const std::vector<char>& buf, int pos, bool swapEndian = false);
 
 int GetIntFromChunk( unsigned char *chunk );
 // Fast read of int32 using assembly
@@ -24,8 +24,8 @@ char* IntToBytes( int i, bool flip = true );
 std::wstring ToString( int i );
 std::wstring ToString( float f );
 
-std::wstring ReadUnicode( std::vector<char> chunk, int pos, bool swapEndian = false );
-std::string ReadASCII(std::vector<char> chunk, int pos);
+std::wstring ReadUnicode( const std::vector<char>& chunk, int pos, bool swapEndian = false );
+std::string ReadASCII(const std::vector<char>& chunk, int pos);
 
 //Util fn for simple tokenisation
 std::wstring SimpleTokenise( std::wstring &input, wchar_t delim );
@@ -39,16 +39,16 @@ std::wstring KillWhitespace( std::wstring in );
 std::wstring KillSpaceAndDebug(std::wstring in);
 
 //Function to write a string to a char vector
-void PushStringToVector(std::string strn, std::vector< char >* bytes);
+void PushStringToVector(const std::string& strn, std::vector< char >* bytes);
 //Function to write a string to a char vector, but no tail
-void PushStringToVectorNoEnd(std::string strn, std::vector< char >* bytes);
+void PushStringToVectorNoEnd(const std::string& strn, std::vector< char >* bytes);
 //Function to write a wstring to a char vector
-void PushWStringToVector( std::wstring strn, std::vector< char > *bytes );
+void PushWStringToVector( const std::wstring& strn, std::vector< char > *bytes );
 
 //Checks if a string is a valid int
-bool IsValidInt( const std::wstring input );
+bool IsValidInt( const std::wstring& input );
 //Checks if a string is a valid float
-bool IsValidFloat( const std::wstring input );
+bool IsValidFloat( const std::wstring& input );
 
 //Converts a int hex to float
 float IntHexAsFloat(int in);
@@ -73,8 +73,8 @@ ValueType DetermineType( std::wstring input );
 std::wstring ReadFile( const wchar_t* filename );
 
 //Replaces all instances in a string
-void FindAndReplaceAll( std::wstring & data, std::wstring toSearch, std::wstring replaceStr );
-void FindAndReplaceAll(std::string& data, std::string toSearch, std::string replaceStr);
+void FindAndReplaceAll( std::wstring & data, const std::wstring& toSearch, const std::wstring& replaceStr );
+void FindAndReplaceAll(std::string& data, const std::string& toSearch, const std::string& replaceStr);
 
 //Convert UTF8 to wide string
 std::wstring UTF8ToWide(const std::string& source);

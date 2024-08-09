@@ -71,11 +71,11 @@ class CRMPA
 public:
 	int Read( const std::wstring& path );
 
-	void ReadSpawnpoints( std::vector<char> buffer );
-	void ReadRoutes( std::vector<char> buffer );
+	void ReadSpawnpoints( const std::vector<char>& buffer );
+	void ReadRoutes( const std::vector<char>& buffer );
 
-	RMPASpawnPoint ReadSpawnpoint( int pos, std::vector<char> buffer );
-	RMPARoute ReadRoute( int pos, std::vector<char> buffer );
+	RMPASpawnPoint ReadSpawnpoint( int pos, const std::vector<char>& buffer );
+	RMPARoute ReadRoute( int pos, const std::vector<char>& buffer );
 
 private:
 	std::vector< RMPASpawnPoint > spawnPoints;

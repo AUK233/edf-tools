@@ -121,21 +121,21 @@ class CMDBtoXML
 public:
 	int Read(const std::wstring& path, bool onecore);
 
-	MDBName ReadMDBName(int pos, std::vector<char> buffer);
-	MDBTexture ReadTexture(int pos, std::vector<char> buffer);
+	MDBName ReadMDBName(int pos, const std::vector<char>& buffer);
+	MDBTexture ReadTexture(int pos, const std::vector<char>& buffer);
 
-	MDBBone ReadBone(int pos, std::vector<char> buffer);
+	MDBBone ReadBone(int pos, const std::vector<char>& buffer);
 
-	MDBMaterial ReadMaterial(int pos, std::vector<char> buffer);
-	MDBMaterialPtr ReadMaterialPtr(int pos, std::vector<char> buffer);
-	MDBMaterialTex ReadMaterialTex(int pos, std::vector<char> buffer);
+	MDBMaterial ReadMaterial(int pos, const std::vector<char>& buffer);
+	MDBMaterialPtr ReadMaterialPtr(int pos, const std::vector<char>& buffer);
+	MDBMaterialTex ReadMaterialTex(int pos, const std::vector<char>& buffer);
 
-	MDBObject ReadObject(int pos, std::vector<char> buffer);
-	MDBObjectInfo ReadObjectInfo(int pos, std::vector<char> buffer);
-	MDBObjectLayout ReadObjectLayout(int pos, std::vector<char> buffer);
+	MDBObject ReadObject(int pos, const std::vector<char>& buffer);
+	MDBObjectInfo ReadObjectInfo(int pos, const std::vector<char>& buffer);
+	MDBObjectLayout ReadObjectLayout(int pos, const std::vector<char>& buffer);
 
-	void ReadVertex(int pos, std::vector<char> buffer, int type, int num, int size, tinyxml2::XMLElement* header);
-	void ReadVertexMT(std::mutex &mtx, int pos, std::vector<char> buffer, int type, int num, int size, tinyxml2::XMLElement* header);
+	void ReadVertex(int pos, const std::vector<char>& buffer, int type, int num, int size, tinyxml2::XMLElement* header);
+	void ReadVertexMT(std::mutex &mtx, int pos, const std::vector<char>& buffer, int type, int num, int size, tinyxml2::XMLElement* header);
 
 private:
 

@@ -97,7 +97,7 @@ JSONAMLNode::JSONAMLNode( std::wstring node )
 	}
 }
 
-std::wstring JSONAMLNode::GetValue( std::wstring key )
+std::wstring JSONAMLNode::GetValue( const std::wstring& key )
 {
 	if( DetermineType( values[key]->val ) == T_STRING )
 	{
@@ -109,7 +109,7 @@ std::wstring JSONAMLNode::GetValue( std::wstring key )
 	return values[key]->val;
 }
 
-CJSONAMLParser::CJSONAMLParser( std::wstring filePath )
+CJSONAMLParser::CJSONAMLParser( const std::wstring& filePath )
 {
 	std::wstring rawString = L"root:" + ReadFile( filePath.c_str() );
 
@@ -120,12 +120,12 @@ CJSONAMLParser::CJSONAMLParser( std::wstring filePath )
 	root = std::make_unique< JSONAMLNode >( proccess );
 }
 
-JSONAMLValueArr * CJSONAMLParser::GetValueAsArrNode( JSONAMLNode * node, std::wstring value )
+JSONAMLValueArr * CJSONAMLParser::GetValueAsArrNode( JSONAMLNode * node, const std::wstring& value )
 {
 	return (JSONAMLValueArr *)( node->values[value].get( ) );
 }
 
-JSONAMLNode * CJSONAMLParser::FindNode( std::wstring key, std::wstring value, bool caseSensitive, JSONAMLNode * iroot )
+JSONAMLNode * CJSONAMLParser::FindNode( const std::wstring& key, const std::wstring& value, bool caseSensitive, JSONAMLNode * iroot )
 {
 	if( iroot == NULL )
 	{
@@ -235,7 +235,7 @@ JSONAMLValueArr::JSONAMLValueArr( std::wstring parseStrn )
 	}
 }
 
-JSONAMLNode * JSONAMLValueArr::LoopUpNode( std::wstring key, std::wstring value, bool caseSensitive )
+JSONAMLNode * JSONAMLValueArr::LoopUpNode( const std::wstring& key, const std::wstring& value, bool caseSensitive )
 {
 	for( int i = 0; i < nodes.size( ); ++i )
 	{

@@ -31,14 +31,14 @@ struct SGOExtraData
 class SGO
 {
 public:
-	void Read( std::wstring path );
-	void ReadData(std::vector<char> buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader);
-	void Read4BytesData(bool big_endian, unsigned char* seg, std::vector<char> buffer, int position);
-	void ReadSGOHeader(bool big_endian, std::vector<char> buffer);
-	void ReadSGONode(bool big_endian, std::vector<char> buffer, int nodepos, std::vector<SGONode>& datanode, int i, tinyxml2::XMLElement*& xmlNode, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader);
+	void Read( const std::wstring& path );
+	void ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader);
+	void Read4BytesData(bool big_endian, unsigned char* seg, const std::vector<char>& buffer, int position);
+	void ReadSGOHeader(bool big_endian, const std::vector<char>& buffer);
+	void ReadSGONode(bool big_endian, const std::vector<char>& buffer, int nodepos, std::vector<SGONode>& datanode, int i, tinyxml2::XMLElement*& xmlNode, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader);
 
 	// Write
-	void Write(std::wstring path, tinyxml2::XMLNode* header);
+	void Write(const std::wstring& path, tinyxml2::XMLNode* header);
 	std::vector< char > WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNode* header);
 	void GetNodeExtraData(tinyxml2::XMLElement* entry, int& nodePtrNum);
 	SGOExtraData GetExtraData(tinyxml2::XMLElement* entry, std::string dataName, tinyxml2::XMLNode* header);

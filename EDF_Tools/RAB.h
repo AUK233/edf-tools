@@ -37,7 +37,7 @@ RABFileList* __fastcall RABWriteMTCompressNext(RABFileList* File, LPCRITICAL_SEC
 
 struct RABFile
 {
-	RABFile::RABFile( std::wstring name, int fID, std::wstring fullPath );
+	RABFile::RABFile( std::wstring name, int fID, const std::wstring& fullPath );
 	//void LoadData( std::string path );
 
 	std::wstring fileName;
@@ -68,14 +68,14 @@ struct CMPLHandler
 struct RAB
 {
 	//Read
-	void Read( std::wstring path, bool isMRAB );
+	void Read( const std::wstring& path, bool isMRAB );
 
 	//Write
-	void CreateFromDirectory( std::wstring path );
+	void CreateFromDirectory( const std::wstring& path );
 
-	void AddFilesInDirectory( std::wstring path );
+	void AddFilesInDirectory( const std::wstring& path );
 	void AddFile( std::wstring filePath );
-	void Write( std::wstring rabName );
+	void Write( const std::wstring& rabName );
 
 	//Tool properties.
 	bool bUseFakeCompression;

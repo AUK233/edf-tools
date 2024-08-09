@@ -21,7 +21,7 @@ struct JSONAMLValue
 struct JSONAMLNode
 {
 	JSONAMLNode( std::wstring nodeText );
-	std::wstring GetValue( std::wstring key );
+	std::wstring GetValue( const std::wstring& key );
 
 	std::map< std::wstring, std::unique_ptr<JSONAMLValue> > values;
 };
@@ -30,7 +30,7 @@ struct JSONAMLValueArr : public JSONAMLValue
 {
 	JSONAMLValueArr( std::wstring parseStrn );
 
-	JSONAMLNode * LoopUpNode( std::wstring key, std::wstring value, bool caseSensitive = false );
+	JSONAMLNode * LoopUpNode( const std::wstring& key, const std::wstring& value, bool caseSensitive = false );
 
 	std::vector< std::unique_ptr<JSONAMLNode> > nodes;
 };
@@ -45,10 +45,10 @@ struct JSONAMLValueSubnode : public JSONAMLValue
 class CJSONAMLParser
 {
 public:
-	CJSONAMLParser( std::wstring filePath );
+	CJSONAMLParser( const std::wstring& filePath );
 
-	JSONAMLValueArr * GetValueAsArrNode( JSONAMLNode * node, std::wstring value );
-	JSONAMLNode * FindNode( std::wstring key, std::wstring value, bool caseSensitive = false, JSONAMLNode *root = NULL );
+	JSONAMLValueArr * GetValueAsArrNode( JSONAMLNode * node, const std::wstring& value );
+	JSONAMLNode * FindNode( const std::wstring& key, const std::wstring& value, bool caseSensitive = false, JSONAMLNode *root = NULL );
 
 	std::wstring SearchTest( );
 

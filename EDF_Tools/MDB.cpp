@@ -42,7 +42,7 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 			return -1;
 		}
 
-		tinyxml2::XMLDocument xml = new tinyxml2::XMLDocument();
+		tinyxml2::XMLDocument xml;
 		xml.InsertFirstChild(xml.NewDeclaration());
 		tinyxml2::XMLElement* xmlHeader = xml.NewElement("MDB");
 		xml.InsertEndChild(xmlHeader);
@@ -555,7 +555,7 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					std::wstring wstrm = textures[tempint].mapping;
 					std::wstring wstrn = textures[tempint].filename;
 					//check mapping length
-					size_t nnsize = wstrm.find_last_of(L"_") + 4;
+					size_t nnsize = wstrm.find_last_of(L'_') + 4;
 					size_t wmsize = wstrm.size();
 					// Truncate the tail of the mapping as a mipmap
 					std::string mipmap;
@@ -613,7 +613,7 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 	}
 }
 
-MDBName CMDBtoXML::ReadMDBName(int pos, std::vector<char> buffer)
+MDBName CMDBtoXML::ReadMDBName(int pos, const std::vector<char>& buffer)
 {
 	MDBName out;
 
@@ -631,7 +631,7 @@ MDBName CMDBtoXML::ReadMDBName(int pos, std::vector<char> buffer)
 	return out;
 }
 
-MDBBone CMDBtoXML::ReadBone(int pos, std::vector<char> buffer)
+MDBBone CMDBtoXML::ReadBone(int pos, const std::vector<char>& buffer)
 {
 	MDBBone out;
 
@@ -665,7 +665,7 @@ MDBBone CMDBtoXML::ReadBone(int pos, std::vector<char> buffer)
 	return out;
 }
 
-MDBMaterial CMDBtoXML::ReadMaterial(int pos, std::vector<char> buffer)
+MDBMaterial CMDBtoXML::ReadMaterial(int pos, const std::vector<char>& buffer)
 {
 	MDBMaterial out;
 
@@ -700,7 +700,7 @@ MDBMaterial CMDBtoXML::ReadMaterial(int pos, std::vector<char> buffer)
 	return out;
 }
 
-MDBMaterialPtr CMDBtoXML::ReadMaterialPtr(int pos, std::vector<char> buffer)
+MDBMaterialPtr CMDBtoXML::ReadMaterialPtr(int pos, const std::vector<char>& buffer)
 {
 	MDBMaterialPtr out;
 
@@ -734,7 +734,7 @@ MDBMaterialPtr CMDBtoXML::ReadMaterialPtr(int pos, std::vector<char> buffer)
 	return out;
 }
 
-MDBMaterialTex CMDBtoXML::ReadMaterialTex(int pos, std::vector<char> buffer)
+MDBMaterialTex CMDBtoXML::ReadMaterialTex(int pos, const std::vector<char>& buffer)
 {
 	MDBMaterialTex out;
 
@@ -753,7 +753,7 @@ MDBMaterialTex CMDBtoXML::ReadMaterialTex(int pos, std::vector<char> buffer)
 	return out;
 }
 
-MDBObject CMDBtoXML::ReadObject(int pos, std::vector<char> buffer)
+MDBObject CMDBtoXML::ReadObject(int pos, const std::vector<char>& buffer)
 {
 	MDBObject out;
 
@@ -779,7 +779,7 @@ MDBObject CMDBtoXML::ReadObject(int pos, std::vector<char> buffer)
 	return out;
 }
 
-MDBObjectInfo CMDBtoXML::ReadObjectInfo(int pos, std::vector<char> buffer)
+MDBObjectInfo CMDBtoXML::ReadObjectInfo(int pos, const std::vector<char>& buffer)
 {
 	MDBObjectInfo out;
 
@@ -826,7 +826,7 @@ MDBObjectInfo CMDBtoXML::ReadObjectInfo(int pos, std::vector<char> buffer)
 	return out;
 }
 
-MDBObjectLayout CMDBtoXML::ReadObjectLayout(int pos, std::vector<char> buffer)
+MDBObjectLayout CMDBtoXML::ReadObjectLayout(int pos, const std::vector<char>& buffer)
 {
 	MDBObjectLayout out;
 
@@ -852,7 +852,7 @@ MDBObjectLayout CMDBtoXML::ReadObjectLayout(int pos, std::vector<char> buffer)
 	return out;
 }
 
-MDBTexture CMDBtoXML::ReadTexture(int pos, std::vector<char> buffer)
+MDBTexture CMDBtoXML::ReadTexture(int pos, const std::vector<char>& buffer)
 {
 	MDBTexture out;
 
@@ -879,7 +879,7 @@ MDBTexture CMDBtoXML::ReadTexture(int pos, std::vector<char> buffer)
 	return out;
 }
 
-void CMDBtoXML::ReadVertex(int pos, std::vector<char> buffer, int type, int num, int size, tinyxml2::XMLElement* header)
+void CMDBtoXML::ReadVertex(int pos, const std::vector<char>& buffer, int type, int num, int size, tinyxml2::XMLElement* header)
 {
 	if (type == 1)
 	{
@@ -971,7 +971,7 @@ void CMDBtoXML::ReadVertex(int pos, std::vector<char> buffer, int type, int num,
 	}
 }
 
-void CMDBtoXML::ReadVertexMT(std::mutex& mtx, int pos, std::vector<char> buffer, int type, int num, int size, tinyxml2::XMLElement* header)
+void CMDBtoXML::ReadVertexMT(std::mutex& mtx, int pos, const std::vector<char>& buffer, int type, int num, int size, tinyxml2::XMLElement* header)
 {
 	if (type == 1)
 	{
@@ -1103,8 +1103,6 @@ void CMDBtoXML::ReadVertexMT(std::mutex& mtx, int pos, std::vector<char> buffer,
 		header->SetText(strn.c_str());
 	}
 }
-
-#include <filesystem>
 
 void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 {
@@ -1241,10 +1239,7 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	//Push bone list
 	for (size_t i = 0; i < m_vecBone.size(); i++)
 	{
-		for (size_t j = 0; j < m_vecBone[i].bytes.size(); j++)
-		{
-			bytes.push_back(m_vecBone[i].bytes[j]);
-		}
+		bytes.insert(bytes.end(), m_vecBone[i].bytes.begin(), m_vecBone[i].bytes.end());
 	}
 
 	//Push texture table count
@@ -1255,10 +1250,7 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	for (size_t i = 0; i < m_vecTexture.size(); i++)
 	{
 		m_vecTexPos.push_back(bytes.size());
-		for (size_t j = 0; j < m_vecTexture[i].bytes.size(); j++)
-		{
-			bytes.push_back(m_vecTexture[i].bytes[j]);
-		}
+		bytes.insert(bytes.end(), m_vecTexture[i].bytes.begin(), m_vecTexture[i].bytes.end());
 	}
 
 	//Push material list count
@@ -1269,28 +1261,19 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	for (size_t i = 0; i < m_vecMaterial.size(); i++)
 	{
 		m_vecMatPos.push_back(bytes.size());
-		for (size_t j = 0; j < m_vecMaterial[i].bytes.size(); j++)
-		{
-			bytes.push_back(m_vecMaterial[i].bytes[j]);
-		}
+		bytes.insert(bytes.end(), m_vecMaterial[i].bytes.begin(), m_vecMaterial[i].bytes.end());
 	}
 	//Push material list parameter
 	for (size_t i = 0; i < m_vecMaterialPtr.size(); i++)
 	{
 		m_vecMatPtrPos.push_back(bytes.size());
-		for (size_t j = 0; j < m_vecMaterialPtr[i].bytes.size(); j++)
-		{
-			bytes.push_back(m_vecMaterialPtr[i].bytes[j]);
-		}
+		bytes.insert(bytes.end(), m_vecMaterialPtr[i].bytes.begin(), m_vecMaterialPtr[i].bytes.end());
 	}
 	//Push material list texture
 	for (size_t i = 0; i < m_vecMaterialTex.size(); i++)
 	{
 		m_vecMatTexPos.push_back(bytes.size());
-		for (size_t j = 0; j < m_vecMaterialTex[i].bytes.size(); j++)
-		{
-			bytes.push_back(m_vecMaterialTex[i].bytes[j]);
-		}
+		bytes.insert(bytes.end(), m_vecMaterialTex[i].bytes.begin(), m_vecMaterialTex[i].bytes.end());
 	}
 	//Actually a material's parameters and texture are together,
 	//Now output parameters and textures separately.
@@ -1313,28 +1296,19 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	for (size_t i = 0; i < m_vecObject.size(); i++)
 	{
 		m_vecModelPos.push_back(bytes.size());
-		for (size_t j = 0; j < m_vecObject[i].bytes.size(); j++)
-		{
-			bytes.push_back(m_vecObject[i].bytes[j]);
-		}
+		bytes.insert(bytes.end(), m_vecObject[i].bytes.begin(), m_vecObject[i].bytes.end());
 	}
 	//Push model info
 	for (size_t i = 0; i < m_vecObjInfo.size(); i++)
 	{
 		m_vecObjInfoPos.push_back(bytes.size());
-		for (size_t j = 0; j < m_vecObjInfo[i].bytes.size(); j++)
-		{
-			bytes.push_back(m_vecObjInfo[i].bytes[j]);
-		}
+		bytes.insert(bytes.end(), m_vecObjInfo[i].bytes.begin(), m_vecObjInfo[i].bytes.end());
 	}
 	//Push model layout
 	for (size_t i = 0; i < m_vecObjLayout.size(); i++)
 	{
 		m_vecObjLayPos.push_back(bytes.size());
-		for (size_t j = 0; j < m_vecObjLayout[i].bytes.size(); j++)
-		{
-			bytes.push_back(m_vecObjLayout[i].bytes[j]);
-		}
+		bytes.insert(bytes.end(), m_vecObjLayout[i].bytes.begin(), m_vecObjLayout[i].bytes.end());
 		//Data tails for each model may need to be aligned
 		//AlignFileTo16Bytes(bytes);
 	}
@@ -1343,10 +1317,7 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	{
 		// write offset to model info
 		Set4BytesInFile(bytes, (m_vecObjInfoPos[i] + 0x24), (bytes.size() - m_vecObjInfoPos[i]));
-		for (size_t j = 0; j < m_vecObjIndices[i].bytes.size(); j++)
-		{
-			bytes.push_back(m_vecObjIndices[i].bytes[j]);
-		}
+		bytes.insert(bytes.end(), m_vecObjIndices[i].bytes.begin(), m_vecObjIndices[i].bytes.end());
 		//AlignFileTo16Bytes(bytes);
 	}
 	//Push model vertices
@@ -1354,10 +1325,7 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	{
 		// write offset to model info
 		Set4BytesInFile(bytes, (m_vecObjInfoPos[i] + 0x1C), (bytes.size() - m_vecObjInfoPos[i]));
-		for (size_t j = 0; j < m_vecObjVertices[i].bytes.size(); j++)
-		{
-			bytes.push_back(m_vecObjVertices[i].bytes[j]);
-		}
+		bytes.insert(bytes.end(), m_vecObjVertices[i].bytes.begin(), m_vecObjVertices[i].bytes.end());
 		// The last one does not need to be aligned
 		/*
 		if((i+1) < m_vecObjVertices.size())
@@ -1438,10 +1406,7 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	/**/
 	std::ofstream newFile(path + L".mdb", std::ios::binary | std::ios::out | std::ios::ate);
 	
-	for (int i = 0; i < bytes.size(); i++)
-	{
-		newFile << bytes[i];
-	}
+	newFile.write(bytes.data(), bytes.size());
 	
 	newFile.close();
 	
@@ -1799,7 +1764,7 @@ MDBMaterialTex CXMLToMDB::GetMaterialTexture(tinyxml2::XMLElement* entry4, bool 
 	{
 		wstr2 = UTF8ToWide(entry5->GetText());
 		wstr1 = wstr2;
-		wstr1.replace(wstr1.find_last_of(L"."), 1U, L"_");
+		wstr1.replace(wstr1.find_last_of(L'.'), 1U, L"_");
 		if (mipmap != 0)
 		{
 			wstr1 += ToString(mipmap);
