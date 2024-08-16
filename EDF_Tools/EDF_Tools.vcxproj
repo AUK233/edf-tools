@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="CANM.h" />
     <ClInclude Include="CAS.h" />
+    <ClInclude Include="DSGO.h" />
     <ClInclude Include="include\half.hpp" />
     <ClInclude Include="include\tinyxml2.h" />
     <ClInclude Include="JSONAMLParser.h" />
@@ -183,6 +184,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DEBUGMODE;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">DEBUGMODE;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="DSGO.cpp" />
     <ClCompile Include="include\tinyxml2.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>

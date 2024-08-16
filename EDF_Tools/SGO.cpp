@@ -13,6 +13,7 @@
 #include <locale>
 #include <locale.h>
 #include "util.h"
+#include "DSGO.h"
 #include "SGO.h"
 #include "Middleware.h"
 #include "include/tinyxml2.h"
@@ -33,12 +34,19 @@ void SGO::Read( const std::wstring& path )
 		xml.InsertFirstChild(xml.NewDeclaration());
 		tinyxml2::XMLElement* xmlHeader = xml.NewElement("EDFDATA");
 		xml.InsertEndChild(xmlHeader);
-
 		tinyxml2::XMLElement* xmlMain = xmlHeader->InsertNewChildElement("Main");
-		xmlMain->SetAttribute("header", "SGO");
 
-		ReadData(buffer, xmlMain, xmlHeader);
-		
+		if(buffer[0] != 0 && buffer[3] != 0){
+			// if header is DSGO, Go to DSGO Read
+			xmlMain->SetAttribute("header", "DSGO");
+			std::unique_ptr< DSGO > dsgoReader = std::make_unique< DSGO >();
+			dsgoReader->ReadData(buffer, xmlMain, xmlHeader);
+			dsgoReader.reset();
+		} else {
+			xmlMain->SetAttribute("header", "SGO");
+			ReadData(buffer, xmlMain, xmlHeader);
+		}
+
 		std::string outfile = WideToUTF8(path) + "_DATA.xml";
 		xml.SaveFile(outfile.c_str());
 		/*

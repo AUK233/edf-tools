@@ -70,7 +70,7 @@ struct RAB
 {
 public:
 	//Read
-	void Read( const std::wstring& path, bool isMRAB );
+	void Read(const std::wstring& path, const std::wstring& suffix);
 
 	//Write
 	void CreateFromDirectory( const std::wstring& path );

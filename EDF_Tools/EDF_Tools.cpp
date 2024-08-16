@@ -51,6 +51,7 @@ void init_locale(void)
 #include "RAB.h" //RAB extractor
 
 #include "SGO.h" //SGO parser
+#include "DSGO.h" //DSGO parser
 #include "Middleware.h" //Data middleware
 #include "MAB.h" //MAB parser
 #include "MTAB.h" //MTAB parser
@@ -76,7 +77,7 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 
 	if( lastindex != wstring::npos )
 	{ 
-		wstring extension = path.substr( lastindex + 1, extension.size( ) - lastindex );
+		wstring extension = path.substr( lastindex + 1, path.size( ) - lastindex );
 		wstring strn = path.substr( 0, lastindex );
 
 		//List all files
@@ -147,13 +148,20 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 		else if( extension == L"rab" )
 		{
 			std::unique_ptr< RAB > rabReader = std::make_unique< RAB >( );
-			rabReader->Read( strn, false );
+			rabReader->Read( strn, L".rab");
 			rabReader.reset( );
 		}
 		else if( extension == L"mrab" )
 		{
 			std::unique_ptr< RAB > rabReader = std::make_unique< RAB >( );
-			rabReader->Read( strn, true );
+			rabReader->Read( strn, L".mrab");
+			rabReader.reset( );
+		}
+		else if( extension == L"efarc" )
+		{
+			// Has a fatal bug, don't read efarc in non-RAMDisk.
+			std::unique_ptr< RAB > rabReader = std::make_unique< RAB >( );
+			rabReader->Read( strn, L".efarc");
 			rabReader.reset( );
 		}
 		else if (extension == L"mdb")
@@ -208,7 +216,7 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 		else if (extension == L"xml")
 		{
 			size_t xmlIndex = strn.find_last_of(L'_');
-			wstring xmlExtension = strn.substr(xmlIndex + 1, xmlExtension.size() - xmlIndex);
+			wstring xmlExtension = strn.substr(xmlIndex + 1, strn.size() - xmlIndex);
 			wstring xmlStrn = strn.substr(0, xmlIndex);
 
 			xmlExtension = ConvertToLower(xmlExtension);

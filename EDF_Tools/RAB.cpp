@@ -10,15 +10,9 @@
 
 //#define RABREADER_DEBUG
 
-void RAB::Read( const std::wstring& path, bool isMRAB )
+void RAB::Read(const std::wstring& path, const std::wstring& suffix)
 {
-	std::wstring ext;
-	if( isMRAB )
-		ext = L".mrab";
-	else
-		ext = L".rab";
-
-	std::ifstream file( path + ext, std::ios::binary | std::ios::ate );
+	std::ifstream file( path + suffix, std::ios::binary | std::ios::ate );
 
 	std::streamsize size = file.tellg( );
 	file.seekg( 0, std::ios::beg );

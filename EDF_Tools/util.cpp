@@ -152,17 +152,6 @@ int GetIntFromChunk( unsigned char *chunk )
 	return num;
 }
 
-int __fastcall ReadInt32(void const* pdata, int swapEndian)
-{
-	if (swapEndian) {
-		return _byteswap_ulong(*(int*)pdata);
-	}
-	else
-	{
-		return *(int*)pdata;
-	}
-}
-
 char* IntToBytes( int i, bool flip )
 {
 	char *bytes = (char*)malloc( sizeof( char ) * 4 );
@@ -546,4 +535,39 @@ std::string WideToUTF8(const std::wstring& source)
 {
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
 	return conv.to_bytes(source);
+}
+
+
+int __fastcall ReadInt32(void const* pdata, int swapEndian)
+{
+	if (swapEndian) {
+		return _byteswap_ulong(*(int*)pdata);
+	}
+	else
+	{
+		return *(int*)pdata;
+	}
+}
+
+int64_t __fastcall ReadInt64(void const* pdata, int swapEndian)
+{
+	if (swapEndian) {
+		return _byteswap_uint64(*(int64_t*)pdata);
+	}
+	else
+	{
+		return *(int64_t*)pdata;
+	}
+}
+
+double __fastcall ReadFP64(void const* pdata, int swapEndian)
+{
+	if (swapEndian) {
+		int64_t temp = _byteswap_uint64(*(int64_t*)pdata);
+		return *(double*)temp;
+	}
+	else
+	{
+		return *(double*)pdata;
+	}
 }
