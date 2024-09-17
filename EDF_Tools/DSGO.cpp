@@ -47,12 +47,63 @@ void DSGO::ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* heade
 		datanode[i].v.vi = ReadInt64(&buffer[nodepos], big_endian);
 		datanode[i].type = ReadInt64(&buffer[nodepos + 8], big_endian);
 		datanode[i].pos = nodepos;
+		datanode[i].readCount = 0;
+		datanode[i].readByType4 = 0;
 	}
-	// Next, output the first node, which should be of type 3
+	// Next, find the type4 loaded node
+	PreReadDSGONode(big_endian, buffer, datanode);
+	// Last, output the first node, which should be of type 3
 	ReadDSGONode(big_endian, buffer, DataNodeOffset, datanode, 0, header, xmlHeader);
 }
 
-void DSGO::ReadDSGONode(bool big_endian, const std::vector<char>& buffer, int nodepos, const std::vector<DSGOStandardNode>& datanode, int SN, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader)
+void DSGO::PreReadDSGONode(bool big_endian, const std::vector<char>& buffer, std::vector<DSGOStandardNode>& datanode)
+{
+	for (int i = 0; i < DataNodeCount; i++) {
+		// preprocessing type4
+		if (datanode[i].type == 4) {
+			if (datanode[i].v.vi) {
+				datanode[i].v.vi += datanode[i].pos;
+				// Size! Not the node count!
+				int dataSize = ReadInt32(&buffer[datanode[i].v.vi], big_endian);
+				int dataOffset = ReadInt32(&buffer[datanode[i].v.vi + 4], big_endian);
+				int dataPos = datanode[i].v.vi + dataOffset;
+
+				int startPos = 0;
+				int type;
+				while (startPos < dataSize) {
+					int curPos = dataPos + startPos;
+					type = ReadInt32(&buffer[curPos], big_endian);
+					startPos += 4;
+					if (type == 1) {
+						startPos += 8;
+					}
+					else if (type == 2) {
+						std::wcout << L"Type 2 of type4 is detected in " + ToString(curPos) + L"\n";
+						system("pause");
+					}
+					else if (type == 3) {
+						// Important, here we will assign identifiers to the nodes.
+						int nodeIndex = ReadInt32(&buffer[curPos+4], big_endian);
+						if (nodeIndex < DataNodeCount) {
+							datanode[nodeIndex].readByType4 = 1;
+							std::string tempStr = "mark";
+							tempStr += std::to_string(nodeIndex);
+							datanode[nodeIndex].nodeMark = tempStr;
+						}
+						startPos += 4;
+					}
+					else if (type == 4) {
+						startPos += 4;
+					}
+					// end
+				}
+			}
+		}
+		// end
+	}
+}
+
+void DSGO::ReadDSGONode(bool big_endian, const std::vector<char>& buffer, int nodepos, std::vector<DSGOStandardNode>& datanode, int SN, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader)
 {
 	uintptr_t nodePos = nodepos + datanode[SN].v.vi;
 
@@ -153,21 +204,32 @@ void DSGO::ReadDSGONode(bool big_endian, const std::vector<char>& buffer, int no
 		case 4: {
 			//Type4 that need to be parsed
 			xmlNode = header->InsertNewChildElement("type4");
-			xmlNode->SetText(datanode[nodes[i]].pos);
-			//ReadDSGONodeSetNodeName(names, i, xmlNode);
+			int64_t dataOfs = datanode[nodes[i]].v.vi;
+			if (dataOfs) {
+				ReadDSGONodeType4(big_endian, buffer, dataOfs, datanode, nodes[i], xmlNode);
+			}
+			ReadDSGONodeSetNodeName(names, i, xmlNode);
+			//xmlNode->SetText(datanode[nodes[i]].pos);
 			break;
 		}
 		default:
+			xmlNode = header->InsertNewChildElement("error");
 			break;
 		}
-	}
 
-	/*
-	switch (type) {
-	case 0: {
-		
+		//xmlNode->SetAttribute("testSN", nodes[i]);
+		// check for duplicates
+		if (datanode[nodes[i]].readCount) {
+			xmlNode->SetAttribute("reusable", datanode[nodes[i]].readCount);
+		}
+		// node read count + 1
+		datanode[nodes[i]].readCount += 1;
+		// check loaded by type4
+		if (datanode[nodes[i]].readByType4) {
+			xmlNode->SetAttribute("MARKNAME", datanode[nodes[i]].nodeMark.c_str());
+		}
+		// end
 	}
-	}*/
 }
 
 void DSGO::ReadDSGONodeSetNodeName(const std::vector<DSGONameTalbe>& nameList, int SN, tinyxml2::XMLElement*& xmlNode)
@@ -177,6 +239,180 @@ void DSGO::ReadDSGONodeSetNodeName(const std::vector<DSGONameTalbe>& nameList, i
 		if (nameList[i].index == SN) {
 			std::string utf8str = WideToUTF8(nameList[i].wstr);
 			xmlNode->SetAttribute("name", utf8str.c_str());
+			break;
+		}
+	}
+}
+
+void DSGO::ReadDSGONodeType4(bool big_endian, const std::vector<char>& buffer, int nodepos, const std::vector<DSGOStandardNode>& datanode, int SN, tinyxml2::XMLElement*& xmlNode)
+{
+	// Size! Not the node count!
+	int dataSize = ReadInt32(&buffer[nodepos], big_endian);
+	int dataOffset = ReadInt32(&buffer[nodepos + 4], big_endian);
+	int dataPos = nodepos + dataOffset;
+	//xmlNode->SetAttribute("pos", dataPos);
+
+	int startPos = 0;
+	int type;
+	tinyxml2::XMLElement* xmlVNode;
+	while (startPos < dataSize) {
+		int curPos = dataPos + startPos;
+		type = ReadInt32(&buffer[curPos], big_endian);
+		switch (type)
+		{
+		case 1: {
+			// it is FP64
+			xmlVNode = xmlNode->InsertNewChildElement("val");
+			xmlVNode->SetText(ReadFP64(&buffer[curPos + 4], big_endian));
+			startPos += 12;
+			break;
+		}
+		case 2: {
+			// type 2 is wstring, but we don't know structure
+			xmlVNode = xmlNode->InsertNewChildElement("type4_2");
+			xmlVNode->SetAttribute("pos", curPos);
+			startPos += 4;
+			break;
+		}
+		case 3: {
+			xmlVNode = xmlNode->InsertNewChildElement("LoadNode");
+			int nodeIndex = ReadInt32(&buffer[curPos + 4], big_endian);
+			xmlVNode->SetText(datanode[nodeIndex].nodeMark.c_str());
+			startPos += 8;
+			break;
+		}
+		case 4: {
+			// 4 is complex arithmetic and needs more information
+			xmlVNode = xmlNode->InsertNewChildElement("arithmetic");
+			int to4type = ReadInt32(&buffer[curPos + 4], big_endian);
+			switch (to4type) {
+			case -2147483648: {
+				// pow(v1, v2)
+				xmlVNode->SetAttribute("instruction", "fpow");
+				break;
+			}
+			case -2147483647: {
+				xmlVNode->SetAttribute("instruction", "flog2");
+				break;
+			}
+			case -2147483646: {
+				// if +0>+28h, +0 is +28h
+				xmlVNode->SetAttribute("instruction", "fget_L");
+				break;
+			}
+			case -2147483645: {
+				// if +28h>+0, +28h is +8
+				xmlVNode->SetAttribute("instruction", "fget_B");
+				break;
+			}
+			case -2147483644: {
+				// take the biggest of the last 3 values
+				xmlVNode->SetAttribute("instruction", "fmax3");
+				break;
+			}
+			case -2147483643: {
+				// limit the last value to 0.0 - 1.0
+				xmlVNode->SetAttribute("instruction", "fgetM1");
+				break;
+			}
+			case -2147483642: {
+				// v2 - v1 * v3 + v1
+				xmlVNode->SetAttribute("instruction", "fsma");
+				break;
+			}
+			case -2147483641: {
+				// sin(v1)
+				xmlVNode->SetAttribute("instruction", "fsin");
+				break;
+			}
+			case -2147483640: {
+				// cos(v1)
+				xmlVNode->SetAttribute("instruction", "fcos");
+				break;
+			}
+			case -2147483639: {
+				// tan(v1)
+				xmlVNode->SetAttribute("instruction", "ftan");
+				break;
+			}
+			case -2147483638: {
+				// asin(v1)
+				xmlVNode->SetAttribute("instruction", "fasin");
+				break;
+			}
+			case -2147483637: {
+				// acos(v1)
+				xmlVNode->SetAttribute("instruction", "facos");
+				break;
+			}
+			case -2147483636: {
+				// atan(v1)
+				xmlVNode->SetAttribute("instruction", "fatan");
+				break;
+			}
+			default:
+				break;
+			}
+
+			startPos += 8;
+			break;
+		}
+		case 5: {
+			xmlVNode = xmlNode->InsertNewChildElement("arithmetic");
+			xmlVNode->SetAttribute("instruction", "add");
+			startPos += 4;
+			break;
+		}
+		case 6: {
+			xmlVNode = xmlNode->InsertNewChildElement("arithmetic");
+			xmlVNode->SetAttribute("instruction", "sub");
+			startPos += 4;
+			break;
+		}
+		case 7: {
+			xmlVNode = xmlNode->InsertNewChildElement("arithmetic");
+			xmlVNode->SetAttribute("instruction", "mul");
+			startPos += 4;
+			break;
+		}
+		case 8: {
+			xmlVNode = xmlNode->InsertNewChildElement("arithmetic");
+			xmlVNode->SetAttribute("instruction", "div");
+			startPos += 4;
+			break;
+		}
+		case 9: {
+			xmlVNode = xmlNode->InsertNewChildElement("arithmetic");
+			xmlVNode->SetAttribute("instruction", "mod");
+			startPos += 4;
+			break;
+		}
+		case 10: {
+			xmlVNode = xmlNode->InsertNewChildElement("arithmetic");
+			xmlVNode->SetAttribute("instruction", "shl");
+			startPos += 4;
+			break;
+		}
+		case 11: {
+			xmlVNode = xmlNode->InsertNewChildElement("arithmetic");
+			xmlVNode->SetAttribute("instruction", "shr");
+			startPos += 4;
+			break;
+		}
+		case 12: {
+			xmlVNode = xmlNode->InsertNewChildElement("arithmetic");
+			xmlVNode->SetAttribute("instruction", "and");
+			startPos += 4;
+			break;
+		}
+		case 13: {
+			xmlVNode = xmlNode->InsertNewChildElement("arithmetic");
+			xmlVNode->SetAttribute("instruction", "or");
+			startPos += 4;
+			break;
+		}
+		default:
+			startPos += 4;
 			break;
 		}
 	}
