@@ -382,6 +382,7 @@ void DSGO::ReadDSGONodeType4(bool big_endian, const std::vector<char>& buffer, i
 			break;
 		}
 		case 9: {
+			// like https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fmod-fmodf?view=msvc-170
 			xmlVNode = xmlNode->InsertNewChildElement("arithmetic");
 			xmlVNode->SetAttribute("instruction", "mod");
 			startPos += 4;
