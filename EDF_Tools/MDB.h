@@ -152,6 +152,7 @@ private:
 	std::vector< MDBObjectInfo > objects_info;
 	std::vector< MDBObjectLayout > objects_layout;
 
+	int GameVersion;
 	int NameTableCount;
 	int NameTableOffset;
 	int BoneCount;
@@ -193,6 +194,7 @@ public:
 	//Every wide string is counted (even if it is repeated!)
 	int NameTableCount = 0;
 	//Real valid name!
+	int GameVersion = 0x14;
 	int NameCount = 0;
 	int BoneCount = 0;
 	int ObjectCount = 0;

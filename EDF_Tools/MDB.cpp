@@ -49,50 +49,23 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 
 		//Parse the header
 
+		// Check version
+		GameVersion = ReadInt32(&buffer[0x4], 0);
 		// Name
-		position = 0x8;
-		Read4Bytes(seg, buffer, position);
-		NameTableCount = GetIntFromChunk(seg);
-
-		position = 0x0C;
-		Read4Bytes(seg, buffer, position);
-		NameTableOffset = GetIntFromChunk(seg);
-
+		NameTableCount = ReadInt32(&buffer[0x8], 0);
+		NameTableOffset = ReadInt32(&buffer[0xC], 0);
 		// Bone
-		position = 0x10;
-		Read4Bytes(seg, buffer, position);
-		BoneCount = GetIntFromChunk(seg);
-
-		position = 0x14;
-		Read4Bytes(seg, buffer, position);
-		BoneOffset = GetIntFromChunk(seg);
-
+		BoneCount = ReadInt32(&buffer[0x10], 0);
+		BoneOffset = ReadInt32(&buffer[0x14], 0);
 		// Object
-		position = 0x18;
-		Read4Bytes(seg, buffer, position);
-		ObjectCount = GetIntFromChunk(seg);
-
-		position = 0x1C;
-		Read4Bytes(seg, buffer, position);
-		ObjectOffset = GetIntFromChunk(seg);
-
+		ObjectCount = ReadInt32(&buffer[0x18], 0);
+		ObjectOffset = ReadInt32(&buffer[0x1C], 0);
 		// Material
-		position = 0x20;
-		Read4Bytes(seg, buffer, position);
-		MaterialCount = GetIntFromChunk(seg);
-
-		position = 0x24;
-		Read4Bytes(seg, buffer, position);
-		MaterialOffset = GetIntFromChunk(seg);
-
+		MaterialCount = ReadInt32(&buffer[0x20], 0);
+		MaterialOffset = ReadInt32(&buffer[0x24], 0);
 		// Object
-		position = 0x28;
-		Read4Bytes(seg, buffer, position);
-		TextureCount = GetIntFromChunk(seg);
-
-		position = 0x2C;
-		Read4Bytes(seg, buffer, position);
-		TextureOffset = GetIntFromChunk(seg);
+		TextureCount = ReadInt32(&buffer[0x28], 0);
+		TextureOffset = ReadInt32(&buffer[0x2C], 0);
 
 		// Read
 		// name table:
@@ -554,15 +527,32 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					// If mapping and name have different lengths
 					std::wstring wstrm = textures[tempint].mapping;
 					std::wstring wstrn = textures[tempint].filename;
-					//check mapping length
-					size_t nnsize = wstrm.find_last_of(L'_') + 4;
-					size_t wmsize = wstrm.size();
 					// Truncate the tail of the mapping as a mipmap
 					std::string mipmap;
-					if (wmsize == nnsize)
-						mipmap = "0";
-					else
-						mipmap = WideToUTF8(wstrm.substr(nnsize, wmsize - nnsize));
+					// EDF6's MDB version is 0x20
+					// Need to ignore mipmap in normal texture DDS format BC5
+					if (GameVersion == 0x20) {
+						UINT64 isDDS = *(UINT64*)&wstrm[wstrm.size() - 4];
+						// L"_dds"
+						if (isDDS == 32370051825008735U) {
+							goto CheckMipMap;
+						}
+						mipmap = "-1";
+					}
+					else {
+						CheckMipMap:
+						//check mapping length
+						size_t nnsize = wstrm.find_last_of(L'_') + 4;
+						size_t wmsize = wstrm.size();
+						if (wmsize == nnsize)
+						{
+							mipmap = "0";
+						}
+						else
+						{
+							mipmap = WideToUTF8(wstrm.substr(nnsize, wmsize - nnsize));
+						}
+					}
 					//Now it has a problem
 					//so do not use it
 					/*
@@ -1347,6 +1337,13 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 		MIlayoutNum += m_vecObjInfo[i].LayoutCount;
 	}
 
+	// check alignment
+	int alignStr = bytes.size() % 16;
+	if (alignStr)
+	{
+		for (int i = alignStr; i < 16; i++)
+			bytes.push_back(0);
+	}
 	//Push strings
 	for (size_t i = 0; i < m_vecStrns.size(); i++)
 	{
@@ -1372,7 +1369,14 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 		}
 	}
 	bytes.push_back(0);
-	
+
+	// check alignment
+	int alignWStr = bytes.size() % 16;
+	if (alignWStr)
+	{
+		for (int i = alignWStr; i < 16; i++)
+			bytes.push_back(0);
+	}
 	//Push wide strings
 	for (size_t i = 0; i < m_vecWStrns.size(); i++)
 	{
@@ -1426,6 +1430,8 @@ void CXMLToMDB::AlignFileTo16Bytes(std::vector<char>& bytes)
 
 void CXMLToMDB::Set4BytesInFile(std::vector<char>& bytes, int pos, int value)
 {
+	*(int*)&bytes[pos] = value;
+	/*
 	char* fnofs = IntToBytes(value);
 
 	bytes[pos] = fnofs[0];
@@ -1433,7 +1439,7 @@ void CXMLToMDB::Set4BytesInFile(std::vector<char>& bytes, int pos, int value)
 	bytes[pos+2] = fnofs[2];
 	bytes[pos+3] = fnofs[3];
 
-	free(fnofs);
+	free(fnofs);*/
 }
 
 void CXMLToMDB::GenerateHeader(std::vector< char >& bytes)
@@ -1764,8 +1770,9 @@ MDBMaterialTex CXMLToMDB::GetMaterialTexture(tinyxml2::XMLElement* entry4, bool 
 	{
 		wstr2 = UTF8ToWide(entry5->GetText());
 		wstr1 = wstr2;
+		// TODO: when mipmap is -1, remove _dds suffix
 		wstr1.replace(wstr1.find_last_of(L'.'), 1U, L"_");
-		if (mipmap != 0)
+		if (mipmap > 0)
 		{
 			wstr1 += ToString(mipmap);
 		}
