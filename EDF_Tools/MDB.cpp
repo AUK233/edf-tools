@@ -51,6 +51,9 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 
 		// Check version
 		GameVersion = ReadInt32(&buffer[0x4], 0);
+		if (GameVersion == 0x20) {
+			xmlHeader->SetAttribute("version", "6");
+		}
 		// Name
 		NameTableCount = ReadInt32(&buffer[0x8], 0);
 		NameTableOffset = ReadInt32(&buffer[0xC], 0);
@@ -820,24 +823,20 @@ MDBObjectLayout CMDBtoXML::ReadObjectLayout(int pos, const std::vector<char>& bu
 {
 	MDBObjectLayout out;
 
-	unsigned char seg[4];
+	out.type = ReadInt32(&buffer[pos], 0);
+	out.offset = ReadInt32(&buffer[pos + 0x4], 0);
+	out.channel = ReadInt32(&buffer[pos + 0x8], 0);
 
-	int position = pos;
-	Read4Bytes(seg, buffer, position);
-	out.type = GetIntFromChunk(seg);
-
-	position = pos + 0x4;
-	Read4Bytes(seg, buffer, position);
-	out.offset = GetIntFromChunk(seg);
-
-	position = pos + 0x8;
-	Read4Bytes(seg, buffer, position);
-	out.channel = GetIntFromChunk(seg);
-
-	position = pos + 0x0C;
-	Read4Bytes(seg, buffer, position);
-	int offset = GetIntFromChunk(seg);
-	out.name = ReadASCII(buffer, pos + offset);
+	int offset = ReadInt32(&buffer[pos + 0x0C], 0);
+	std::string name = ReadASCII(buffer, pos + offset);
+	// In case of EDF6, Convert parameter names to lowercase
+	if (GameVersion == 0x20) {
+		// Ignore the skin parameters
+		if ( CompareStringIsSame(name, "BLENDWEIGHT", 12) && CompareStringIsSame(name, "BLENDINDICES", 13) ) {
+			name = ConvertToLower(name);
+		}
+	}
+	out.name = name;
 
 	return out;
 }
@@ -846,25 +845,17 @@ MDBTexture CMDBtoXML::ReadTexture(int pos, const std::vector<char>& buffer)
 {
 	MDBTexture out;
 
-	unsigned char seg[4];
 	int offset = 0;
 
-	int position = pos;
-	Read4Bytes(seg, buffer, position);
-	out.ID = GetIntFromChunk(seg);
+	out.ID = ReadInt32(&buffer[pos], 0);
 
-	position = pos + 0x4;
-	Read4Bytes(seg, buffer, position);
-	offset = GetIntFromChunk(seg);
+	offset = ReadInt32(&buffer[pos + 0x4], 0);
 	out.mapping = ReadUnicode(buffer, pos + offset);
 
-	position = pos + 0x8;
-	Read4Bytes(seg, buffer, position);
-	offset = GetIntFromChunk(seg);
+	offset = ReadInt32(&buffer[pos + 0x8], 0);
 	out.filename = ReadUnicode(buffer, pos + offset);
-	
-	position = pos + 0xC;
-	out.raw = ReadRaw(buffer, position, 4);
+
+	out.raw = ReadRaw(buffer, (pos + 0xC), 4);
 
 	return out;
 }

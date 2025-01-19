@@ -50,8 +50,13 @@ bool IsValidFloat( const std::wstring& input );
 //Converts a int hex to float
 float IntHexAsFloat(int in);
 
+// 0 is same, Compares whether two strings are the same.
+// Why do I need this method to work!
+int CompareStringIsSame(const std::string& str1, const char* str2, int length);
 //Converts a string to lower case
-std::wstring ConvertToLower( std::wstring in );
+std::string ConvertToLower(const std::string& in);
+//Converts a wide string to lower case
+std::wstring ConvertToLower(const std::wstring& in );
 
 //Value type enum.
 enum ValueType
@@ -64,7 +69,7 @@ enum ValueType
 	T_INVALID
 };
 //Function to determine "type" of string argument
-ValueType DetermineType( std::wstring input );
+ValueType DetermineType(const std::wstring& input );
 
 //Helper fn to read a file
 std::wstring ReadFile( const wchar_t* filename );

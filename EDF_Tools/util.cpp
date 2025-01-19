@@ -228,22 +228,15 @@ std::string ReadASCII(const std::vector<char>& chunk, int pos)
 	unsigned int bufPos = pos;
 
 	std::vector< unsigned char > bytes;
-
-	int zeroCount = 0;
-
 	//Repeat until EOF, or otherwise broken
 	while (bufPos < chunk.size())
 	{
 		bytes.push_back(chunk[bufPos]);
 
-		if (chunk[bufPos] == 0x00)
+		if (chunk[bufPos] == 0)
 		{
-			zeroCount++;
-			if (zeroCount == 1)
-				break;
+			break;
 		}
-		else
-			zeroCount = 0;
 		bufPos++;
 	}
 
@@ -405,8 +398,43 @@ float IntHexAsFloat(int in)
 	return out;
 }
 
+// 0 is same, Compares whether two strings are the same.
+int CompareStringIsSame(const std::string& str1, const char* str2, int length)
+{
+	int nonSame = 1;
+	if (str1.size() == length) {
+		for (int i = 0; i < length; i++) {
+			if (str1[i] != str2[i]) {
+				nonSame += i;
+				break;
+			}
+		}
+		nonSame = 0;
+	}
+	return nonSame;
+}
+
 //Converts a string to lower case
-std::wstring ConvertToLower( std::wstring in )
+std::string ConvertToLower(const std::string& in)
+{
+	std::string out;
+	for (int i = 0; i < in.size(); i++)
+	{
+		out += tolower(in[i]);
+		// to upper: in[i] & 0b11011111;
+		/*
+		if (!in[i]) {
+			out += in[i];
+		}
+		else {
+			out += (in[i] | 0b00100000);
+		}*/
+	}
+	return out;
+}
+
+//Converts a wide string to lower case
+std::wstring ConvertToLower(const std::wstring& in )
 {
 	std::wstring out;
 	for( int i = 0; i < in.size( ); ++i )
@@ -417,7 +445,7 @@ std::wstring ConvertToLower( std::wstring in )
 }
 
 //Function to determine "type" of string argument
-ValueType DetermineType( std::wstring input )
+ValueType DetermineType(const std::wstring& input )
 {
 	std::wstring lower = ConvertToLower( input );
 	if( lower == L"true" || lower == L"false" )
