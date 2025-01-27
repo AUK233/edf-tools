@@ -47,4 +47,6 @@
 /ModelScale/Debug/*
 /Dxbc2Asm/Release/*
 /Dxbc2Asm/Debug/*
+/RemapBones/Release/*
+/RemapBones/Debug/*
 /x64/*

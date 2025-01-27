@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Dxbc2Asm", "Dxbc2Asm\Dxbc2A
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "6subTo5", "6subTo5\6subTo5.vcxproj", "{B94722EB-4100-4675-B8B4-0E5D721D33D4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RemapBones", "RemapBones\RemapBones.vcxproj", "{F1B16970-FB8F-4669-8D64-52F5F439207C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -51,6 +53,14 @@ Global
 		{B94722EB-4100-4675-B8B4-0E5D721D33D4}.Release|Win32.Build.0 = Release|Win32
 		{B94722EB-4100-4675-B8B4-0E5D721D33D4}.Release|x64.ActiveCfg = Release|x64
 		{B94722EB-4100-4675-B8B4-0E5D721D33D4}.Release|x64.Build.0 = Release|x64
+		{F1B16970-FB8F-4669-8D64-52F5F439207C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F1B16970-FB8F-4669-8D64-52F5F439207C}.Debug|Win32.Build.0 = Debug|Win32
+		{F1B16970-FB8F-4669-8D64-52F5F439207C}.Debug|x64.ActiveCfg = Debug|x64
+		{F1B16970-FB8F-4669-8D64-52F5F439207C}.Debug|x64.Build.0 = Debug|x64
+		{F1B16970-FB8F-4669-8D64-52F5F439207C}.Release|Win32.ActiveCfg = Release|Win32
+		{F1B16970-FB8F-4669-8D64-52F5F439207C}.Release|Win32.Build.0 = Release|Win32
+		{F1B16970-FB8F-4669-8D64-52F5F439207C}.Release|x64.ActiveCfg = Release|x64
+		{F1B16970-FB8F-4669-8D64-52F5F439207C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
