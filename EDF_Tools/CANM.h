@@ -9,6 +9,8 @@ struct CANMAnmKeyframe
 
 struct CANMAnmKey
 {
+	// vi0 is type
+	// vi1 is Keyframe size
 	short vi[2];
 	float vf[6];
 	std::vector< CANMAnmKeyframe > kf;
@@ -45,9 +47,10 @@ public:
 	void ReadAnimationData(tinyxml2::XMLElement* header, const std::vector<char>& buffer);
 	void ReadAnimationDataWriteKeyFrame(tinyxml2::XMLElement* node, int num);
 	void ReadBoneListData(tinyxml2::XMLElement* header, const std::vector<char>& buffer);
+	//
 	CANMAnmKey ReadAnimationFrameData(const std::vector<char>& buffer, int pos);
-	// faster with the pointer version
-	CANMAnmKey ReadAnimationFrameData(std::vector<char> *buf, int pos, int mask);
+	// used to read EDF6 structure
+	CANMAnmKey ReadAnimationFrameData6(const std::vector<char>& buffer, int pos);
 
 	void Write(const std::wstring& path);
 	std::vector< char > WriteData(tinyxml2::XMLElement* Data);
@@ -59,6 +62,7 @@ public:
 	short WriteAnimationKeyFrame(tinyxml2::XMLElement* data);
 
 private:
+	int GameVersion = 512;
 	int i_AnmDataCount = 0;
 	int i_AnmDataOffset = 0;
 	int i_AnmPointCount = 0;

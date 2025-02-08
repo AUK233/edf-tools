@@ -1,0 +1,3 @@
+﻿  Dxbc2Asm.cpp
+D:\9SourceCode\cpp\edf-tools-master\Dxbc2Asm\Dxbc2Asm.cpp(45,16): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  Dxbc2Asm.vcxproj -> D:\9SourceCode\cpp\edf-tools-master\x64\Debug\Dxbc2Asm.exe

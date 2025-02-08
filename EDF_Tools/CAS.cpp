@@ -12,6 +12,8 @@
 #include "CAS.h"
 #include "include/tinyxml2.h"
 
+//#define DEBUGMODE
+
 void CAS::Read(const std::wstring& path)
 {
 	std::ifstream file(path + L".cas", std::ios::binary | std::ios::ate | std::ios::in);
@@ -64,6 +66,11 @@ void CAS::ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header
 	else if (CAS_Version == 515)
 	{
 		header->SetAttribute("version", "5");
+		i_CasDCCount = 13;
+	}
+	else if (CAS_Version == 516)
+	{
+		header->SetAttribute("version", "6");
 		i_CasDCCount = 13;
 	}
 

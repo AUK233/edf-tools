@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <format>
 
 #include "util.h"
 #include "MDB.h"
@@ -837,6 +838,12 @@ MDBObjectLayout CMDBtoXML::ReadObjectLayout(int pos, const std::vector<char>& bu
 		}
 	}
 	out.name = name;
+	//
+	/*
+	if (!CompareStringIsSame(name, "BLENDWEIGHT", 12)) {
+		out.name = "bone_weight";
+		out.type = 919;
+	}*/
 
 	return out;
 }
@@ -942,6 +949,63 @@ void CMDBtoXML::ReadVertex(int pos, const std::vector<char>& buffer, int type, i
 			xmlVNode->SetAttribute("y", seg[1]);
 			xmlVNode->SetAttribute("z", seg[2]);
 			xmlVNode->SetAttribute("w", seg[3]);
+		}
+	}
+	else if (type == 919)
+	{
+		int vi[4];
+		//char tempbuf[0x20];
+		//std::string hexstr;
+
+		for (int l = 0; l < num; l++)
+		{
+			int Vcurpos = pos + (l * size);
+
+			memcpy(&vi, &buffer[Vcurpos], 16U);
+
+			tinyxml2::XMLElement* xmlVNode = header->InsertNewChildElement("V");
+			xmlVNode->SetAttribute("x", vi[0]);
+			xmlVNode->SetAttribute("y", vi[1]);
+			xmlVNode->SetAttribute("z", vi[2]);
+			xmlVNode->SetAttribute("w", vi[3]);
+
+			/*
+			if (vi[0]) {
+				hexstr = "0x";
+				hexstr += _itoa(vi[0], tempbuf, 16);
+				xmlVNode->SetAttribute("x", hexstr.c_str());
+			}
+			else {
+				xmlVNode->SetAttribute("x", "0");
+			}
+
+			if (vi[1]) {
+				hexstr = "0x";
+				hexstr += _itoa(vi[1], tempbuf, 16);
+				xmlVNode->SetAttribute("y", hexstr.c_str());
+			}
+			else {
+				xmlVNode->SetAttribute("y", "0");
+			}
+
+			if (vi[2]) {
+				hexstr = "0x";
+				hexstr += _itoa(vi[2], tempbuf, 16);
+				xmlVNode->SetAttribute("z", hexstr.c_str());
+			}
+			else {
+				xmlVNode->SetAttribute("z", "0");
+			}
+
+			if (vi[3]) {
+				hexstr = "0x";
+				hexstr += _itoa(vi[3], tempbuf, 16);
+				xmlVNode->SetAttribute("w", hexstr.c_str());
+			}
+			else {
+				xmlVNode->SetAttribute("w", "0");
+			}*/
+			
 		}
 	}
 	else
@@ -1760,12 +1824,17 @@ MDBMaterialTex CXMLToMDB::GetMaterialTexture(tinyxml2::XMLElement* entry4, bool 
 	else
 	{
 		wstr2 = UTF8ToWide(entry5->GetText());
-		wstr1 = wstr2;
-		// TODO: when mipmap is -1, remove _dds suffix
-		wstr1.replace(wstr1.find_last_of(L'.'), 1U, L"_");
-		if (mipmap > 0)
-		{
-			wstr1 += ToString(mipmap);
+		if (mipmap == -1) {
+			// when mipmap is -1, remove _dds suffix
+			wstr1 = wstr2.substr(0, (wstr2.size() - 4));
+		}
+		else {
+			wstr1 = wstr2;
+			wstr1.replace(wstr1.find_last_of(L'.'), 1U, L"_");
+			if (mipmap > 0)
+			{
+				wstr1 += ToString(mipmap);
+			}
 		}
 		// Check if texture exists in table
 		bool found = false;

@@ -6,13 +6,31 @@
 
 #pragma comment(lib, "d3dcompiler.lib")
 
-void writeFile(std::wstring inFile) {
+std::string GetRaw(const std::vector<char>& buf)
+{
+	std::string str = "";
+	unsigned char chunk;
+	char tempbuffer[3];
+
+	for (int i = 0; i < buf.size(); i++)
+	{
+		chunk = buf[i];
+		if (chunk < 0x10)
+			str += "0";
+
+		_itoa_s(chunk, tempbuffer, 3, 16);
+		str += tempbuffer;
+	}
+	return str;
+}
+
+void writeFile(std::wstring inFile, int filetype) {
 	ID3DBlob* blob;
 	ID3DBlob* error;
 	HRESULT D3D = D3DCompileFromFile(inFile.c_str(),
 		NULL, NULL,
 		"main", "ps_5_0",
-		D3DCOMPILE_SKIP_OPTIMIZATION, 0,
+		D3DCOMPILE_OPTIMIZATION_LEVEL1, 0,
 		&blob, &error);
 
 	if (D3D == S_OK) {
@@ -22,16 +40,45 @@ void writeFile(std::wstring inFile) {
 		std::vector< char > bytes(shader_size);
 		memcpy(&bytes[0], shader_pointer, shader_size);
 
-		std::ofstream newFile(inFile + L".hex", std::ios::binary | std::ios::out | std::ios::ate);
-		for (int i = 0; i < bytes.size(); i++)
-		{
-			newFile << bytes[i];
-		}
-		newFile.close();
 
+		std::wstring outPath;
+		int pathSize = inFile.size();
+		if (filetype == 1) {
+			if (pathSize > 5) {
+				outPath = inFile.substr(0, (pathSize - 5));
+				outPath += L".txt";
+			}
+			else {
+				outPath = inFile + L".txt";
+			}
+
+			std::string txt = GetRaw(bytes);
+
+			std::ofstream newFile(outPath, std::ios::binary | std::ios::out | std::ios::ate);
+			newFile.write(txt.c_str(), txt.size());
+			newFile.close();
+		}
+		else {
+			if (pathSize > 5) {
+				outPath = inFile.substr(0, (pathSize - 5));
+				outPath += L".dxbc";
+			}
+			else {
+				outPath = inFile + L".dxbc";
+			}
+
+			std::ofstream newFile(outPath, std::ios::binary | std::ios::out | std::ios::ate);
+			newFile.write(bytes.data(), bytes.size());
+			/*
+			for (int i = 0; i < bytes.size(); i++)
+			{
+				newFile << bytes[i];
+			}*/
+			newFile.close();
+		}
 		bytes.clear();
 
-		std::wcout << L"Completion: " << inFile << L".hex\n";
+		std::wcout << L"Completion: " << outPath << L"\n";
 	}
 	else {
 		LPVOID error_pointer = error->GetBufferPointer();
@@ -132,21 +179,23 @@ void readFile(std::wstring inFile) {
 int wmain(int argc, wchar_t* argv[])
 {
 	std::wstring path;
+	std::wstring type;
 
 	if (argc > 1) {
 		path = argv[1];
 		//std::wcout << L"Parsing file: " << path << L"\n";
 	}
 	else {
-		std::wcout << L"Filename:";
+		std::wcout << L"Filename: ";
 		std::wcin >> path;
 		std::wcout << L"\n";
 
+		writeFile(path, 1);
+		return 0;
 		//std::wcout << L"Parsing......\n";
 	}
 
-	std::wstring type;
-	std::wcout << L"Type:";
+	std::wcout << L"Type (0 is dxbc to asm, 1 is hlsl to binary, 2 is hlsl to txt): ";
 	std::wcin >> type;
 	std::wcout << L"\n";
 
@@ -154,7 +203,10 @@ int wmain(int argc, wchar_t* argv[])
 		readFile(path);
 	}
 	else if (type == L"1") {
-		writeFile(path);
+		writeFile(path, 0);
+	}
+	else if (type == L"2") {
+		writeFile(path, 1);
 	}
 
 	system("pause");
