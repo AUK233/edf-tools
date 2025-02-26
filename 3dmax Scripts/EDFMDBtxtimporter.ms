@@ -11,7 +11,7 @@ struct MDB_TXTLoader
 
 	fn Open filename=
 	(
-		file = openFile filename
+		file = openFile filename mode:"rb"
 		path = getFilenamePath filename
 		ok
 	),
@@ -255,7 +255,6 @@ struct MDB_TXTLoader
 			skipToString file "<name>"
 			local meshId = readDelimitedString file "<"
 
-			maxMesh = #()
 			meshStart = filePos file
 			for j = 1 to meshnum do
 			(
@@ -481,9 +480,7 @@ struct MDB_TXTLoader
 					)
 					skinOps.RemoveZeroWeights skinMod
 				)
-				update newMesh	
-				
-				maxMesh[j] = newMesh
+				update newMesh
 			)
 		)
 	),
@@ -494,5 +491,7 @@ struct MDB_TXTLoader
 		ReadBone file
 		ReadMaterial file path
 		ReadObject file
+
+		gc()
 	)
 )

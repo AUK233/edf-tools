@@ -47,12 +47,9 @@ cbuffer xgl_system : register( b0 )
 // cb 2
 cbuffer xgl_user_param : register( b2 )
 {
-	float3 diffuse;                    // Offset:    0 Size:    12
-//      = 0x3f800000 0x3f800000 0x3f800000 
-	float3 change_color0;              // Offset:   16 Size:    12
-//      = 0x3f800000 0x00000000 0x00000000 
-	float3 change_color1;              // Offset:   32 Size:    12
-//      = 0x00000000 0x00000000 0x3f800000 
+	float3 diffuse = float3(1.0, 1.0, 1.0);
+	float3 change_color0 = float3(1.0, 0.0, 0.0);
+	float3 change_color1 = float3(0.0, 0.0, 1.0);
 	float2 normal_amount;              // Offset:   48 Size:     8
 //      = 0x3f800000 0x3f800000 
 	float specular_pow;                // Offset:   56 Size:     4

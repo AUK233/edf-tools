@@ -20,7 +20,7 @@ utility EDFTool "Sandlot EDF" silentErrors:false
 	group "About:"
 	( 
 		label Label1 "Sandlot EDF MaxTool"
-		label Label2 "09-20"
+		label Label2 "02-12"
 	)
 	
 	group "Import:"
@@ -30,7 +30,7 @@ utility EDFTool "Sandlot EDF" silentErrors:false
 		button importMAC "Import .MAC" tooltip:"Import coordinates of map objects in MAC."
 		
 		label labelm "Model:"
-		button importMDB "Import .MDB" tooltip:"Import Model. now, it can't work."
+		button importMDB "Import .MDB" tooltip:"Import Model. It requires that you update mdb."
 		button importMDBtxt "Import MDB text" tooltip:"Import model from xml format."
 	)
 	

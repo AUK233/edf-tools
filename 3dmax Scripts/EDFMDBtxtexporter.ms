@@ -208,7 +208,11 @@ struct MDB_TXTExporter
 
 	fn ExportModel output_name=
 	(
-		output_file = createfile output_name
+		--output_file = createfile output_name
+		--output_file = openFile output_name mode:"wb"
+
+		-- write data to buffer
+		output_file = stringstream ""
 		format "<MDB>\n" to:output_file
 
 		format "    <ObjectLists>\n" to:output_file
@@ -216,6 +220,14 @@ struct MDB_TXTExporter
 		format "    </ObjectLists>\n" to:output_file
 
 		format "</MDB>" to:output_file
+		-- end
+
+		-- write to file
+		out = openFile output_name mode:"wb"
+		print (output_file as string) to:out
 		close output_file
+		close out
+
+		gc()
 	)
 )

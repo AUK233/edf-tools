@@ -94,6 +94,81 @@ struct MDB_Texture
 	)
 )
 
+struct MDB_Bone
+(
+	newBone,
+
+	fn readMatrix4x4 bstream = (
+		local mat = matrix3 1
+		mat.row1.x = ReadFloat bstream
+		mat.row1.y = ReadFloat bstream
+		mat.row1.z = ReadFloat bstream
+		fseek bstream 4 #seek_cur
+		--mat.row1.w = ReadFloat bstream
+		mat.row2.x = ReadFloat bstream
+		mat.row2.y = ReadFloat bstream
+		mat.row2.z = ReadFloat bstream
+		fseek bstream 4 #seek_cur
+		--mat.row2.w = ReadFloat bstream
+		mat.row3.x = ReadFloat bstream
+		mat.row3.y = ReadFloat bstream
+		mat.row3.z = ReadFloat bstream
+		fseek bstream 4 #seek_cur
+		--mat.row3.w = ReadFloat bstream
+		mat.row4.x = ReadFloat bstream
+		mat.row4.y = ReadFloat bstream
+		mat.row4.z = ReadFloat bstream
+		fseek bstream 4 #seek_cur
+		--mat.row4.w = ReadFloat bstream
+		mat.row4.x *= 10
+		mat.row4.y *= 10
+		mat.row4.z *= 10
+		mat
+	),
+
+	fn readFloatX3 bstream = (
+		local f3 = #()
+		f3[1] = (ReadFloat bstream) * 10
+		f3[2] = (ReadFloat bstream) * 10
+		f3[3] = (ReadFloat bstream) * 10
+		fseek bstream 4 #seek_cur
+		local vf3 = point3 f3[1] f3[2] f3[3]
+		vf3
+	),
+	
+	fn readData bstream maxBones namelist index=
+	(
+		fseek bstream 4 #seek_cur
+		local BoneParent = (ReadLong bstream #signed) + 1
+		fseek bstream 8 #seek_cur
+		local nameIndex = (ReadLong bstream #signed) + 1
+		fseek bstream 12 #seek_cur
+		local tfm = readMatrix4x4 bstream
+		local tfm2 = readMatrix4x4 bstream
+		local boxPos = readFloatX3 bstream
+		local boxSize = readFloatX3 bstream
+		-- create bone
+		-- set parent
+		if (BoneParent > 0) do (
+			tfm = tfm * maxBones[BoneParent].objecttransform
+		)
+		-- do
+		newBone = bonesys.createbone boxPos boxPos [0,0,0.1]
+		newBone.name = namelist[nameIndex].UTF16name
+		newBone.width  = 0.01
+		newBone.height = 0.01
+		newBone.transform = tfm
+		newBone.setBoneEnable false 0
+		newBone.wirecolor = [122,146,87]
+		newbone.showlinks = true
+		if (BoneParent > 0) then (
+			newBone.parent = maxBones[BoneParent]
+		)
+		maxBones[index] = newBone
+	)
+	
+)
+
 struct MDB_ObjectTable
 (
 	ID,
@@ -115,103 +190,247 @@ struct MDB_ObjectTable
 
 struct MDB_Mesh
 (
+	pos,
 	Material,
-	MaterialID,
-	VertexOffset,
+	matid,
+	LayoutOffset,
 	VertexSize,
-	VertexLayoutCount,
+	LayoutCount,
 	VertexNum,
 	MeshIndex,
-	VertexDataOffset,
+	VertexOffset,
 	indicesNum,
 	indicesOffset,
+	-- vertex type
+	position,
+	normal,
+	blendweight,
+	blendindices,
+	binormal,
+	tangent,
+	texcoord0,
+	texcoord1,
 
 	fn LoadFromStream bstream=
 	(
 		pos = ftell bstream
-		unk = ReadLong bstream #unsigned
-		MaterialID = ReadLong bstream #signed
-		unk2 = ReadLong bstream #unsigned
-		VertexOffset = ReadLong bstream #signed
+		fseek bstream 4 #seek_cur
+		matid = ReadLong bstream #signed
+		fseek bstream 4 #seek_cur
+		LayoutOffset = ReadLong bstream #signed
 		VertexSize = ReadShort bstream #unsigned
-		VertexLayoutCount = ReadShort bstream #unsigned
+		LayoutCount = ReadShort bstream #unsigned
 		VertexNum = ReadLong bstream #unsigned
 		MeshIndex = ReadLong bstream #signed
-		VertexDataOffset = ReadLong bstream #signed
-		indicesNum = ReadLong bstream #signed
+		VertexOffset = ReadLong bstream #signed
+		indicesNum = (ReadLong bstream #signed) / 3
 		indicesOffset = ReadLong bstream #signed
+		
+		position = 0
+		normal = 0
+		blendweight = 0
+		blendindices = 0
+		binormal = 0
+		tangent = 0
+		texcoord0 = 0
+		texcoord1 = 0
 	),
 
-	fn getvalue type=
+	fn GetLayout bstream=
 	(
-		if type = 1 then
-		(
+		local curPos = pos + LayoutOffset
+		for i = 1 to LayoutCount do (
+			fseek bstream (curPos+4) #seek_set
+			local layoutOfs = ReadLong bstream #signed
+			local channel = ReadLong bstream #signed
+			local nameOfs = ReadLong bstream #signed
+			-- get str
+			fseek bstream (curPos+nameOfs) #seek_set
+			local LayoutStr = ReadString bstream
+			-- check 
+			local dataPos = pos + VertexOffset + layoutOfs
+			case LayoutStr of (
+				"position": position = dataPos
+				"normal": normal = dataPos
+				"BLENDWEIGHT": blendweight = dataPos
+				"BLENDINDICES": blendindices = dataPos
+				"binormal": binormal = dataPos
+				"tangent": tangent = dataPos
+				"texcoord": (
+					if channel == 0 then (
+						texcoord0 = dataPos
+					) else if channel == 1 then (
+						texcoord1 = dataPos
+					)
+				)
+			)
+			--format "name: %\n" LayoutStr
+			curPos += 16;
+		)
+	),
+
+	fn ReadMesh bstream meshId index maxBones= (
+		-- get faces
+		local Vfaces = #()
+		local facesPos = pos + indicesOffset
+		fseek bstream facesPos #seek_set
+		for i = 1 to indicesNum do (
+			x = (ReadShort bstream #unsigned) + 1
+			y = (ReadShort bstream #unsigned) + 1
+			z = (ReadShort bstream #unsigned) + 1
+			Vfaces[i] = point3 x y z
+		)
+		--
+		local Vposition = #()
+		local curPos = position
+		for i = 1 to VertexNum do (
+			fseek bstream curPos #seek_set
+			x = (ReadFloat bstream) * 10
+			y = (ReadFloat bstream) * 10
+			z = (ReadFloat bstream) * 10
+			Vposition[i] = point3 x y z
+			curPos += VertexSize
+		)
+		--
+		local Vnormal = #()
+		local curPos = normal
+		for i = 1 to VertexNum do (
+			fseek bstream curPos #seek_set
+			x = ReadFloat bstream
 			y = ReadFloat bstream
 			z = ReadFloat bstream
-			x = ReadFloat bstream
-			w = ReadFloat bstream
+			Vnormal[i] = point3 x y z
+			curPos += VertexSize
 		)
-		else if type = 4 then
-		(
+		--
+		local Vweights = #()
+		if blendweight > 0 then (
+			local curPos = blendweight
+			for i = 1 to VertexNum do (
+				fseek bstream curPos #seek_set
+				x = ReadFloat bstream
+				y = ReadFloat bstream
+				z = ReadFloat bstream
+				w = ReadFloat bstream
+				Vweights[i] = point4 x y z w
+				curPos += VertexSize
+			)
+		)
+		--
+		local Vindices = #()
+		if blendindices > 0 then (
+			local curPos = blendindices
+			for i = 1 to VertexNum do (
+				fseek bstream curPos #seek_set
+				x = (ReadByte bstream #unsigned) + 1
+				y = (ReadByte bstream #unsigned) + 1
+				z = (ReadByte bstream #unsigned) + 1
+				w = (ReadByte bstream #unsigned) + 1
+				Vindices[i] = point4 x y z w
+				curPos += VertexSize
+			)
+		)
+		--
+		local Vtexcoord0 = #()
+		local curPos = texcoord0
+		for i = 1 to VertexNum do (
+			fseek bstream curPos #seek_set
+			x = ReadFloat bstream
 			y = ReadFloat bstream
-			z = ReadFloat bstream
-			x = ReadFloat bstream
+			Vtexcoord0[i] = point3 x (1.0-y) 0
+			curPos += VertexSize
 		)
-		else if type = 7 then
+		--
+		local Vtexcoord1 = #()
+		if texcoord1 > 0 then (
+			local curPos = texcoord1
+			for i = 1 to VertexNum do (
+				fseek bstream curPos #seek_set
+				x = ReadFloat bstream
+				y = ReadFloat bstream
+				Vtexcoord1[i] = point3 x (1.0-y) 0
+				curPos += VertexSize
+			)
+		)
+		--
+		local meshName = "nameless"
+		if (meshId != "") then
 		(
-			--no, it is half float
-			y = ReadShort bstream #unsigned
-			z = ReadShort bstream #unsigned
-			x = ReadShort bstream #unsigned
-			w = ReadShort bstream #unsigned
+			meshName = meshId
+			meshName += "_mesh"
+			if ( index < 10 ) then ( meshName += "0" )
+			meshName += index as string
 		)
-		else if type = 12 then
+		-- create mesh
+		local newMesh = mesh name:meshName vertices:Vposition tverts:Vtexcoord0 faces:Vfaces
+		-- set User Defined
+		setUserProp newMesh "MaterialID" matid
+		-- set texcoord
+		if (texcoord0 > 0) then
 		(
-			x = ReadFloat bstream
-			y = ReadFloat bstream
+			buildTVFaces newMesh
+			for k = 1 to newMesh.numfaces do (setTVFace newMesh k (getFace newMesh k))
 		)
-		else if type = 21 then
+		-- set 2
+		if (texcoord1 > 0) then
 		(
-			y = ReadByte bstream #unsigned
-			z = ReadByte bstream #unsigned
-			x = ReadByte bstream #unsigned
-			w = ReadByte bstream #unsigned
+			setUserProp newMesh "Texcoord1" true
+			meshop.setNumMaps newMesh 3 keep:true
+			meshop.setMapSupport newMesh 2 true
+			for k = 1 to VertexNum do
+			(
+				meshop.setMapVert newMesh 2 k Vtexcoord1[k]
+			)
 		)
-	)
-)
+		-- set normal
+		for i = 1 to VertexNum do (setNormal newMesh i Vnormal[i])
+		max modify mode
+		select newMesh
 
-struct MDB_BAgroup
-(
-	ExportedBone,
-	LinkBone,
-	Type,
-	Pos,
-	arg1,
-	arg2,
-	arg3,
-	arg4,
-	name,
+		-- generate skin modifier
+		if blendindices > 0 then (
+			local skinMod = skin()
 
-	fn LoadFromStream bstream=
-	(
-		ExportedBone = ReadLong bstream #unsigned
-		LinkBone = ReadLong bstream #unsigned
-		Type = ReadLong bstream #unsigned
-		Pos = ReadLong bstream #unsigned
-		arg1 = ReadLong bstream #unsigned
-		arg2 = ReadLong bstream #unsigned
-		arg3 = ReadLong bstream #unsigned
-		arg4 = ReadLong bstream #unsigned
+			addModifier newMesh skinMod
+			
+			for k = 1 to maxBones.count do
+			(
+				if k != maxBones.count then
+				(skinOps.addBone skinMod maxBones[k] 0)
+				else
+				(skinOps.addBone skinMod maxBones[k] 1)
+				
+				local no = skinOps.getNumberCrossSections skinMod k
+				for l=1 to no do
+				(
+					skinOps.SetInnerRadius skinMod k l 0
+					skinOps.SetOuterRadius skinMod k l 0
+				)
+			)
+			-- Set vertex weights
+			modPanel.setCurrentObject skinMod
+			for k = 1 to VertexNum do (
 
-		if ExportedBone > 0 then
-		(
-			local temppos = ftell bstream
-			fseek bstream ExportedBone #seek_set
-			--name = bit.intAsHex ExportedBone
-			name = GetWString bstream
+				bi0 = (Vindices[k].x as integer)
+				wv0 = Vweights[k].x
+				skinOps.ReplaceVertexWeights skinMod k bi0 wv0
+				
+				bi1 = (Vindices[k].y as integer)
+				wv1 = Vweights[k].y
+				skinOps.SetVertexWeights skinMod k bi1 wv1
 
-			fseek bstream temppos #seek_set
+				bi2 = (Vindices[k].z as integer)
+				wv2 = Vweights[k].z
+				skinOps.SetVertexWeights skinMod k bi2 wv2
+
+				bi3 = (Vindices[k].w as integer)
+				wv3 = Vweights[k].w
+				skinOps.SetVertexWeights skinMod k bi3 wv3
+			)
+			skinOps.RemoveZeroWeights skinMod
 		)
+		-- end
+		update newMesh	
 	)
 )
 
@@ -221,9 +440,8 @@ struct MDB_Loader
 	header,		--file header
 	namelist=#(),
 	texturelist=#(),
-	objectlist=#(),
-	meshlist=#(),
 	bonelist=#(), --array of bone structs
+	objectlist=#(),
 
 	fn Open filename=
 	(
@@ -252,7 +470,7 @@ struct MDB_Loader
 				temp.LoadFromStream bstream
 				append namelist (copy temp)
 
-				format "name: %\n" namelist[i].UTF16name
+				--format "name: %\n" namelist[i].UTF16name
 			)
 		)
 		-- get texture name
@@ -265,7 +483,17 @@ struct MDB_Loader
 				temp.LoadFromStream bstream
 				append texturelist (copy temp)
 
-				format "textureID: %\ntextureMapping: %\ntextureName: %\n\n" texturelist[i].ID  texturelist[i].Mapping  texturelist[i].UTF16name
+				--format "textureID: %\ntextureMapping: %\ntextureName: %\n\n" texturelist[i].ID  texturelist[i].Mapping  texturelist[i].UTF16name
+			)
+		)
+		-- get bone
+		if header.BoneCount > 0 then
+		(
+			fseek bstream header.BoneOffset #seek_set
+			local temp = MDB_Bone()
+			for i = 1 to header.BoneCount do
+			(
+				temp.readData bstream bonelist namelist i
 			)
 		)
 		-- get object
@@ -283,20 +511,34 @@ struct MDB_Loader
 					objectlist[i].ModelName = namelist[objectlist[i].NameIndex+1].UTF16name
 				)
 
-				format "ModelName: %\n" objectlist[i].ModelName
+				--format "ModelName: %\n" objectlist[i].ModelName
 			)
 
 			-- get mesh
 			local temp = MDB_Mesh()
 			for i = 1 to header.ObjectCount do
 			(
-				if objectlist[i].MeshOffset > 0 then
+				if objectlist[i].MeshCount > 0 then
 				(
-					fseek bstream (header.ObjectOffset + objectlist[i].MeshOffset) #seek_set
-					temp.LoadFromStream bstream
-					append meshlist (copy temp)
+					meshlist=#()
+
+					local curPos = header.ObjectOffset + objectlist[i].MeshOffset
+					fseek bstream curPos #seek_set
+					for j = 1 to objectlist[i].MeshCount do
+					(
+						temp.LoadFromStream bstream
+						append meshlist (copy temp)
+					)
+
+					for j = 1 to objectlist[i].MeshCount do
+					(
+						meshlist[j].GetLayout bstream
+						meshlist[j].ReadMesh bstream objectlist[i].ModelName j bonelist
+					)
+
 				)
 			)
+			-- end
 		)
 	)
 )
