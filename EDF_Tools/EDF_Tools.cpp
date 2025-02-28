@@ -128,7 +128,9 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 
 		if( extension == L"rmpa" )
 		{
-            unique_ptr<CRMPA> rmpa = make_unique<CRMPA>();
+            //unique_ptr<CRMPA> rmpa = make_unique<CRMPA>();
+			//rmpa->Read( strn );
+			unique_ptr<RMPA6> rmpa = make_unique<RMPA6>();
 			rmpa->Read( strn );
 		}
 		else if( extension == L"txt" )

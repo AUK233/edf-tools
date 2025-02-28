@@ -220,6 +220,7 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					xmlBNode->SetAttribute("y", bf[1]);
 					xmlBNode->SetAttribute("z", bf[2]);
 					xmlBNode->SetAttribute("w", bf[3]);
+					xmlBNode->SetAttribute("note", "Bounding Box Size");
 				}
 				//Read Float
 				{
@@ -234,9 +235,10 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					xmlBNode->SetAttribute("z", bf[2]);
 					xmlBNode->SetAttribute("w", bf[3]);
 
-					utf8str = ReadRaw(buffer, tpos, 0x10);
-					xmlBNode->SetText(utf8str.c_str());
+					//utf8str = ReadRaw(buffer, tpos, 0x10);
+					//xmlBNode->SetText(utf8str.c_str());
 					xmlBNode->SetAttribute("debugPos", tpos);
+					xmlBNode->SetAttribute("note", "Bounding Box offset");
 				}
 			}
 			std::wcout << L"Completed!\n\n";
@@ -419,18 +421,6 @@ int CMDBtoXML::Read(const std::wstring& path, bool onecore)
 					{
 						int newcurpos = curpos + objects_info.back().indicesOffset + (k * 2);
 						tinyxml2::XMLElement* xmlNode = xmlIndices->InsertNewChildElement("value");
-						/* wrong reading
-						char seg[2];
-						seg[0] = buffer[newcurpos + 1];
-						seg[1] = buffer[newcurpos];
-
-						short int16 = 0;
-						for (int i = 0; i < 2; i++)
-						{
-							int16 <<= 8;
-							int16 |= seg[i];
-						}
-						*/
 						memcpy(&uint16, &buffer[newcurpos], 2U);
 						//xmlNode->SetAttribute("pos", newcurpos);
 						xmlNode->SetAttribute("value", uint16);
