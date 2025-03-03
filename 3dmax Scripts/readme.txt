@@ -2,7 +2,7 @@ Export the model for MDB:
 
 -------------------------
 
-1.Import MDB:
+1. Import MDB:
 Drag and drop MDB to "EDF Tools.exe", you will get the file you can edit.
 
 Now this xml can be imported using a script.
@@ -12,7 +12,7 @@ If the imported model has skins, You need to open the weight table and use the "
 
 -------------------------
 
-2.Export MDB
+2. Export MDB
 
 2.1.Check Vertices:
     You can check the vertex count manually.
@@ -40,3 +40,17 @@ If the imported model has skins, You need to open the weight table and use the "
 
     Drag and drop *_MDB.xml to "EDF Tools.exe". If executed correctly, you will get an MDB file.
         Note that the filename must have "_MDB" at the end, otherwise the tool will not be able to parse it.
+
+====================================================================
+
+Export HKT:
+
+ 1.1. You need to install havok 2014 to continue.
+
+ 1.2. EDF_SHKT.hko is the configuration for exporting hkt for test usage.
+   You must change filename in "Write to Platform", otherwise you need disk Z.
+
+ 1.3. example.max is an example.
+   Depending on your havok settings, you may need to select the model to be able to export hkt.
+
+====================================================================

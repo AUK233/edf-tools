@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CANM.h" />
+    <ClInclude Include="CANM6.h" />
     <ClInclude Include="CAS.h" />
     <ClInclude Include="DSGO.h" />
     <ClInclude Include="include\half.hpp" />
@@ -181,6 +182,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DEBUGMODE;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">DEBUGMODE;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="CANM6.cpp" />
     <ClCompile Include="CAS.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>

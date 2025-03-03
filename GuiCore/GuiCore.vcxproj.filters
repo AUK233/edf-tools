@@ -24,6 +24,9 @@
     <ClInclude Include="ModelScale.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="CANMResolver.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClCompile>
     <ClCompile Include="ModelScale.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CANMResolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -135,6 +135,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -146,11 +147,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\EDF_Tools\include\tinyxml2.h" />
+    <ClInclude Include="CANMResolver.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ModelScale.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\EDF_Tools\include\tinyxml2.cpp" />
+    <ClCompile Include="CANMResolver.cpp">
+      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
+    </ClCompile>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="ModelScale.cpp" />
   </ItemGroup>

@@ -9,6 +9,7 @@
 
 #include "util.h"
 #include "CANM.h"
+#include "CANM6.h"
 #include "include/tinyxml2.h"
 #include "include/half.hpp"
 
@@ -58,6 +59,10 @@ void CANM::ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* heade
 	GameVersion = ReadInt32(&buffer[0x4], 0);
 	if (GameVersion == 768) {
 		header->SetAttribute("version", "6");
+		std::unique_ptr<CANM6> canm = std::make_unique<CANM6>();
+		canm->ReadData(buffer, header);
+		canm.reset();
+		return;
 	}
 	// read AnmData
 	i_AnmDataCount = ReadInt32(&buffer[0x8], 0);
@@ -79,29 +84,17 @@ void CANM::ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* heade
 	std::wcout << L"Read animation frame list:\n0     in " + ToString(i_AnmPointCount);
 	std::vector<char> tempBuffer = buffer;
 	v_AnmKey.reserve(i_AnmPointCount);
-	if (GameVersion == 768) {
-		// 0x30 if it is EDF6
-		for (int i = 0; i < i_AnmPointCount; i++) {
-			int curpos = i_AnmPointOffset + (i * 0x30);
+	for (int i = 0; i < i_AnmPointCount; i++)
+	{
+		int curpos = i_AnmPointOffset + (i * 0x20);
 
-			v_AnmKey.push_back(ReadAnimationFrameData6(tempBuffer, curpos));
+		//v_AnmKey.push_back(ReadAnimationFrameData(buffer, curpos));
+		v_AnmKey.push_back(ReadAnimationFrameData(tempBuffer, curpos));
 
-			std::wcout << L"\r" + ToString(i + 1);
-		}
-	}
-	else {
-		for (int i = 0; i < i_AnmPointCount; i++)
-		{
-			int curpos = i_AnmPointOffset + (i * 0x20);
-
-			//v_AnmKey.push_back(ReadAnimationFrameData(buffer, curpos));
-			v_AnmKey.push_back(ReadAnimationFrameData(tempBuffer, curpos));
-
-			std::wcout << L"\r" + ToString(i+1);
-			// now not displayed as a percentage
-			//float Progress = i * 100.0f / i_AnmPointCount;
-			//std::wcout << L"\r" + ToString(Progress) + L"\%";
-		}
+		std::wcout << L"\r" + ToString(i + 1);
+		// now not displayed as a percentage
+		//float Progress = i * 100.0f / i_AnmPointCount;
+		//std::wcout << L"\r" + ToString(Progress) + L"\%";
 	}
 	std::wcout << L"\nComplete!\n";
 	// animation data
@@ -331,41 +324,6 @@ CANMAnmKey CANM::ReadAnimationFrameData(const std::vector<char>& buffer, int pos
 	// read keyframe offset
 	int offset;
 	memcpy(&offset, &buffer[pos + 28], 4U);
-	if (offset > 0)
-	{
-		for (int j = 0; j < out.vi[1]; j++)
-		{
-			int datapos = pos + offset + (j * 6);
-
-			CANMAnmKeyframe kfout;
-			memcpy(&kfout.vf, &buffer[datapos], 6U);
-			out.kf.push_back(kfout);
-		}
-	}
-	// only debug
-	out.pos = pos;
-	return out;
-}
-
-CANMAnmKey CANM::ReadAnimationFrameData6(const std::vector<char>& buffer, int pos)
-{
-	CANMAnmKey out;
-
-	float vf[4];
-	memcpy(&vf, &buffer[pos], 0x10);
-	memcpy(&out.vf[0], &vf, 12U);
-	// There are 2 groups. vf3 is 1.0f
-	memcpy(&vf, &buffer[pos+0x10], 0x10);
-	memcpy(&out.vf[3], &vf, 12U);
-
-	// read keyframe offset
-	int offset = ReadInt32(&buffer[pos+0x20], 0);
-	// todo: verify that it is 0-3, and function.
-	int index = ReadInt32(&buffer[pos + 0x24], 0);
-	int kfSize = ReadInt32(&buffer[pos + 0x28], 0);
-	out.vi[1] = kfSize;
-	int loop = ReadInt32(&buffer[pos + 0x2C], 0);
-	out.vi[0] = loop;
 	if (offset > 0)
 	{
 		for (int j = 0; j < out.vi[1]; j++)

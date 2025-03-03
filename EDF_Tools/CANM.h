@@ -39,6 +39,7 @@ struct CANMAnmData
 class CANM
 {
 public:
+
 	void Read(const std::wstring& path);
 	void ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header);
 	// old
@@ -49,8 +50,6 @@ public:
 	void ReadBoneListData(tinyxml2::XMLElement* header, const std::vector<char>& buffer);
 	//
 	CANMAnmKey ReadAnimationFrameData(const std::vector<char>& buffer, int pos);
-	// used to read EDF6 structure
-	CANMAnmKey ReadAnimationFrameData6(const std::vector<char>& buffer, int pos);
 
 	void Write(const std::wstring& path);
 	std::vector< char > WriteData(tinyxml2::XMLElement* Data);
@@ -77,5 +76,4 @@ private:
 
 	std::vector< CANMAnmPoint > v_AnmPoint;
 	std::vector< CANMAnmData > v_AnmData;
-
 };

@@ -16,5 +16,11 @@
 
             <Button Content="Done" Width="100" Height="20" FontSize="14" Click="GotoModelScale_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="290,90,0,0"/>
         </Grid>
+        <Grid Margin="0,116,0,0">
+            <TextBlock HorizontalAlignment="Left" Margin="10,12,0,0" Text="CANM File path:" VerticalAlignment="Top" FontSize="14" FontWeight="Bold"/>
+            <TextBox x:Name="CANMPathBox" HorizontalAlignment="Left" Height="50" Margin="10,35,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="380" Background="White" BorderBrush="Black" AllowDrop="True" PreviewDragOver="TextBox_DragOver" PreviewDrop="TextBox_Drop" Grid.ColumnSpan="2" SelectionBrush="Blue" VerticalScrollBarVisibility="Visible" BorderThickness="2,2,2,2"/>
+
+            <Button Content="CANM Resolver" Width="118" Height="20" FontSize="14" Click="GotoCANMResolver_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="272,12,0,0"/>
+        </Grid>
     </Grid>
 </Window>

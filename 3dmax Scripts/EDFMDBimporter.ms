@@ -410,7 +410,6 @@ struct MDB_Mesh
 			-- Set vertex weights
 			modPanel.setCurrentObject skinMod
 			for k = 1 to VertexNum do (
-
 				bi0 = (Vindices[k].x as integer)
 				wv0 = Vweights[k].x
 				skinOps.ReplaceVertexWeights skinMod k bi0 wv0

@@ -18,7 +18,26 @@ namespace GuiTools
             return CheckModelXMLHeader(FileName, newSize);
         }
 
+        public static int ChangeCANMVersion(string inPath)
+        {
+            string outPath;
+            if(inPath.Length < 4)
+            {
+                outPath = inPath + ".xml";
+            }
+            else
+            {
+                outPath = inPath.Substring(0, inPath.Length - 4);
+                outPath += "_out.xml";
+            }
+            return CheckCanmXMLVersion(inPath, outPath);
+        }
+
+
         [DllImport("GuiCore.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         private static extern int CheckModelXMLHeader(string FileName, float ScaleSize);
+
+        [DllImport("GuiCore.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+        private static extern int CheckCanmXMLVersion(string inPath, string outPath);
     }
 }

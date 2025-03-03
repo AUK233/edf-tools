@@ -13,6 +13,7 @@ fileIn "EDFMDBtxtexporter.ms"
 fileIn "EDFMABPointCalculation.ms"
 -- other
 fileIn "EDFFixVertexUV.ms"
+fileIn "EDFCreateHitBoxFromSkin.ms"
 
 utility EDFTool "Sandlot EDF" silentErrors:false
 (
@@ -20,7 +21,7 @@ utility EDFTool "Sandlot EDF" silentErrors:false
 	group "About:"
 	( 
 		label Label1 "Sandlot EDF MaxTool"
-		label Label2 "02-12"
+		label Label2 "03-01"
 	)
 	
 	group "Import:"
@@ -46,6 +47,7 @@ utility EDFTool "Sandlot EDF" silentErrors:false
 	group "Other:"
 	(
 		button FixVertUV "Fix vertex UVs" tooltip:"Fix the UV coordinates to each vertex so that the exported model texture is correct."
+		button CreateHitBox "Create HitBox" tooltip:"Generate a set of meshes used for havok with the skin information of the selected mesh."
 	)
 
 	-- Utilities --
@@ -219,5 +221,12 @@ utility EDFTool "Sandlot EDF" silentErrors:false
 		local processor = EDFFixVertUV()
 
 		processor.FixUV()
+	)
+
+	on CreateHitBox pressed do
+	(
+		local processor = EDFCreateHitBoxFromSkin()
+
+		processor.CreateHitBox()
 	)
 )

@@ -121,7 +121,7 @@ public:
 		int nameOffset;
 		int subNodeCount;
 		int subOffset;
-		BYTE pad14[12];
+		int pad14[3];
 	};
 
 	struct inSubNode_t

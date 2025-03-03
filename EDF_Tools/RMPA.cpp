@@ -372,19 +372,28 @@ void RMPA6::Read(const std::wstring& path)
 	std::vector<char> buffer(size);
 	if (file.read(buffer.data(), size))
 	{
-		// create xml
-		tinyxml2::XMLDocument xml;
-		xml.InsertFirstChild(xml.NewDeclaration());
-		tinyxml2::XMLElement* xmlHeader = xml.NewElement("RMPA");
-		xml.InsertEndChild(xmlHeader);
-		xmlHeader->SetAttribute("version", "6");
-
-		// read data
+		// get header
 		ReadHeader(buffer);
-		ReadPointNode(buffer, xmlHeader);
 
-		std::string outfile = WideToUTF8(path) + "_RMPA.xml";
-		xml.SaveFile(outfile.c_str());
+		// check version
+		if (*(int*)&buffer[header.cameraOffset] != -1) {
+			std::wcout << L"This is not an EDF6 RMPA!\n";
+		}
+		else {
+			// create xml
+			tinyxml2::XMLDocument xml;
+			xml.InsertFirstChild(xml.NewDeclaration());
+			tinyxml2::XMLElement* xmlHeader = xml.NewElement("RMPA");
+			xml.InsertEndChild(xmlHeader);
+			xmlHeader->SetAttribute("version", "6");
+
+			// read data
+			ReadPointNode(buffer, xmlHeader);
+
+			std::string outfile = WideToUTF8(path) + "_RMPA.xml";
+			xml.SaveFile(outfile.c_str());
+		}
+		// end
 	}
 
 	//Clear buffers
@@ -421,6 +430,10 @@ void RMPA6::ReadNode(const std::vector<char>& buffer, int pos, inNode_t* pNode)
 	}
 	else {
 		memcpy(pNode, &buffer[pos], 0x20);
+	}
+
+	if (pNode->pad14[0] || pNode->pad14[1] || pNode->pad14[2]) {
+		std::wcout << L"Current value is not 0:" + ToString(pos+0x14) + L"\n";
 	}
 }
 

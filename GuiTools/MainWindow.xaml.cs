@@ -35,6 +35,7 @@ namespace GuiTools
             {
                 if (sender is TextBox tb)
                 {
+                    tb.Text = "";
                     string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
                     if (files != null && files.Length > 0)
                     {
@@ -54,7 +55,31 @@ namespace GuiTools
                 int errorCode = EDF.ChangeModelSize(path, ModelScaleBox.Text);
                 if(errorCode == 0)
                 {
-                    button.Content = "Done!";
+                    button.Content = "Next";
+                    System.Media.SystemSounds.Beep.Play();
+                }
+                else
+                {
+                    button.Content = "Done";
+                }
+            }
+            else
+            {
+                System.Media.SystemSounds.Hand.Play();
+            }
+        }
+
+        private void GotoCANMResolver_Click(object sender, RoutedEventArgs e)
+        {
+            string path = CANMPathBox.Text;
+            if (path != "")
+            {
+                Button button = sender as Button;
+                button.Content = "Doing...";
+                int errorCode = EDF.ChangeCANMVersion(path);
+                if (errorCode == 0)
+                {
+                    button.Content = "Next";
                     System.Media.SystemSounds.Beep.Play();
                 }
                 else
