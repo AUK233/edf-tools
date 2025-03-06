@@ -204,19 +204,21 @@ void CANM::ReadAnimationDataWriteKeyFrame(tinyxml2::XMLElement* node, int num)
 		{
 			tinyxml2::XMLElement* xmlNode = node->InsertNewChildElement("v");
 
-			xmlNode->SetAttribute("x", v_AnmKey[num].kf[i].vf[0]);
-			xmlNode->SetAttribute("y", v_AnmKey[num].kf[i].vf[1]);
-			xmlNode->SetAttribute("z", v_AnmKey[num].kf[i].vf[2]);
-			// debug mode output half
-#if defined(DEBUGMODE)
-			//xmlNode->SetAttribute("pos", v_AnmKey[num].pos);
-			half_float::half vf[3];
-			memcpy(&vf, &v_AnmKey[num].kf[i].vf, 6U);
+			if (v_AnmKey[num].vi[0] == 625) {
+				int KFdataPos = v_AnmKey[num].kf[i].pos;
+				if (KFdataPos % 16) {
+					xmlNode->SetAttribute("unaligned", KFdataPos);
+				}
+				xmlNode->SetAttribute("x", v_AnmKey[num].kf[i].v4[0]);
+				xmlNode->SetAttribute("y", v_AnmKey[num].kf[i].v4[1]);
+				xmlNode->SetAttribute("z", v_AnmKey[num].kf[i].v4[2]);
+				xmlNode->SetAttribute("w", v_AnmKey[num].kf[i].v4[3]);
 
-			xmlNode->SetAttribute("dx", vf[0]);
-			xmlNode->SetAttribute("dy", vf[1]);
-			xmlNode->SetAttribute("dz", vf[2]);
-#endif
+			} else {
+				xmlNode->SetAttribute("x", v_AnmKey[num].kf[i].vf[0]);
+				xmlNode->SetAttribute("y", v_AnmKey[num].kf[i].vf[1]);
+				xmlNode->SetAttribute("z", v_AnmKey[num].kf[i].vf[2]);
+			}
 		}
 	}
 }
@@ -261,24 +263,15 @@ void CANM::ReadAnimationPointData(tinyxml2::XMLElement* header, const std::vecto
 
 				tinyxml2::XMLElement* xmlNode = xmlptr->InsertNewChildElement("v");
 
-				// debug mode output int16
 #if defined(DEBUGMODE)
 				xmlNode->SetAttribute("pos", datapos);
-
-				short vf[3];
-				memcpy(&vf, &buffer[datapos], 6U);
-
-				xmlNode->SetAttribute("x", vf[0]);
-				xmlNode->SetAttribute("y", vf[1]);
-				xmlNode->SetAttribute("z", vf[2]);
-#else
-				half_float::half vf[3];
-				memcpy(&vf, &buffer[datapos], 6U);
-
-				xmlNode->SetAttribute("x", vf[0]);
-				xmlNode->SetAttribute("y", vf[1]);
-				xmlNode->SetAttribute("z", vf[2]);
 #endif
+				UINT16 vf[3];
+				memcpy(&vf, &buffer[datapos], 6U);
+
+				xmlNode->SetAttribute("x", vf[0]);
+				xmlNode->SetAttribute("y", vf[1]);
+				xmlNode->SetAttribute("z", vf[2]);
 				// end
 			}
 		}
@@ -326,13 +319,24 @@ CANMAnmKey CANM::ReadAnimationFrameData(const std::vector<char>& buffer, int pos
 	memcpy(&offset, &buffer[pos + 28], 4U);
 	if (offset > 0)
 	{
-		for (int j = 0; j < out.vi[1]; j++)
-		{
-			int datapos = pos + offset + (j * 6);
-
-			CANMAnmKeyframe kfout;
-			memcpy(&kfout.vf, &buffer[datapos], 6U);
-			out.kf.push_back(kfout);
+		CANMAnmKeyframe kfout;
+		if (out.vi[0] == 625) {
+			for (int j = 0; j < out.vi[1]; j++)
+			{
+				int datapos = pos + offset + (j * 16);
+				memcpy(&kfout.v4, &buffer[datapos], 16U);
+				kfout.pos = datapos;
+				out.kf.push_back(kfout);
+			}
+		}
+		else {
+			for (int j = 0; j < out.vi[1]; j++)
+			{
+				int datapos = pos + offset + (j * 6);
+				memcpy(&kfout.vf, &buffer[datapos], 6U);
+				kfout.pos = datapos;
+				out.kf.push_back(kfout);
+			}
 		}
 	}
 	// only debug
@@ -432,6 +436,16 @@ std::vector<char> CANM::WriteData(tinyxml2::XMLElement* Data)
 	{
 		if (v_AnmKey[i].kf.size() == 1)
 		{
+			if (v_AnmKey[i].vi[0] == 625) {
+				// it needs to be aligned, otherwise movaps will error.
+				int i_kfDataAlignment = kfbytes.size() % 16;
+				if (i_kfDataAlignment > 0)
+				{
+					for (int j = i_kfDataAlignment; j < 16; j++)
+						kfbytes.push_back(0);
+				}
+			}
+
 			int offset = kfbytes.size() + size_AnmPoint - v_AnmKey[i].pos;
 			memcpy(&v_AnmKey[i].bytes[0x1C], &offset, 4U);
 			kfbytes.insert(kfbytes.end(), v_AnmKey[i].kf[0].bytes.begin(), v_AnmKey[i].kf[0].bytes.end());
@@ -454,6 +468,7 @@ std::vector<char> CANM::WriteData(tinyxml2::XMLElement* Data)
 
 	// write animation point data
 	std::wcout << L"Write CANM animation keyframe......";
+	// NOTE: that it must be aligned to 16 bytes!
 	for (size_t i = 0; i < v_AnmKey.size(); i++)
 	{
 		bytes.insert(bytes.end(), v_AnmKey[i].bytes.begin(), v_AnmKey[i].bytes.end());
@@ -468,6 +483,7 @@ std::vector<char> CANM::WriteData(tinyxml2::XMLElement* Data)
 	// write animation point header
 	bytes[0x14] = 0x20;
 	memcpy(&bytes[0x10], &i_AnmPointCount, 4U);
+
 	// 4-byte alignment is required
 	int i_Alignment = bytes.size() % 4;
 	if (i_Alignment > 0)
@@ -748,32 +764,66 @@ short CANM::WriteAnimationKeyFrame(tinyxml2::XMLElement* data)
 		out.offset = 0;
 		// write keyframe
 		tinyxml2::XMLElement* entry = data->FirstChildElement("v");
-		if (entry != nullptr)
-		{
-			UINT16 vi[3];
-			char buffer[6];
-			short count = 0;
-			CANMAnmKeyframe kfout;
+		// check keyframe type
+		short type = data->IntAttribute("type");
 
-			for (entry = data->FirstChildElement("v"); entry != 0; entry = entry->NextSiblingElement("v"))
+		if (type == 625) {
+			if (entry != nullptr)
 			{
-				// now input int16
-				vi[0] = entry->IntAttribute("x");
-				vi[1] = entry->IntAttribute("y");
-				vi[2] = entry->IntAttribute("z");
-				memcpy(&buffer, &vi, 6U);
-				// end
-				count++;
-				for (int i = 0; i < 6; i++)
-					kfout.bytes.push_back(buffer[i]);
-			}
+				float v4_value[4];
+				char buffer[16];
+				short count = 0;
+				CANMAnmKeyframe kfout;
 
-			svalue[0] = 1;
-			svalue[1] = count;
-			out.kf.push_back(kfout);
+				for (entry = data->FirstChildElement("v"); entry != 0; entry = entry->NextSiblingElement("v"))
+				{
+					// now input int16
+					v4_value[0] = entry->FloatAttribute("x");
+					v4_value[1] = entry->FloatAttribute("y");
+					v4_value[2] = entry->FloatAttribute("z");
+					v4_value[3] = entry->FloatAttribute("w");
+					memcpy(buffer, v4_value, 16U);
+					// end
+					count++;
+					for (int i = 0; i < 16; i++)
+						kfout.bytes.push_back(buffer[i]);
+				}
+
+				svalue[0] = type;
+				svalue[1] = count;
+				out.kf.push_back(kfout);
+			}
 		}
+		else {
+			if (entry != nullptr)
+			{
+				UINT16 vi[3];
+				char buffer[6];
+				short count = 0;
+				CANMAnmKeyframe kfout;
+
+				for (entry = data->FirstChildElement("v"); entry != 0; entry = entry->NextSiblingElement("v"))
+				{
+					// now input int16
+					vi[0] = entry->IntAttribute("x");
+					vi[1] = entry->IntAttribute("y");
+					vi[2] = entry->IntAttribute("z");
+					memcpy(&buffer, &vi, 6U);
+					// end
+					count++;
+					for (int i = 0; i < 6; i++)
+						kfout.bytes.push_back(buffer[i]);
+				}
+
+				svalue[0] = 1;
+				svalue[1] = count;
+				out.kf.push_back(kfout);
+			}
+		}
+		
 
 		out.bytes.resize(0x20, 0);
+		memcpy(out.vi, &svalue, 4U);
 		memcpy(&out.bytes[0], &svalue, 4U);
 		memcpy(&out.bytes[4], &fvalue, 24U);
 
@@ -784,7 +834,7 @@ short CANM::WriteAnimationKeyFrame(tinyxml2::XMLElement* data)
 			if (out.bytes == v_AnmKey[i].bytes)
 			{
 				// check subobject, if it exists
-				if (svalue[0] == 1)
+				if (svalue[0])
 				{
 					if (out.kf[0].bytes == v_AnmKey[i].kf[0].bytes)
 					{
@@ -810,5 +860,6 @@ short CANM::WriteAnimationKeyFrame(tinyxml2::XMLElement* data)
 			v_AnmKey.push_back(out);
 			return index;
 		}
+		// duplication end
 	}
 }

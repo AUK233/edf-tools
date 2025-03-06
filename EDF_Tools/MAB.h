@@ -59,6 +59,7 @@ public:
 	MABData GetMABAnimePtrData(tinyxml2::XMLElement* entry3, int nullpos);
 
 private:
+	int GameVersion = 3;
 	short BoneCount = 0;
 	short AnimationCount = 0;
 	short FloatGroupCount = 0;

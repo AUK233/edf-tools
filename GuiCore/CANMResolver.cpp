@@ -159,7 +159,8 @@ void Canm6To5Keyframe(tinyxml2::XMLElement* inData, tinyxml2::XMLElement* outDat
 			break;
 		}
 		case 3: {
-			Canm6To5SetFloatToUInt16(inData, outData);
+			//Canm6To5SetFloatToUInt16(inData, outData);
+			Canm6To5SetQuaternionKeyframe(inData, outData);
 			break;
 		}
 		default:
@@ -260,6 +261,7 @@ void Canm6To5SetFloatToUInt16(tinyxml2::XMLElement* inData, tinyxml2::XMLElement
 
 	// get keyframe/delta values
 	for (int i = 0; i < KFCount; i++) {
+		//CanmResolverEulerRemove90Degree(v_KeyframeData[i].m256d_f64);
 		v_KeyframeData[i] = _mm256_sub_pd(v_KeyframeData[i], minKF);
 		v_KeyframeData[i] = _mm256_div_pd(v_KeyframeData[i], deltaKF);
 	}
@@ -272,6 +274,39 @@ void Canm6To5SetFloatToUInt16(tinyxml2::XMLElement* inData, tinyxml2::XMLElement
 		i16x3[1] = v_KeyframeData[i].m256d_f64[1];
 		i16x3[2] = v_KeyframeData[i].m256d_f64[2];
 		CanmResolverSetVector3(xmlNode, i16x3);
+	}
+}
+
+void Canm6To5SetQuaternionKeyframe(tinyxml2::XMLElement* inData, tinyxml2::XMLElement* outData)
+{
+	tinyxml2::XMLElement* inPtr;
+	float f32_value[3];
+
+	outData->SetAttribute("type", "625");
+
+	int KFCount = inData->IntAttribute("frame");
+	outData->SetAttribute("frame", KFCount);
+
+	inPtr = inData->FirstChildElement("initial");
+	CanmResolverGetVector3(inPtr, f32_value);
+	outData->SetAttribute("ix", f32_value[0]);
+	outData->SetAttribute("iy", f32_value[1]);
+	outData->SetAttribute("iz", f32_value[2]);
+
+	inPtr = inData->FirstChildElement("velocity");
+	CanmResolverGetVector3(inPtr, f32_value);
+	outData->SetAttribute("vx", f32_value[0]);
+	outData->SetAttribute("vy", f32_value[1]);
+	outData->SetAttribute("vz", f32_value[2]);
+
+	float v4_value[4];
+	tinyxml2::XMLElement* outPtr;
+	for (tinyxml2::XMLElement* inKF = inData->FirstChildElement("keyframe")->FirstChildElement("v"); inKF != 0; inKF = inKF->NextSiblingElement("v")) {
+
+		CanmResolverGetVector4(inKF, v4_value);
+		outPtr = outData->InsertNewChildElement("v");
+		CanmResolverSetVector4(outPtr, v4_value);
+
 	}
 }
 
@@ -303,12 +338,28 @@ void CanmResolverSetVector3(tinyxml2::XMLElement* out, const UINT16* vf)
 	out->SetAttribute("z", vf[2]);
 }
 
+void CanmResolverGetVector4(tinyxml2::XMLElement* in, float* vf)
+{
+	vf[0] = in->FloatAttribute("x");
+	vf[1] = in->FloatAttribute("y");
+	vf[2] = in->FloatAttribute("z");
+	vf[3] = in->FloatAttribute("w");
+}
+
 void CanmResolverGetVector4(tinyxml2::XMLElement* in, double* vf)
 {
 	vf[0] = in->DoubleAttribute("x");
 	vf[1] = in->DoubleAttribute("y");
 	vf[2] = in->DoubleAttribute("z");
 	vf[3] = in->DoubleAttribute("w");
+}
+
+void CanmResolverSetVector4(tinyxml2::XMLElement* out, const float* vf)
+{
+	out->SetAttribute("x", vf[0]);
+	out->SetAttribute("y", vf[1]);
+	out->SetAttribute("z", vf[2]);
+	out->SetAttribute("w", vf[3]);
 }
 
 void CanmResolverQuaternionToEuler(const double* in, double* out)
@@ -319,23 +370,78 @@ void CanmResolverQuaternionToEuler(const double* in, double* out)
 	double qz = in[2];
 	double qw = in[3];
 
+	struct EulerAngles {
+		double roll, pitch, yaw, pad;
+	} euler;
+
+	/*
+	double rotationMatrix[3][3];
+	rotationMatrix[0][0] = 1 - 2 * (qy * qy + qz * qz);
+	rotationMatrix[0][1] = 2 * (qx * qy - qz * qw);
+	rotationMatrix[0][2] = 2 * (qx * qz + qy * qw);
+
+	rotationMatrix[1][0] = 2 * (qx * qy + qz * qw);
+	rotationMatrix[1][1] = 1 - 2 * (qx * qx + qz * qz);
+	rotationMatrix[1][2] = 2 * (qy * qz - qx * qw);
+
+	rotationMatrix[2][0] = 2 * (qx * qz - qy * qw);
+	rotationMatrix[2][1] = 2 * (qy * qz + qx * qw);
+	rotationMatrix[2][2] = 1 - 2 * (qx * qx + qy * qy);
+
+	double sinPitch = -rotationMatrix[2][0];
+	if (std::abs(sinPitch) > 0.99) {
+		euler.roll = 0.0;
+		euler.pitch = std::copysign(1.5, sinPitch);
+		euler.yaw = std::atan2(-rotationMatrix[0][1], rotationMatrix[1][1]);
+	}
+	else {
+		euler.roll = std::atan2(rotationMatrix[2][1], rotationMatrix[2][2]);
+		euler.pitch = std::asin(sinPitch);
+		euler.yaw = std::atan2(rotationMatrix[1][0], rotationMatrix[0][0]);
+	}
+	*/
+	
+	
 	// do not adjust output coordinate system
 	// get x-axis£¨roll£©
 	double sinr_cosp = 2 * (qw * qx + qy * qz);
 	double cosr_cosp = 1 - 2 * (qx * qx + qy * qy);
-	out[0] = std::atan2(sinr_cosp, cosr_cosp);
+	euler.roll = std::atan2(sinr_cosp, cosr_cosp);
 
 	// get y-axis£¨pitch£©
 	double sinp = 2 * (qw * qy - qz * qx);
-	if (std::abs(sinp) >= 1) {
+	euler.pitch = std::asin(sinp);
+	/*
+	if (std::abs(sinp) > 0.99) {
 		out[1] = std::copysign(M_PI / 2, sinp);
 	}
 	else {
 		out[1] = std::asin(sinp);
-	}
+	}*/
 
 	// get z-axis£¨yaw£©
 	double siny_cosp = 2 * (qw * qz + qx * qy);
 	double cosy_cosp = 1 - 2 * (qy * qy + qz * qz);
-	out[2] = std::atan2(siny_cosp, cosy_cosp);
+	euler.yaw = std::atan2(siny_cosp, cosy_cosp);
+
+
+	out[0] = euler.roll;
+	out[1] = euler.pitch;
+	out[2] = euler.yaw;
+}
+
+void CanmResolverEulerRemove90Degree(double* in)
+{
+	__m256d vec = _mm256_loadu_pd(in);
+	// check if is pi/2
+	__m256d abs_vec = _mm256_andnot_pd(_mm256_set1_pd(-0.0), vec);
+	__m256d cmp_lower = _mm256_cmp_pd(abs_vec, _mm256_set1_pd(1.565), _CMP_GT_OQ);
+	__m256d cmp_upper = _mm256_cmp_pd(abs_vec, _mm256_set1_pd(1.575), _CMP_LT_OQ);
+	__m256d mask = _mm256_xor_pd(cmp_lower, cmp_upper);
+	// get sign
+	__m256d sign_mask = _mm256_and_pd(_mm256_set1_pd(-0.0), vec);
+	__m256d set_value = _mm256_or_pd(sign_mask, _mm256_set1_pd(1.5));
+	// set value
+	vec = _mm256_blendv_pd(set_value, vec, mask);
+	_mm256_storeu_pd(in, vec);
 }

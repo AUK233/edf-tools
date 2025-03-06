@@ -5,6 +5,8 @@ struct CANMAnmKeyframe
 {
 	UINT16 vf[3];
 	std::vector< char > bytes;
+	float v4[4];
+	int pos;
 };
 
 struct CANMAnmKey

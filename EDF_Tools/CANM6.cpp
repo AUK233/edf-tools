@@ -140,6 +140,10 @@ void CANM6::ReadKeyframeDataText(const std::vector<char>& buffer, tinyxml2::XMLE
 				memcpy(v_kf, &buffer[kfpos], 6);
 				xmlKF = xmlValue->InsertNewChildElement("v");
 
+#if defined(DEBUGMODE)
+				xmlKF->SetAttribute("pos", kfpos);
+#endif
+
 				xmlKF->SetAttribute("x", v_kf[0]);
 				xmlKF->SetAttribute("y", v_kf[1]);
 				xmlKF->SetAttribute("z", v_kf[2]);
@@ -153,6 +157,10 @@ void CANM6::ReadKeyframeDataText(const std::vector<char>& buffer, tinyxml2::XMLE
 			for (int j = 0; j < KFCount; j++) {
 				memcpy(v_kf, &buffer[kfpos], 0x10);
 				xmlKF = xmlValue->InsertNewChildElement("v");
+
+#if defined(DEBUGMODE)
+				xmlKF->SetAttribute("pos", kfpos);
+#endif
 
 				ReadKeyframeCreateVector4Text(xmlKF, v_kf);
 

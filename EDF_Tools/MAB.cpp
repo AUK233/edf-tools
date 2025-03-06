@@ -6,11 +6,13 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include "include/tinyxml2.h"
 
 #include "Middleware.h"
 #include "util.h"
 #include "MAB.h"
-#include "include/tinyxml2.h"
+
+//#define DEBUGMODE
 
 //Read data from MAB
 void MAB::Read(const std::wstring& path)
@@ -58,6 +60,11 @@ void MAB::ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header
 	memcpy(&seg, &buffer[0], 4U);
 	//if (seg[0] == 0x4D && seg[1] == 0x41 && seg[2] == 0x42 && seg[3] == 0x00)
 
+	GameVersion = ReadInt32(&buffer[0x8], 0);
+	// check is EDF6
+	if (GameVersion == 0x83) {
+		header->SetAttribute("version", "6");
+	}
 	// get count
 	memcpy(&BoneCount, &buffer[0xC], 2U);
 	memcpy(&AnimationCount, &buffer[0xE], 2U);
@@ -104,9 +111,17 @@ void MAB::ReadBoneData(const std::vector<char>& buffer, int curpos, tinyxml2::XM
 	// get parameters
 	for (int i = 0; i < value[1]; i++)
 	{
+		int relative_pos = 0;
 		int ptrpos = offset + (i * 0x20);
+		if (GameVersion == 0x83) {
+			ptrpos += curpos;
+			relative_pos = ptrpos;
+		}
 		tinyxml2::XMLElement* xmlBPtr = xmlBNode->InsertNewChildElement("ptr");
-		//xmlBPtr->SetAttribute("debugpos", ptrpos);
+
+#if defined(DEBUGMODE)
+		xmlBPtr->SetAttribute("pos", ptrpos);
+#endif
 
 		// get string offset
 		int strofs[2];
@@ -116,14 +131,14 @@ void MAB::ReadBoneData(const std::vector<char>& buffer, int curpos, tinyxml2::XM
 		std::string utf8str;
 		// str1
 		if (strofs[0] > 0)
-			wstr = ReadUnicode(buffer, strofs[0]);
+			wstr = ReadUnicode(buffer, relative_pos + strofs[0]);
 		else
 			wstr = L"";
 		utf8str = WideToUTF8(wstr);
 		xmlBPtr->SetAttribute("ExportBone", utf8str.c_str());
 		// str2
 		if (strofs[1] > 0)
-			wstr = ReadUnicode(buffer, strofs[1]);
+			wstr = ReadUnicode(buffer, relative_pos + strofs[1]);
 		else
 			wstr = L"";
 		utf8str = WideToUTF8(wstr);
@@ -144,15 +159,21 @@ void MAB::ReadBoneData(const std::vector<char>& buffer, int curpos, tinyxml2::XM
 			std::wcout << L"Unknown value at position: " + ToString(ptrpos + 8) + L" - value: " + ToString(vi[0]) + L"\n";
 
 		// read extra
-		std::string namestr = "MAB_" + std::to_string(buffer.size()) + "_" + std::to_string(vi[1]);
+		std::string namestr = "MAB_" + std::to_string(buffer.size()) + "_" + std::to_string(relative_pos + vi[1]);
 		xmlBPtr->SetAttribute("extra", namestr.c_str());
-		ReadExtraSGO(namestr, buffer, vi[1], xmlHeader);
+		ReadExtraSGO(namestr, buffer, relative_pos + vi[1], xmlHeader);
 	}
 	// end
 }
 
 void MAB::ReadBoneTypeData(int type, const std::vector<char>& buffer, int ptrpos, tinyxml2::XMLElement* xmlBPtr)
 {
+	// check is EDF6
+	int relative_pos = 0;
+	if (GameVersion == 0x83) {
+		relative_pos = ptrpos;
+	}
+	//
 	if (type == 0)
 	{
 		tinyxml2::XMLElement* xmlNode;
@@ -164,7 +185,7 @@ void MAB::ReadBoneTypeData(int type, const std::vector<char>& buffer, int ptrpos
 		xmlNode = xmlBPtr->InsertNewChildElement("floatgroup");
 		xmlNode->SetAttribute("name", "location");
 		float vf[4];
-		memcpy(&vf, &buffer[fofs], 16U);
+		memcpy(&vf, &buffer[relative_pos+fofs], 16U);
 		Read4FloatData(xmlNode, vf);
 
 		// get float
@@ -192,7 +213,7 @@ void MAB::ReadBoneTypeData(int type, const std::vector<char>& buffer, int ptrpos
 		{
 			xmlNode = xmlBPtr->InsertNewChildElement("floatgroup");
 			float vf[4];
-			memcpy(&vf, &buffer[fofs[j]], 16U);
+			memcpy(&vf, &buffer[relative_pos+fofs[j]], 16U);
 			// output type help
 			switch (j)
 			{
@@ -225,7 +246,7 @@ void MAB::ReadBoneTypeData(int type, const std::vector<char>& buffer, int ptrpos
 		{
 			tinyxml2::XMLElement* xmlNode = xmlBPtr->InsertNewChildElement("floatgroup");
 			float vf[4];
-			memcpy(&vf, &buffer[fofs[j]], 16U);
+			memcpy(&vf, &buffer[relative_pos+fofs[j]], 16U);
 			// output type help
 			switch (j)
 			{
@@ -256,7 +277,7 @@ void MAB::ReadBoneTypeData(int type, const std::vector<char>& buffer, int ptrpos
 		xmlNode = xmlBPtr->InsertNewChildElement("floatgroup");
 		xmlNode->SetAttribute("name", "location");
 		float vf1[4];
-		memcpy(&vf1, &buffer[fofs1], 16U);
+		memcpy(&vf1, &buffer[relative_pos+fofs1], 16U);
 		Read4FloatData(xmlNode, vf1);
 
 		// get float
@@ -272,7 +293,7 @@ void MAB::ReadBoneTypeData(int type, const std::vector<char>& buffer, int ptrpos
 		xmlNode = xmlBPtr->InsertNewChildElement("floatgroup");
 		xmlNode->SetAttribute("name", "c");
 		float vf2[4];
-		memcpy(&vf2, &buffer[fofs2], 16U);
+		memcpy(&vf2, &buffer[relative_pos+fofs2], 16U);
 		Read4FloatData(xmlNode, vf2);
 	}
 	else
@@ -323,6 +344,11 @@ void MAB::ReadExtraSGO(std::string& namestr, const std::vector<char>& buffer, in
 
 void MAB::ReadAnimeData(const std::vector<char>& buffer, int curpos, tinyxml2::XMLElement* xmlAnm, tinyxml2::XMLElement* xmlHeader)
 {
+	int relative_pos = 0;
+	if (GameVersion == 0x83) {
+		relative_pos = curpos;
+	}
+
 	// get value
 	int value[4];
 	memcpy(&value, &buffer[curpos], 16U);
@@ -334,7 +360,7 @@ void MAB::ReadAnimeData(const std::vector<char>& buffer, int curpos, tinyxml2::X
 	tinyxml2::XMLElement* xmlstr = xmlANode->InsertNewChildElement("name");
 	if (value[2] > 0)
 	{
-		std::wstring wstr = ReadUnicode(buffer, value[2]);
+		std::wstring wstr = ReadUnicode(buffer, relative_pos + value[2]);
 		std::string utf8str = WideToUTF8(wstr);
 		xmlstr->SetText(utf8str.c_str());
 	}
@@ -346,7 +372,7 @@ void MAB::ReadAnimeData(const std::vector<char>& buffer, int curpos, tinyxml2::X
 		for (int i = 0; i < value[3]; i++)
 		{
 			// value[0] is offset
-			int newpos = value[0] + (i * 0x10);
+			int newpos = relative_pos + value[0] + (i * 0x10);
 			ReadAnimeDataA(buffer, newpos, xmlANode1, xmlHeader);
 		}
 	}
@@ -356,7 +382,7 @@ void MAB::ReadAnimeData(const std::vector<char>& buffer, int curpos, tinyxml2::X
 	if (value[1] > 0)
 	{
 		unsigned int check;
-		memcpy(&check, &buffer[value[1]], 4U);
+		memcpy(&check, &buffer[relative_pos + value[1]], 4U);
 		if (check != 0xBABABABA)
 			std::wcout << L"Check the pointed data: " + ToString(value[1]) + L"\n";
 	}
@@ -365,13 +391,21 @@ void MAB::ReadAnimeData(const std::vector<char>& buffer, int curpos, tinyxml2::X
 void MAB::ReadAnimeDataA(const std::vector<char>& buffer, int pos, tinyxml2::XMLElement* xmlNode, tinyxml2::XMLElement* xmlHeader)
 {
 	tinyxml2::XMLElement* xmlptr = xmlNode->InsertNewChildElement("value");
-	//xmlptr->SetAttribute("debugpos", pos);
+
+#if defined(DEBUGMODE)
+	xmlptr->SetAttribute("debugpos", pos);
+#endif
+
+	int relative_pos = 0;
+	if (GameVersion == 0x83) {
+		relative_pos = pos;
+	}
 
 	// get name
 	int strofs;
 	memcpy(&strofs, &buffer[pos], 4U);
 
-	std::wstring wstr = ReadUnicode(buffer, strofs);
+	std::wstring wstr = ReadUnicode(buffer, relative_pos + strofs);
 	std::string utf8str = WideToUTF8(wstr);
 	xmlptr->SetAttribute("name", utf8str.c_str());
 
@@ -389,10 +423,11 @@ void MAB::ReadAnimeDataA(const std::vector<char>& buffer, int pos, tinyxml2::XML
 	int sgoofs;
 	memcpy(&sgoofs, &buffer[pos + 12], 4U);
 
-	std::string namestr = "MAB_" + std::to_string(buffer.size()) + "_" + std::to_string(sgoofs);
+	std::string namestr = "MAB_" + std::to_string(buffer.size()) + "_" + std::to_string(relative_pos + sgoofs);
 	xmlptr->SetAttribute("extra", namestr.c_str());
-	ReadExtraSGO(namestr, buffer, sgoofs, xmlHeader);
+	ReadExtraSGO(namestr, buffer, relative_pos + sgoofs, xmlHeader);
 }
+
 
 void MAB::Write(const std::wstring& path, tinyxml2::XMLNode* header)
 {

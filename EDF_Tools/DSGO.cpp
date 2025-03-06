@@ -178,14 +178,15 @@ void DSGO::ReadDSGONode(bool big_endian, const std::vector<char>& buffer, int no
 			if (!subexist)
 			{
 				SubDataGroup.push_back(namestr);
-
 				std::vector<char> newbuf(buffer.begin() + curpos, buffer.begin() + curpos + filesize);
-
+				/*
 				tinyxml2::XMLElement* NewXml = xmlHeader->InsertNewChildElement("Subdata");
 				NewXml->SetAttribute("name", namestr.c_str());
 				NewXml->SetAttribute("header", "RAW");
 				std::string rawstr = ReadRaw(newbuf, 0, newbuf.size());
 				NewXml->SetText(rawstr.c_str());
+				*/
+				CheckDataType(newbuf, xmlHeader, namestr);
 			}
 			xmlNode->SetText(namestr.c_str());
 
