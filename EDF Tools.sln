@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuiTools", "GuiTools\GuiToo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GuiCore", "GuiCore\GuiCore.vcxproj", "{A6C98B4C-EEC4-40C0-BF75-330C7CEB1FEC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundTool", "SoundTool\SoundTool.vcxproj", "{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,6 +102,18 @@ Global
 		{A6C98B4C-EEC4-40C0-BF75-330C7CEB1FEC}.Release|Win32.Build.0 = Release|Win32
 		{A6C98B4C-EEC4-40C0-BF75-330C7CEB1FEC}.Release|x64.ActiveCfg = Release|x64
 		{A6C98B4C-EEC4-40C0-BF75-330C7CEB1FEC}.Release|x64.Build.0 = Release|x64
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Debug|Any CPU.Build.0 = Debug|x64
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Debug|Win32.Build.0 = Debug|Win32
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Debug|x64.ActiveCfg = Debug|x64
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Debug|x64.Build.0 = Debug|x64
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Release|Any CPU.ActiveCfg = Release|x64
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Release|Any CPU.Build.0 = Release|x64
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Release|Win32.ActiveCfg = Release|Win32
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Release|Win32.Build.0 = Release|Win32
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Release|x64.ActiveCfg = Release|x64
+		{5C1E492D-C7F7-49AF-ABCC-C45EB3B05617}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,221 @@
+header is 43415300, length is 0x30
+- 0x04 - : version, 4.1 is 00020000, 5 is 03020000.
+- 0x08 - : Int32, start offset of CANM data.
+- 0x0C - : Int32, TControl amount
+- 0x10 - : Int32, start offset of TControl block.
+- 0x14 - : Int32, VControl amount
+- 0x18 - : Int32, start offset of VControl block.
+- 0x1C - : Int32, AnmGroup amount
+- 0x20 - : Int32, start offset of AnmGroup block.
+- 0x24 - : Int32, Bone amount
+- 0x28 - : Int32, start offset of Bone block.
+- 0x2C - : Int32, start offset of UnnamedC block. note: structure is CasDataGroup.
+
+TControl, length is 0x0C
+- 0x00 - : Int32, start offset of string.
+- 0x04 - : Int32, Number amount.
+- 0x08 - : Int32, start offset of Number.
+Number is Int32. Index of animation name in CANM.
+
+VControl, length is 0x14
+- 0x00 - : Int32, start offset of string.
+- 0x04 - : Int32
+- 0x08 - : Int32
+- 0x0C - : Float
+- 0x10 - : Int32
+
+AnmGroup, length is 0x0C
+- 0x00 - : Int32, start offset of string.
+- 0x04 - : Int32, MCAnm amount.
+- 0x08 - : Int32, start offset of MCAnm.
+
+MCAnm, length is 0x24
+- 0x00 - : Int32, start offset of string.
+- 0x04 - : Int32, start offset of AnmData1.
+- 0x08 - : Int32, AnmData2 amount.
+- 0x0C - : Int32, start offset of AnmData2.
+- 0x10 - : Int32, start offset of ptr1. note: structure is CasDataGroup.
+- 0x14 - : Int32, start offset of ptr2. note: structure is CasDataGroup.
+- 0x18 - : Int32, start offset of ptr3. note: structure is CasDataGroup.
+- 0x1C - : Int32, determines the type of the next value.
+- 0x20 - : 0x1C = 0, it is Float. 0x1C = 2, it is Int32, Like a TControl index. 0x1C = 1, it is Int32?
+note: 5th int of 1st structure of ptr2 is TControl index.
+
+AnmData1, length is 0x20
+- 0x00 - : Int32
+- 0x04 - : Float, it seems to be action time.
+- 0x08 - : Int32, start offset of CasDataGroup.
+- 0x0C - : Int32, determines the type of the next value.
+- 0x10 - : 0xC = 0, it is Float. 0xC = 2, it is Int32, Like a TControl index. 0xC = 1, it is Int32?
+- 0x14 - : Int32
+- 0x18 - : Int32
+- 0x1C - : Int32
+
+AnmData2, like AnmData1
+
+CasDataGroup, length is 0x08
+- 0x00 - : Int32, CasDataCommon amount.
+- 0x04 - : Int32, start offset of CasDataCommon.
+
+CasDataCommon, length is 0x24
+- 0x00 - : Int32
+eight 4-bytes data, mixed Int32 and Float.
+
+Note: 5's CasDataCommon has more four 4-bytes data.
+
+Bone, length is 0x04
+- 0x00 - : Int32, start offset of string.
+
+
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------
+old
+---------------------------------------------------------------
+S_THROW_KANSYAKU01_41.CAS
+
+header is 4341 5300
+
+0x4: 4.1 is 0002? 5 is 0302?
+
+0x8: 1003 0000 is start offset of CANM
+
+====
+0xC: 0200 0000 is amount of t_animations, each animation has three 4-bytes.
+0x10: 3000 0000 is start offset of t_animation names
+
+I guess the t_animation name data structure is:
+{
+str, //a relative offset from its position(as A)
+int, //is amount of number connected, each number is 4-btyes.
+linked number //a relative offset from A, read length is determined by int.
+}
+
+====
+0x14: 0000 0000 is amount of roter animations, each has five 4-bytes.
+0x18: 5000 0000 is start offset of roter animations?
+
+data structure is:
+{
+str, //a relative offset from its position(as A)
+int,
+int,
+float,
+int
+}
+
+if 0x14: int = 0
+0x18 will pointer to 00000000 08000000
+00000000 08000000 maybe means null.
+
+====
+0x1C: 0100 0000 is amount of animation groups, each group has three 4-bytes.
+0x20: 5800 0000 is start offset of animation groups
+
+so group data structure is:
+{
+str, //a relative offset from its position(as A)
+int, //is amount of animation groups, each animation group has three 4-bytes.
+[ag1, ag2, ag3, ag...] //a relative offset from A, read amount is determined by int.
+}
+waring: doesn't seem to exist this.
+
+then
+ag:
+{
+str, //a relative offset from its position(as A)
+int, //is amount of animations, each animation has nine 4-bytes.
+[animation1, animation2, animation3, animation...] //a relative offset from A, read amount is determined by int.
+}
+
+animation:
+{
+str, //a relative offset from its position(as A)
+offset1,
+offset2, //0x00 is a 4-byte mean amount of data, 0x04 is offset
+offset3,
+offset4,
+offset5?
+int, //seems it = 0200 0000
+int, //seems it is number.
+}
+
+offset1:
+{
+int1, //number?
+intA, //= 1, A is int| = 0, A is float| so? null = -1, and A = int: -1.
+A,
+intB, //= 1, B is int| = 0, B is float
+B,
+intC, //= 1, C is int| = 0, C is float
+C,
+}
+
+====
+0x24: 0000 0000 is amount of uknA, each is 4-bytes.
+0x28: 5000 0000 is start offset of uknA
+
+uknA is a relative offset.
+
+====
+0x2C: 5000 0000 is start offset of uknB
+
+00000000 08000000
+xxxxxxxx yyyyyyyy
+
+x maybe means there are several part, each part has nine 4-bytes. (5 is thirteen 4-bytes)
+
+Make a hypothesis:
+{
+int1, //number?
+intA, //= 1, A is int| = 0, A is float| so? null = -1, and A = int: -1.
+A,
+intB, //= 1, B is int| = 0, B is float
+B,
+intC, //= 1, C is int| = 0, C is float
+C,
+intD, //= 1, D is int| = 0, D is float
+D
+}
+
+---------------------------------------------
+test |||||
+---------------------------------------------
+
+0x30: A204 0000 is relative offset from 0x30, pointer to 0x4D2: t_standby
+0x38: 1C00 0000 is relative offset from 0x30, pointer to 0x4C: int = 0
+0x3C: 8804 0000 is relative offset from 0x3C, pointer to 0x4C4: t_hide
+0x44: 0C00 0000 is relative offset from 0x3C, pointer to 0x48: int = 1
+
+---------------------------------------
+problematic
+0x50: 0000 0000
+0x54: 0800 0000 is 4-bytes data amount of each behavior?
+or they are relative offsets from their position, to amount of behavior?
+so animation name has: name---- xxxxxxxx behavior ?
+
+--------------------------------
+
+0x58: 2404 0000 is pointer to 0x47C: main
+0x5C: 0600 0000 is amount of animations???
+0x60: 0C00 0000 is relative offset from 0x58, pointer to 0x64
+
+0x64: 0404 0000 is pointer to 0x468: fire
+0x84: 0100 0000 maybe is int = 1, == number = 1.
+0x88: EA03 0000 is pointer to 0x472: hide
+0xAC: DA03 0000 is pointer to 0x486: reload
+0xD0: C403 0000 is pointer to 0x494: reload_end
+0xF4: B603 0000 is pointer to 0x4AA: show
+0x118: 9C03 0000 is pointer to 0x4B4: standby
+
+they are relative offsets from their position?
+
+--------------------------------
+HECTOR401_SHIELD.CAS is easiest cas.

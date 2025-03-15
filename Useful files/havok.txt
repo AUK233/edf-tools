@@ -21,3 +21,4 @@
 			</hkparam>
 
 mass use 100
+<hkparam name="maxFrictionTorque">100000.000000</hkparam>
