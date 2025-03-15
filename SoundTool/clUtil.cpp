@@ -21,3 +21,13 @@ INT32 ReadINT32LE(void const* pdata)
 {
 	return *(INT32*)pdata;
 }
+
+void WriteUINT16LE(char* pdata, UINT16 value)
+{
+	*(UINT16*)pdata = value;
+}
+
+void WriteINT32LE(char* pdata, INT32 value)
+{
+	*(INT32*)pdata = value;
+}

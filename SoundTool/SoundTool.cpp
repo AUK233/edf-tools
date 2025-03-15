@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "clAWB.h"
 
@@ -19,9 +20,30 @@ int main(int argc, char* argv[])
 		cout << "\n";
 	}
 
-	unique_ptr< AWB > script = make_unique< AWB >();
-	script->Read(path.substr(0, path.size()-4) );
-	script.reset();
+	size_t lastDotPos = path.find_last_of('.');
+	if (lastDotPos != string::npos) {
+		string extension = path.substr(lastDotPos + 1, path.size() - lastDotPos);
+		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+		if (extension == "awb" || extension == "awe") {
+			// AWB format information from https://github.com/vgmstream/vgmstream
+
+			unique_ptr< AWB > script = make_unique< AWB >();
+			script->Read(path.substr(0, path.size() - 4));
+			script.reset();
+		}
+		else {
+			cout << "Please input an AWB/AWE file\n";
+		}
+		// end
+	}
+	else {
+		// write AWB and AWE
+		unique_ptr< AWB > script = make_unique< AWB >();
+		script->Write(path);
+		script.reset();
+	}
+
 
 	system("pause");
 	return 0;

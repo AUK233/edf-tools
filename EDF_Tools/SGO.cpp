@@ -393,7 +393,9 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	WstrPos = ae_nodesize;
 
 	// out string
-	std::sort(NodeString.begin(), NodeString.end());
+	if (NodeString.size() < 257) {
+		std::sort(NodeString.begin(), NodeString.end());
+	}
 	int strpos = 0;
 	for (size_t i = 0; i < NodeString.size(); i++)
 	{
