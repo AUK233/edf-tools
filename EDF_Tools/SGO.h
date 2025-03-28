@@ -1,6 +1,7 @@
 #pragma once
-#include <map>
+//#include <map>
 #include "include/tinyxml2.h"
+#include <unordered_map>
 
 struct SGONode
 {
@@ -65,4 +66,6 @@ private:
 	int WstrPos = 0;
 	std::vector< SGOExtraData > ExtraData;
 	std::vector< int > ExtraDataPos;
+	std::unordered_map<std::string, size_t> StringMap;
+	std::unordered_map<std::wstring, size_t> WStringMap;
 };

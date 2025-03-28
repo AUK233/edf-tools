@@ -12,6 +12,7 @@
 #include <iostream>
 #include <locale>
 #include <locale.h>
+
 #include "util.h"
 #include "DSGO.h"
 #include "SGO.h"
@@ -316,6 +317,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	}
 
 	// prefetch data size
+	StringMap.rehash(0x1000);
 	int nodePtrNum = 0;
 	std::string dataName;
 	for (entry = mainData->FirstChildElement(); entry != 0; entry = entry->NextSiblingElement())
@@ -327,6 +329,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 			DataNameCount++;
 			// preread string
 			std::string namestr = entry->Attribute("name");
+			/*
 			bool subexist = false;
 			// check for duplicates
 			for (size_t i = 0; i < NodeString.size(); i++)
@@ -339,7 +342,13 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 			}
 
 			if (!subexist)
+				NodeString.push_back(namestr);*/
+			auto it = StringMap.find(namestr);
+			if (it == StringMap.end()) {
+				size_t newIndex = NodeString.size();
 				NodeString.push_back(namestr);
+				StringMap[namestr] = newIndex;
+			}
 		}
 		// if node is ptr or extra data
 		GetNodeExtraData(entry, nodePtrNum);
@@ -397,6 +406,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 		std::sort(NodeString.begin(), NodeString.end());
 	}
 	int strpos = 0;
+	WStringMap.rehash(NodeString.size());
 	for (size_t i = 0; i < NodeString.size(); i++)
 	{
 		SGONodeName NN;
@@ -406,6 +416,7 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 		// Must be converted to UTF16 first, because UTF8 is not fixed length.
 		strpos += (NN.name.size() * 2);
 		strpos += 2;
+		WStringMap[NN.name] = i;
 	}
 
 	// get node data
@@ -508,6 +519,7 @@ void SGO::GetNodeExtraData(tinyxml2::XMLElement* entry, int& nodePtrNum)
 		if (entry->GetText())
 		{
 			std::string namestr = entry->GetText();
+			/*
 			bool subexist = false;
 			// check for duplicates
 			for (size_t i = 0; i < NodeString.size(); i++)
@@ -521,6 +533,13 @@ void SGO::GetNodeExtraData(tinyxml2::XMLElement* entry, int& nodePtrNum)
 
 			if (!subexist)
 				NodeString.push_back(namestr);
+			*/
+			auto it = StringMap.find(namestr);
+			if (it == StringMap.end()) {
+				size_t newIndex = NodeString.size();
+				NodeString.push_back(namestr);
+				StringMap[namestr] = newIndex;
+			}
 		}
 	}
 	else if (nodeName == "extra")
@@ -616,6 +635,8 @@ SGOExtraData SGO::GetNodeData(tinyxml2::XMLElement* entry, int size, int pos, st
 		{
 			out.name = entry->GetText();
 			std::wstring wstr = UTF8ToWide(out.name);
+
+			/*
 			for (size_t i = 0; i < NodeWString.size(); i++)
 			{
 				if (NodeWString[i].name == wstr)
@@ -627,6 +648,13 @@ SGOExtraData SGO::GetNodeData(tinyxml2::XMLElement* entry, int size, int pos, st
 
 					break;
 				}
+			}*/
+			auto it = WStringMap.find(wstr);
+			if (it != WStringMap.end()) {
+				int value[2];
+				value[0] = NodeWString[it->second].name.size();
+				value[1] = NodeWString[it->second].id - pos;
+				memcpy(&out.bytes[4], &value, 8U);
 			}
 		}
 		else
@@ -665,6 +693,7 @@ SGOExtraData SGO::GetNodeName(tinyxml2::XMLElement* entry, int pos, int NodeInde
 	{
 		out.name = entry->Attribute("name");
 		std::wstring wstr = UTF8ToWide(out.name);
+		/*
 		for (size_t i = 0; i < NodeWString.size(); i++)
 		{
 			if (NodeWString[i].name == wstr)
@@ -676,6 +705,13 @@ SGOExtraData SGO::GetNodeName(tinyxml2::XMLElement* entry, int pos, int NodeInde
 
 				break;
 			}
+		}*/
+		auto it = WStringMap.find(wstr);
+		if (it != WStringMap.end()) {
+			int value[2];
+			value[0] = NodeWString[it->second].id - pos;
+			value[1] = NodeIndex;
+			memcpy(&out.bytes[0], &value, 8U);
 		}
 	}
 
