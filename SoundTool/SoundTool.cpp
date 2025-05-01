@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "clACB.h"
 #include "clAWB.h"
 
 int main(int argc, char* argv[])
@@ -25,15 +26,19 @@ int main(int argc, char* argv[])
 		string extension = path.substr(lastDotPos + 1, path.size() - lastDotPos);
 		std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
+		// AWB and ACB format information from https://github.com/vgmstream/vgmstream
 		if (extension == "awb" || extension == "awe") {
-			// AWB format information from https://github.com/vgmstream/vgmstream
-
 			unique_ptr< AWB > script = make_unique< AWB >();
 			script->Read(path.substr(0, path.size() - 4));
 			script.reset();
 		}
+		else if (extension == "acb") {
+			unique_ptr< ACB > script = make_unique< ACB >();
+			script->Read(path.substr(0, path.size() - 4));
+			script.reset();
+		}
 		else {
-			cout << "Please input an AWB/AWE file\n";
+			cout << "Please input an AWB/AWE or ACB file\n";
 		}
 		// end
 	}

@@ -110,7 +110,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,7 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,11 +135,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\EDF_Tools\include\tinyxml2.cpp" />
+    <ClCompile Include="clACB.cpp" />
     <ClCompile Include="clAWB.cpp" />
     <ClCompile Include="clUtil.cpp" />
     <ClCompile Include="SoundTool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\EDF_Tools\include\tinyxml2.h" />
+    <ClInclude Include="clACB.h" />
     <ClInclude Include="clAWB.h" />
     <ClInclude Include="clUtil.h" />
   </ItemGroup>

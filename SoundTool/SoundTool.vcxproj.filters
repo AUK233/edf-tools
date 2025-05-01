@@ -24,6 +24,12 @@
     <ClCompile Include="clUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="clACB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\EDF_Tools\include\tinyxml2.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="clAWB.h">
@@ -31,6 +37,12 @@
     </ClInclude>
     <ClInclude Include="clUtil.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="clACB.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EDF_Tools\include\tinyxml2.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
