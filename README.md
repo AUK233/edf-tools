@@ -18,7 +18,7 @@ The filename extension should be correct, Like:
 - Acceptable: `EXAMPLE.rab`, Unacceptable: `EXAMPLE.rabbackup`
 - Acceptable: `EXAMPLE_MDB.xml`, Unacceptable: `EXAMPLE.xml`
 
-Support file type:
+Support file types:
 - `.canm` <-> `.xml`
 - `.cas` <-> `.xml`
 - `.mdb` <-> `.xml`
@@ -45,4 +45,14 @@ Example:
 
 Acceptable `optional1` arguments: `-fc`(use a faster packing method, but it will bloat the filesize significantly), `-mt`(use all threads to compress the file, if there are really enough files), `-mc`(select P-Core for compression), `-cmtn`(use 4 cores to compress files if you don't add `optional2`), pass the number of cores to `optional2`
 
+### 3dsmax support
 
+Download the [source code](https://github.com/AUK233/edf-tools/archive/refs/heads/master.zip) and import the script in folder `3dsmax Scripts`, then run the script and select the tool on "Utilities" panel.
+
+Alsoly, refer [readme.txt](./3dmax%20Scripts/readme.txt).
+
+It's still in an early stage.
+
+## Build
+
+Required: [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/?cid=learn-onpage-download-install-visual-studio-page-cta)
