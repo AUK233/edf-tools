@@ -57,7 +57,7 @@ void AWB::Read(const std::string& inPath)
 		return;
 	}
 	// get data offset
-	ReadDataOffset(inPath, buffer);
+	ReadDataOffset(buffer);
 
 	// AWE
 	// get header
@@ -82,7 +82,7 @@ void AWB::Read(const std::string& inPath)
 	std::cout << "Done!\n";
 }
 
-void AWB::ReadDataOffset(const std::string& inPath, const std::vector<char>& buffer)
+void AWB::ReadDataOffset(const std::vector<char>& buffer)
 {
 	int base_ofs = 0x10 + (v_header.sound_count * v_header.cueID_size);
 
@@ -161,13 +161,12 @@ void AWB::ReadNameTable(const std::vector<char>& buffer)
 
 void AWB::ReadDataToFile(const std::string& inPath, const std::vector<char>& buffer)
 {
+	int FolderExists = DirectoryExists(inPath.c_str());
+	if (!FolderExists) {
+		CreateDirectoryA(inPath.c_str(), NULL);
+	}
+
 	for (int i = 0; i < v_NameTable.size(); i++) {
-
-		int FolderExists = DirectoryExists(inPath.c_str());
-		if (!FolderExists) {
-			CreateDirectoryA(inPath.c_str(), NULL);
-		}
-
 		int AWBIndex = v_NameTable[i];
 
 		int selfOfs = v_DataFile[AWBIndex].self;

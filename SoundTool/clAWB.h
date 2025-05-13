@@ -31,7 +31,7 @@ public:
 	};
 
 	void Read(const std::string& inPath);
-	void ReadDataOffset(const std::string& inPath, const std::vector<char>& buffer);
+	void ReadDataOffset(const std::vector<char>& buffer);
 	void ReadNameTable(const std::vector<char>& buffer);
 	void ReadDataToFile(const std::string& inPath, const std::vector<char>& buffer);
 
@@ -55,11 +55,11 @@ public:
 	void WriteAWBFile(const std::string& inPath, int block_CueIDSize, int block_DataOfsSize);
 	void WriteAWEFile(const std::string& inPath, int block_NameOfsSize, int block_IndexSize);
 
-private:
 	Header_t v_header;
+	std::vector<FileOffset_t> v_DataFile;
+private:
 	AWEHeader_t v_AWEheader;
 
-	std::vector<FileOffset_t> v_DataFile;
 	std::vector<std::string> v_Name;
 	std::vector<UINT16> v_NameTable;
 

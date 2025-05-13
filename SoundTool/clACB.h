@@ -58,28 +58,43 @@ struct UTF_Column_t {
 	UINT32 offset;
 };
 
+struct ACB_PassParameters {
+	// ACB file path
+	std::string path;
+	// AWB in ACB
+	std::vector<char> awb_memory;
+};
+
 class ACB {
 public:
 
 	void Read(const std::string& inPath);
-	void ReadUTFData(const std::vector<char>& buffer, tinyxml2::XMLElement* xmlHeader);
+	void ReadUTFData(const std::vector<char>& buffer, tinyxml2::XMLElement* xmlHeader, int IsHeader);
 	void ReadUTFHeaderData(const std::vector<char>& buffer);
 	void ReadGetStringList(const std::vector<char>& in, int inStart, int inEnd, std::vector<std::string>& out);
 	void ReadUTFParametersList(const std::vector<char>& in, int inSize);
-
+	// about type: 0 is fixed value, 1 is variable, 2 is acb header
+	void ReadUTFParameterData(const std::vector<char>& in, tinyxml2::XMLElement* xmldata, int index, int type);
+	// 
 	struct UTF_GetParameters {
 		tinyxml2::XMLElement* xmlNode;
 		int index;
+		// input parameter type, which determines what parameter is output 
+		int type;
+		// parameter type, whether it is a variable
 		int isNodePtr;
 		// now, write parameter data offset in here
 		int PtrDataOfs;
 	};
+	void ReadUTFParameter_Value(const std::vector<char>& in, const UTF_GetParameters& inPtr);
 	void ReadUTFParameter_Int(const std::vector<char>& in, const UTF_GetParameters& inPtr, int dataType);
 	void ReadUTFParameter_FP32(const std::vector<char>& in, const UTF_GetParameters& inPtr);
 	void ReadUTFParameter_String(const std::vector<char>& in, const UTF_GetParameters& inPtr);
 	void ReadUTFParameter_ToData(const std::vector<char>& in, const UTF_GetParameters& inPtr);
+	// read AWB data
+	void ReadAWBData(const std::vector<char>& in, tinyxml2::XMLElement* xmldata);
 
-	std::string InPath;
+	ACB_PassParameters* common_parameter = 0;
 private:
 	UTF_Header_t v_header;
 	std::vector<UTF_Column_t> v_parameters;

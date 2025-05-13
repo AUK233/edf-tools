@@ -5,16 +5,27 @@
 #include <vector>
 #include <filesystem>
 #include <unordered_map>
-
+#include <format>
 
 #include "clAWB.h"
 #include "clUtil.h"
 #include "clACB.h"
 
+// 0xDDDDDDDD is +4, 0xCCCCCCCC is +29h, BE
+static const char RAW_StreamAwbAfs2Header[] = {
+	0x40, 0x55, 0x54, 0x46, 0xDD, 0xDD, 0xDD, 0xDD, 0x00, 0x01, 0x00, 0x1D, 0x00, 0x00, 0x00, 0x25,
+	0x00, 0x00, 0x00, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01,
+	0x5B, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0xCC, 0xCC, 0xCC, 0xCC, 0x53, 0x74, 0x72,
+	0x65, 0x61, 0x6D, 0x41, 0x77, 0x62, 0x48, 0x65, 0x61, 0x64, 0x65, 0x72, 0x00, 0x48, 0x65, 0x61,
+	0x64, 0x65, 0x72, 0x00
+};
+
 void ACB::Read(const std::string& inPath)
 {
 	// read acb
-	InPath = inPath;
+	common_parameter = new ACB_PassParameters();
+	common_parameter->path = inPath;
+
 	std::string tempPath = inPath + ".acb";
 	if (!std::filesystem::exists(tempPath)) {
 		std::cout << "There is no ACB file!\n";
@@ -51,14 +62,50 @@ void ACB::Read(const std::string& inPath)
 	xml.InsertEndChild(xmlHeader);
 
 	// read data
-	ReadUTFData(ACB_Buffer, xmlHeader);
+	std::cout << "Reading ACB file......\n";
+	ReadUTFData(ACB_Buffer, xmlHeader, 1);
+	// read memory awb
+	if (common_parameter->awb_memory.size()) {
+		std::cout << "Reading memory AWB files......\n";
+		tinyxml2::XMLElement* xmlAWB = xmlHeader->InsertNewChildElement("AWB");
+		xmlAWB->SetAttribute("isStream", "0");
+		ReadAWBData(common_parameter->awb_memory, xmlAWB);
+
+		common_parameter->awb_memory.clear();
+	}
+
+	// read stream awb
+	tempPath = inPath + ".awb";
+	if (std::filesystem::exists(tempPath)) {
+		std::cout << "Reading stream AWB files......\n";
+
+		std::ifstream awb_file(tempPath, std::ios::binary | std::ios::ate | std::ios::in);
+		std::streamsize awb_size = awb_file.tellg();
+		awb_file.seekg(0, std::ios::beg);
+		std::vector<char> awb_buffer(awb_size);
+
+		ReadFileState = 0;
+		if (awb_file.read(awb_buffer.data(), awb_size)) {
+			ReadFileState = 1;
+		}
+		awb_file.close();
+
+		if (ReadFileState) {
+			tinyxml2::XMLElement* xmlAWB = xmlHeader->InsertNewChildElement("AWB");
+			xmlAWB->SetAttribute("isStream", "1");
+			ReadAWBData(awb_buffer, xmlAWB);
+		}
+		awb_buffer.clear();
+	}
 
 	// write file
 	std::string outfile = inPath + ".xml";
 	xml.SaveFile(outfile.c_str());
+
+	delete common_parameter;
 }
 
-void ACB::ReadUTFData(const std::vector<char>& buffer, tinyxml2::XMLElement* xmlHeader)
+void ACB::ReadUTFData(const std::vector<char>& buffer, tinyxml2::XMLElement* xmlHeader, int IsHeader)
 {
 	// get header
 	ReadUTFHeaderData(buffer);
@@ -74,60 +121,22 @@ void ACB::ReadUTFData(const std::vector<char>& buffer, tinyxml2::XMLElement* xml
 
 	//std::vector<std::string> v_header_names;
 	//ReadGetStringList(ACB_Buffer, v_header.NameTableOffset, v_header.DataOffset, v_header_names);
-	for (int i = 0; i < v_header.NodeCount; i++) {
-		tinyxml2::XMLElement* xmldata = xmlHeader->InsertNewChildElement("node");
-		for (int j = 0; j < v_parameters.size(); j++) {
-			UTF_GetParameters inPtr;
-			int isBigEndian = -1;
-			if (v_parameters[j].flag & COLUMN_FLAG_DEFAULT) {
-				isBigEndian = 0;
-				inPtr.xmlNode = xmldata;
-				inPtr.index = j;
-				inPtr.isNodePtr = 0;
-				inPtr.PtrDataOfs = v_parameters[j].offset;
-			}
-			else if (v_parameters[j].flag & COLUMN_FLAG_ROW) {
-				isBigEndian = 1;
-				inPtr.xmlNode = xmldata;
-				inPtr.index = j;
-				inPtr.isNodePtr = 1;
-				inPtr.PtrDataOfs = v_parameters[j].offset + (i * v_header.NodeDataSize);
-			}
-			else {
-				inPtr.xmlNode = 0;
-			}
 
-			if (inPtr.xmlNode) {
-				int dataType = v_parameters[j].type;
-				switch (dataType) {
-				case COLUMN_TYPE_UINT8:
-				case COLUMN_TYPE_SINT8:
-				case COLUMN_TYPE_UINT16:
-				case COLUMN_TYPE_SINT16:
-				case COLUMN_TYPE_UINT32:
-				case COLUMN_TYPE_SINT32:
-				case COLUMN_TYPE_UINT64:
-				case COLUMN_TYPE_SINT64:
-					ReadUTFParameter_Int(buffer, inPtr, dataType);
-					break;
-				case COLUMN_TYPE_FLOAT:
-					ReadUTFParameter_FP32(buffer, inPtr);
-					break;
-				case COLUMN_TYPE_STRING:
-					ReadUTFParameter_String(buffer, inPtr);
-					break;
-				case COLUMN_TYPE_VLDATA:
-					ReadUTFParameter_ToData(buffer, inPtr);
-					break;
-				default:
-					break;
-				}
-			}
-			// end 1
-		}
-		// end 2
+	if (IsHeader) {
+		tinyxml2::XMLElement* xmldata = xmlHeader->InsertNewChildElement("main");
+		ReadUTFParameterData(buffer, xmldata, 0, 2);
 	}
-	
+	else {
+		tinyxml2::XMLElement* xmldata = xmlHeader->InsertNewChildElement("static");
+		ReadUTFParameterData(buffer, xmldata, 0, 0);
+
+		for (int i = 0; i < v_header.NodeCount; i++) {
+			xmldata = xmlHeader->InsertNewChildElement("node");
+			xmldata->SetAttribute("index", i);
+			ReadUTFParameterData(buffer, xmldata, i, 1);
+		}
+	}
+	// end
 }
 
 void ACB::ReadUTFHeaderData(const std::vector<char>& buffer)
@@ -229,17 +238,91 @@ void ACB::ReadUTFParametersList(const std::vector<char>& in, int inSize)
 	}
 }
 
+void ACB::ReadUTFParameterData(const std::vector<char>& in, tinyxml2::XMLElement* xmldata, int index, int type)
+{
+	UTF_GetParameters inPtr;
+	inPtr.type = type;
+	for (int i = 0; i < v_parameters.size(); i++) {
+		if (v_parameters[i].flag & COLUMN_FLAG_DEFAULT) {
+			inPtr.xmlNode = xmldata;
+			inPtr.index = i;
+			inPtr.isNodePtr = 0;
+			inPtr.PtrDataOfs = v_parameters[i].offset;
+		}
+		else if (v_parameters[i].flag & COLUMN_FLAG_ROW) {
+			inPtr.xmlNode = xmldata;
+			inPtr.index = i;
+			inPtr.isNodePtr = 1;
+			inPtr.PtrDataOfs = v_parameters[i].offset + (index * v_header.NodeDataSize);
+		}
+		else {
+			inPtr.xmlNode = 0;
+		}
+
+		if (inPtr.xmlNode) {
+			ReadUTFParameter_Value(in, inPtr);
+		}
+	}
+}
+
+void ACB::ReadUTFParameter_Value(const std::vector<char>& in, const UTF_GetParameters& inPtr)
+{
+	int dataType = v_parameters[inPtr.index].type;
+	switch (dataType) {
+	case COLUMN_TYPE_UINT8:
+	case COLUMN_TYPE_SINT8:
+	case COLUMN_TYPE_UINT16:
+	case COLUMN_TYPE_SINT16:
+	case COLUMN_TYPE_UINT32:
+	case COLUMN_TYPE_SINT32:
+	case COLUMN_TYPE_UINT64:
+	case COLUMN_TYPE_SINT64:
+		ReadUTFParameter_Int(in, inPtr, dataType);
+		break;
+	case COLUMN_TYPE_FLOAT:
+		ReadUTFParameter_FP32(in, inPtr);
+		break;
+	case COLUMN_TYPE_STRING:
+		ReadUTFParameter_String(in, inPtr);
+		break;
+	case COLUMN_TYPE_VLDATA:
+		ReadUTFParameter_ToData(in, inPtr);
+		break;
+	default:
+		break;
+	}
+}
+
 void ACB::ReadUTFParameter_Int(const std::vector<char>& in, const UTF_GetParameters& inPtr, int dataType)
 {
+	int outputValue = 0;
+	if (inPtr.type == 2) {
+		outputValue = 1;
+	}
+	else {
+		if (inPtr.type == inPtr.isNodePtr) {
+			if (inPtr.type == 1) {
+				outputValue = -1;
+			}
+			else {
+				outputValue = 1;
+			}
+		}
+		else {
+			if (inPtr.type == 1) {
+				return;
+			}
+		}
+	}
+
 	int curpos = inPtr.PtrDataOfs;
-	//int isBigEndian = inPtr.isNodePtr;
-	int isBigEndian = 1;
 	tinyxml2::XMLElement* xmlNode = inPtr.xmlNode;
 	const UTF_Column_t& data = v_parameters[inPtr.index];
 
 	int wordSize;
 	INT64 s64;
 	UINT64 u64;
+	int isBigEndian = 1;
 
 	switch (dataType) {
 	case COLUMN_TYPE_UINT8:
@@ -278,91 +361,236 @@ void ACB::ReadUTFParameter_Int(const std::vector<char>& in, const UTF_GetParamet
 		return;
 	}
 
-	tinyxml2::XMLElement* xmlptr = xmlNode->InsertNewChildElement("int");
-	xmlptr->SetAttribute("name", data.name);
-	xmlptr->SetAttribute("variable", isBigEndian);
-	if (wordSize > 0) {
-		xmlptr->SetAttribute("size", wordSize);
-		xmlptr->SetAttribute("sign", "0");
-		xmlptr->SetAttribute("value", u64);
+	tinyxml2::XMLElement* xmlptr;
+	if (outputValue >= 0) {
+		xmlptr = xmlNode->InsertNewChildElement("int");
 	}
 	else {
-		xmlptr->SetAttribute("size", -wordSize);
-		xmlptr->SetAttribute("sign", "1");
-		xmlptr->SetAttribute("value", s64);
+		xmlptr = xmlNode->InsertNewChildElement("var");
+	}
+	xmlptr->SetAttribute("name", data.name);
+	if (wordSize > 0) {
+		if (outputValue >= 0) {
+			xmlptr->SetAttribute("size", wordSize);
+			xmlptr->SetAttribute("sign", "0");
+		}
+
+		if (outputValue) {
+			xmlptr->SetAttribute("value", u64);
+		}
+	}
+	else {
+		if (outputValue >= 0) {
+			xmlptr->SetAttribute("size", -wordSize);
+			xmlptr->SetAttribute("sign", "1");
+		}
+
+		if (outputValue) {
+			xmlptr->SetAttribute("value", s64);
+		}
 	}
 }
 
 void ACB::ReadUTFParameter_FP32(const std::vector<char>& in, const UTF_GetParameters& inPtr)
 {
+	int outputValue = 0;
+	if (inPtr.type == 2) {
+		outputValue = 1;
+	}
+	else {
+		if (inPtr.type == inPtr.isNodePtr) {
+			if (inPtr.type == 1) {
+				outputValue = -1;
+			}
+			else {
+				outputValue = 1;
+			}
+		}
+		else {
+			if (inPtr.type == 1) {
+				return;
+			}
+		}
+	}
+
 	int curpos = inPtr.PtrDataOfs;
-	int isBigEndian = inPtr.isNodePtr;
 	tinyxml2::XMLElement* xmlNode = inPtr.xmlNode;
 	const UTF_Column_t& data = v_parameters[inPtr.index];
 
 	UINT32 u32 = ReadUINT32(&in[curpos], 1);
 	float f32 = *(float*)&u32;
 
-	tinyxml2::XMLElement* xmlptr = xmlNode->InsertNewChildElement("float");
+	tinyxml2::XMLElement* xmlptr;
+	if (outputValue >= 0) {
+		xmlptr = xmlNode->InsertNewChildElement("float");
+	}
+	else {
+		xmlptr = xmlNode->InsertNewChildElement("var");
+	}
 	xmlptr->SetAttribute("name", data.name);
-	xmlptr->SetAttribute("value", f32);
+	if (outputValue) {
+		xmlptr->SetAttribute("value", f32);
+	}
 }
 
 void ACB::ReadUTFParameter_String(const std::vector<char>& in, const UTF_GetParameters& inPtr)
 {
+	int outputValue = 0;
+	if (inPtr.type == 2) {
+		outputValue = 1;
+	}
+	else {
+		if (inPtr.type == inPtr.isNodePtr) {
+			if (inPtr.type == 1) {
+				outputValue = -1;
+			}
+			else {
+				outputValue = 1;
+			}
+		}
+		else {
+			if (inPtr.type == 1) {
+				return;
+			}
+		}
+	}
+
 	int curpos = inPtr.PtrDataOfs;
-	int isBigEndian = inPtr.isNodePtr;
 	tinyxml2::XMLElement* xmlNode = inPtr.xmlNode;
 	const UTF_Column_t& data = v_parameters[inPtr.index];
 
-	curpos = ReadUINT32(&in[curpos], 1) + v_header.NameTableOffset;
-	std::string str = EscapeControlChars(std::string(&in[curpos]));
-
-	tinyxml2::XMLElement* xmlptr = xmlNode->InsertNewChildElement("string");
+	tinyxml2::XMLElement* xmlptr;
+	if (outputValue >= 0) {
+		xmlptr = xmlNode->InsertNewChildElement("string");
+	}
+	else {
+		xmlptr = xmlNode->InsertNewChildElement("var");
+	}
 	xmlptr->SetAttribute("name", data.name);
-	xmlptr->SetAttribute("value", str.c_str());
+	if (outputValue) {
+		curpos = ReadUINT32(&in[curpos], 1) + v_header.NameTableOffset;
+		std::string str = EscapeControlChars(std::string(&in[curpos]));
+		xmlptr->SetAttribute("value", str.c_str());
+	}
 }
 
 void ACB::ReadUTFParameter_ToData(const std::vector<char>& in, const UTF_GetParameters& inPtr)
 {
+	int outputValue = 0;
+	if (inPtr.type == 2) {
+		outputValue = 1;
+	}
+	else {
+		if (inPtr.type == inPtr.isNodePtr) {
+			if (inPtr.type == 1) {
+				outputValue = -1;
+			}
+			else {
+				outputValue = 1;
+			}
+		}
+		else {
+			if (inPtr.type == 1) {
+				return;
+			}
+		}
+	}
+
 	int curpos = inPtr.PtrDataOfs;
-	int isBigEndian = inPtr.isNodePtr;
 	tinyxml2::XMLElement* xmlNode = inPtr.xmlNode;
 	const UTF_Column_t& data = v_parameters[inPtr.index];
 
-	tinyxml2::XMLElement* xmlptr = xmlNode->InsertNewChildElement("data");
+	tinyxml2::XMLElement* xmlptr;
+	if (outputValue >= 0) {
+		xmlptr = xmlNode->InsertNewChildElement("data");
+	}
+	else {
+		xmlptr = xmlNode->InsertNewChildElement("var");
+	}
+
 	xmlptr->SetAttribute("name", data.name);
+	if (!outputValue) {
+		return;
+	}
 
 	int dataPos = ReadUINT32(&in[curpos], 1) + v_header.DataOffset;
 	int dataSize = ReadUINT32(&in[curpos+4], 1);
 
-	xmlptr->SetAttribute("flag", data.flag);
-
 	if (!dataSize) {
-		//xmlptr->SetAttribute("debug", ReadUINT32(&in[curpos], isBigEndian));
-		xmlptr->SetAttribute("type", "NULL");
+		xmlptr->SetAttribute("value", "NUL");
 		return;
 	}
 
 	if (dataPos >= v_header.BlockSize) {
 		xmlptr->SetAttribute("debug", curpos);
-		xmlptr->SetAttribute("type", "NULL");
+		xmlptr->SetAttribute("value", "NUL");
+		return;
+	}
+
+	if (!strcmp(data.name, "AwbFile")) {
+		xmlptr->SetAttribute("value", "MEM");
+		common_parameter->awb_memory.assign(in.begin() + dataPos, in.begin() + dataPos + dataSize);
+		return;
+	}else if (!strcmp(data.name, "StreamAwbAfs2Header")) {
+		xmlptr->SetAttribute("value", "MAP");
 		return;
 	}
 
 	if (*(UINT32*)&in[dataPos] == 1179931968) {
-		xmlptr->SetAttribute("type", "UTF");
+		xmlptr->SetAttribute("value", "UTF");
 
 		std::vector<char> newbuf(in.begin() + dataPos, in.begin() + dataPos + dataSize);
 
 		std::unique_ptr< ACB > pACB = std::make_unique< ACB >();
-		pACB->InPath = InPath;
-		pACB->ReadUTFData(newbuf, xmlptr);
+		pACB->common_parameter = common_parameter;
+		pACB->ReadUTFData(newbuf, xmlptr, 0);
 		pACB.reset();
 	}
 	else {
-		xmlptr->SetAttribute("type", "RAW");
+		xmlptr->SetAttribute("value", "RAW");
 		std::string rawData = RawDataToHexString(&in[dataPos], dataSize);
 		xmlptr->SetText(rawData.c_str());
 	}
+}
+
+void ACB::ReadAWBData(const std::vector<char>& in, tinyxml2::XMLElement* xmldata)
+{
+	std::unique_ptr< AWB > pAWB = std::make_unique< AWB >();
+
+	// get header
+	memcpy(&pAWB->v_header, &in[0], 0x10);
+	// AFS2
+	if (pAWB->v_header.header != 844318273) {
+		std::cout << "This is not an AWB file!\n";
+		pAWB.reset();
+		return;
+	}
+	// get data offset
+	pAWB->ReadDataOffset(in);
+
+	// check folder
+	std::string filePath = common_parameter->path;
+	int FolderExists = DirectoryExists(filePath.c_str());
+	if (!FolderExists) {
+		CreateDirectoryA(filePath.c_str(), NULL);
+	}
+
+	// output file
+	for (int i = 0; i < pAWB->v_DataFile.size(); i++) {
+		std::string fileName = std::format("{:08x}_{:08X}", in.size(), pAWB->v_DataFile[i].cueID);
+
+		tinyxml2::XMLElement* xmlNode = xmldata->InsertNewChildElement("cue");
+		xmlNode->SetAttribute("ID", pAWB->v_DataFile[i].cueID);
+		xmlNode->SetAttribute("File", fileName.c_str());
+
+		int selfOfs = pAWB->v_DataFile[i].self;
+		int nextOfs = pAWB->v_DataFile[i].next;
+		std::vector<char> v_data(in.begin() + selfOfs, in.begin() + nextOfs);
+		std::ofstream newFile(filePath + "\\" + fileName + ".hca", std::ios::binary | std::ios::out | std::ios::ate);
+		newFile.write(v_data.data(), v_data.size());
+		newFile.close();
+	}
+
+	// end
+	pAWB.reset();
 }
