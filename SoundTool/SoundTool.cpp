@@ -37,6 +37,11 @@ int main(int argc, char* argv[])
 			script->Read(path.substr(0, path.size() - 4));
 			script.reset();
 		}
+		else if (extension == "xml") {
+			unique_ptr< ACB > script = make_unique< ACB >();
+			script->Write(path.substr(0, path.size() - 4));
+			script.reset();
+		}
 		else {
 			cout << "Please input an AWB/AWE or ACB file\n";
 		}

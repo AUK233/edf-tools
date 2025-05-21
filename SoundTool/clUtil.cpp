@@ -27,6 +27,25 @@ std::string EscapeControlChars(std::string sv) {
 	return result;
 }
 
+std::string UnescapeControlChars(std::string sv)
+{
+	std::string result;
+	for (size_t i = 0; i < sv.length(); ++i) {
+		if (sv[i] == '\\' && i + 1 < sv.length()) {
+			switch (sv[i + 1]) {
+			case 'n': result += '\n'; ++i; break;
+			case 't': result += '\t'; ++i; break;
+			case 'r': result += '\r'; ++i; break;
+			default:  result += sv[i]; break;
+			}
+		}
+		else {
+			result += sv[i];
+		}
+	}
+	return result;
+}
+
 std::string RawDataToHexString(const char* data, size_t length)
 {
 	std::string out = "";
@@ -94,6 +113,21 @@ void WriteUINT32LE(char* pdata, UINT32 value)
 void WriteINT32LE(char* pdata, INT32 value)
 {
 	*(INT32*)pdata = value;
+}
+
+void WriteINT16BE(char* pdata, INT16 value)
+{
+	*(INT16*)pdata = _byteswap_ushort(value);
+}
+
+void WriteINT32BE(char* pdata, INT32 value)
+{
+	*(INT32*)pdata = _byteswap_ulong(value);
+}
+
+void WriteINT64BE(char* pdata, INT64 value)
+{
+	*(INT64*)pdata = _byteswap_uint64(value);
 }
 
 void Swap4Bytes(char* pdata)

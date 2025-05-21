@@ -1,5 +1,8 @@
 #pragma once
 #include "..\EDF_Tools\include\tinyxml2.h"
+#include <unordered_map>
+
+typedef std::unordered_map<std::string, int> StringToIntMap;
 
 enum columna_flag_t {
 	COLUMN_FLAG_NAME = 0x10,     /* column has name (may be empty) */
@@ -63,6 +66,9 @@ struct ACB_PassParameters {
 	std::string path;
 	// AWB in ACB
 	std::vector<char> awb_memory;
+
+	// to write
+	std::vector<char> awb_stream;
 };
 
 class ACB {
@@ -71,7 +77,9 @@ public:
 	void Read(const std::string& inPath);
 	void ReadUTFData(const std::vector<char>& buffer, tinyxml2::XMLElement* xmlHeader, int IsHeader);
 	void ReadUTFHeaderData(const std::vector<char>& buffer);
-	void ReadGetStringList(const std::vector<char>& in, int inStart, int inEnd, std::vector<std::string>& out);
+	// we need to check if first name is used
+	std::string ReadUTF1stString(const std::vector<char>& in, int inStart, int inEnd);
+	void CheckStringIsUsed(const std::string& in);
 	void ReadUTFParametersList(const std::vector<char>& in, int inSize);
 	// about type: 0 is fixed value, 1 is variable, 2 is acb header
 	void ReadUTFParameterData(const std::vector<char>& in, tinyxml2::XMLElement* xmldata, int index, int type);
@@ -94,9 +102,62 @@ public:
 	// read AWB data
 	void ReadAWBData(const std::vector<char>& in, tinyxml2::XMLElement* xmldata);
 
+	// write ACB
+	void Write(const std::string& inPath);
+	// get awb data
+	void WriteAWBDataCheck(tinyxml2::XMLElement* xmldata);
+	std::vector<char> WriteAWBDataGet(tinyxml2::XMLElement* xmldata, int* headerSize);
+	// get utf data
+	std::vector<char> WriteUTFData(tinyxml2::XMLElement* xmldata, int isHeader);
+	void WriteUTFData_InitHeader(UTF_Header_t** p);
+	int WriteUTFData_WriteString(std::vector<char>& buffer, StringToIntMap& map, const std::string& str);
+	//
+	struct UTF_Data_ptr_t {
+		int data_type;
+		int data_size;
+		int data_offset;
+	};
+	//
+	struct UTF_Data_t {
+		// parameter block
+		std::vector<char> v_parameter;
+		// node block
+		std::vector<char> v_node;
+		// data block
+		std::vector<char> v_data;
+		// string table
+		std::vector<char> v_string;
+		StringToIntMap string_map;
+
+		// parameter table
+		std::vector<UTF_Data_ptr_t> v_ptrTable;
+		StringToIntMap ptrTable_map;
+
+		// variable data block size
+		int var_size;
+		//
+		int parameter_count;
+		int node_count;
+	};
+	void WriteUTFData_InitParameterName(tinyxml2::XMLElement* xmldata, UTF_Data_t* p_data);
+	// about type: 0 is fixed value, 1 is variable, 2 is acb header
+	void WriteUTFNode(tinyxml2::XMLElement* xmldata, UTF_Data_t* p_data, int type);
+	// get parameter list, and write fixed or header data.
+	void WriteUTFParameter(tinyxml2::XMLElement* xmldata, UTF_Data_t* p_data, int isHeader);
+	// 
+	struct UTF_PTRData_t {
+		int data_type;
+		int data_size;
+		char buffer[8];
+	};
+	void WriteUTFParameterData(tinyxml2::XMLElement* xmldata, UTF_Data_t* p_data, UTF_PTRData_t* p);
+	void WriteUTFNodeData(tinyxml2::XMLElement* xmldata, UTF_Data_t* p_data, std::vector<char>& buffer);
+	void WriteUTFNodePTRData(tinyxml2::XMLElement* xmldata, UTF_Data_t* p_data, char* buffer);
+
 	ACB_PassParameters* common_parameter = 0;
 private:
 	UTF_Header_t v_header;
 	std::vector<UTF_Column_t> v_parameters;
-
+	// for name table
+	StringToIntMap name_map;
 };
