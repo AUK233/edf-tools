@@ -71,6 +71,18 @@ struct ACB_PassParameters {
 	std::vector<char> awb_stream;
 };
 
+struct UTF_WaveformName_t {
+	std::vector<std::string> v_name;
+
+	StringToIntMap MemoryAwb_map;
+	StringToIntMap StreamAwb_map;
+};
+
+struct UTF_Sequence_t {
+	std::string cue_name;
+	std::vector<int> v_waveform;
+};
+
 class ACB {
 public:
 
@@ -99,6 +111,11 @@ public:
 	void ReadUTFParameter_FP32(const std::vector<char>& in, const UTF_GetParameters& inPtr);
 	void ReadUTFParameter_String(const std::vector<char>& in, const UTF_GetParameters& inPtr);
 	void ReadUTFParameter_ToData(const std::vector<char>& in, const UTF_GetParameters& inPtr);
+	// get waveform name
+	void ReadAWBWaveformName(tinyxml2::XMLElement* xmlHeader, UTF_WaveformName_t* pName);
+	tinyxml2::XMLElement* ReadAWBWaveformName_GetNode(tinyxml2::XMLElement* xmldata, const char* name);
+	void ReadAWBWaveformName_GetSequence(tinyxml2::XMLElement* xmldata, std::vector<UTF_Sequence_t>& v_Sequence);
+	void ReadAWBWaveformName_GetCueName(tinyxml2::XMLElement* xmldata, std::vector<UTF_Sequence_t>& v_Sequence);
 	// read AWB data
 	void ReadAWBData(const std::vector<char>& in, tinyxml2::XMLElement* xmldata);
 

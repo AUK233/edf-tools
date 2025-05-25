@@ -73,6 +73,12 @@ void ACB::Read(const std::string& inPath)
 		common_parameter->awb_memory.clear();
 	}
 
+	// read waveform name
+	// now, don't use it
+	//UTF_WaveformName_t* pWaveformName = new UTF_WaveformName_t();
+	//ReadAWBWaveformName(xmlHeader, pWaveformName);
+	//delete pWaveformName;
+
 	// read stream awb
 	tempPath = inPath + ".awb";
 	if (std::filesystem::exists(tempPath)) {
@@ -102,6 +108,7 @@ void ACB::Read(const std::string& inPath)
 	xml.SaveFile(outfile.c_str());
 
 	delete common_parameter;
+	std::cout << "Complete!\n";
 }
 
 void ACB::ReadUTFData(const std::vector<char>& buffer, tinyxml2::XMLElement* xmlHeader, int IsHeader)
@@ -564,6 +571,83 @@ void ACB::ReadUTFParameter_ToData(const std::vector<char>& in, const UTF_GetPara
 	}
 }
 
+void ACB::ReadAWBWaveformName(tinyxml2::XMLElement* xmlHeader, UTF_WaveformName_t* pName)
+{
+	tinyxml2::XMLElement* xml_main = xmlHeader->FirstChildElement("main");
+
+	// get sequence table
+	tinyxml2::XMLElement* xml_data = ReadAWBWaveformName_GetNode(xml_main, "SequenceTable");
+	if (xml_data == 0) {
+		return;
+	}
+	std::vector<UTF_Sequence_t> v_Sequence;
+	ReadAWBWaveformName_GetSequence(xml_data, v_Sequence);
+
+	// get cue name
+	xml_data = ReadAWBWaveformName_GetNode(xml_main, "CueNameTable");
+	if (xml_data == 0) {
+		return;
+	}
+	ReadAWBWaveformName_GetCueName(xml_data, v_Sequence);
+
+	// in TrackEventTable, 07d0040002 followed by a BE int16 is synth index.
+}
+
+tinyxml2::XMLElement* ACB::ReadAWBWaveformName_GetNode(tinyxml2::XMLElement* xmldata, const char* name)
+{
+	for (tinyxml2::XMLElement* entry = xmldata->FirstChildElement(); entry != 0; entry = entry->NextSiblingElement()) {
+		if (!strcmp(entry->Attribute("name"), name)) {
+			return entry;
+		}
+	}
+	return nullptr;
+}
+
+void ACB::ReadAWBWaveformName_GetSequence(tinyxml2::XMLElement* xmldata, std::vector<UTF_Sequence_t>& v_Sequence)
+{
+	tinyxml2::XMLElement* xml_NumTracks = ReadAWBWaveformName_GetNode(xmldata->FirstChildElement("static"), "NumTracks");
+	int numTracks = xml_NumTracks->IntAttribute("value", 0);
+
+	tinyxml2::XMLElement* entry, *xml_track;
+	for (entry = xmldata->FirstChildElement("node"); entry != 0; entry = entry->NextSiblingElement("node")) {
+		UTF_Sequence_t out;
+		out.cue_name = "";
+		if (numTracks) {
+			xml_track = ReadAWBWaveformName_GetNode(entry, "TrackIndex");
+
+			std::vector<char> buffer;
+			if (xml_track) {
+				buffer = HexStringToRawData(xml_track->GetText());
+			}
+			//
+			if (buffer.size()) {
+				for(int i = 0; i < buffer.size(); i+=4) {
+					int trackID = ReadUINT16(&buffer[i], 1);
+					out.v_waveform.push_back(trackID);
+				}
+			}
+		}
+		v_Sequence.push_back(out);
+	}
+}
+
+void ACB::ReadAWBWaveformName_GetCueName(tinyxml2::XMLElement* xmldata, std::vector<UTF_Sequence_t>& v_Sequence)
+{
+	tinyxml2::XMLElement* entry, * xml_name, * xml_index;
+	for (entry = xmldata->FirstChildElement("node"); entry != 0; entry = entry->NextSiblingElement("node")) {
+		xml_index = ReadAWBWaveformName_GetNode(entry, "CueIndex");
+		if (xml_index == 0) {
+			continue;
+		}
+
+		xml_name = ReadAWBWaveformName_GetNode(entry, "CueName");
+		if (xml_name) {
+			int index = xml_index->IntAttribute("value", 0);
+			v_Sequence[index].cue_name = xml_name->Attribute("value");
+		}
+	}
+}
+
 void ACB::ReadAWBData(const std::vector<char>& in, tinyxml2::XMLElement* xmldata)
 {
 	std::unique_ptr< AWB > pAWB = std::make_unique< AWB >();
@@ -739,16 +823,18 @@ std::vector<char> ACB::WriteAWBDataGet(tinyxml2::XMLElement* xmldata, int* heade
 		UINT32 header = 844318273;
 		BYTE pad4 = 1;
 		BYTE dataOfs_size = 4;
-		UINT16 cueID_size = 4;
+		// here we use the 2-byte, this way it can be read by EAT
+		UINT16 cueID_size = 2;
 		INT32 sound_count = -2;
 		UINT32 align_size = 32;
 	} awb_header;
 	awb_header.sound_count = FileCount;
 
-	int CueIDSize = FileCount * 4;
+	int CueIDSize = FileCount * 2;
 	int DataOfsSize = FileCount * 4;
 
-	int HeaderSize = 0x10 + CueIDSize + DataOfsSize;
+	// points to EOF requires an extra data
+	int HeaderSize = 0x10 + CueIDSize + DataOfsSize + 4;
 	int align = HeaderSize % 32;
 	if (align) {
 		HeaderSize += 32 - align;
@@ -766,17 +852,20 @@ std::vector<char> ACB::WriteAWBDataGet(tinyxml2::XMLElement* xmldata, int* heade
 	int cur_CueID = 0x10;
 	int cur_DataOfs = 0x10 + CueIDSize;
 	for (int i = 0; i < v_wave.size(); i++) {
-		WriteINT32LE(&bytes[cur_CueID], v_wave[i].CueID);
+		// write 2-byte
+		WriteINT16LE(&bytes[cur_CueID], v_wave[i].CueID);
 
 		int dataOfs = HeaderSize + v_wave[i].offset_data;
 		WriteINT32LE(&bytes[cur_DataOfs], dataOfs);
 
-		cur_CueID += 4;
+		cur_CueID += 2;
 		cur_DataOfs += 4;
 
 		bytes.insert(bytes.end(), v_wave[i].data.begin(), v_wave[i].data.end());
 		v_wave[i].data.clear();
 	}
+	// write eof
+	WriteINT32LE(&bytes[cur_DataOfs], bytes.size());
 
 	std::cout << " Complete!\n";
 	return bytes;

@@ -265,7 +265,7 @@ void AWB::Write(const std::string& inPath)
 
 	// output file
 	std::cout << "\nWriting AWB......\n";
-	WriteAWBFile(inPath, block_CueIDSize, block_DataOfsSize);
+	WriteAWBFile(inPath, block_CueIDSize, block_DataOfsSize, i_DataSize);
 	std::cout << "Writing AWE......\n";
 	WriteAWEFile(inPath, block_NameOfsSize, block_IndexSize);
 	std::cout << "Done!\n";
@@ -292,9 +292,10 @@ void AWB::WriteInitHeader()
 	// note: -2 is used to check for errors
 }
 
-void AWB::WriteAWBFile(const std::string& inPath, int block_CueIDSize, int block_DataOfsSize)
+void AWB::WriteAWBFile(const std::string& inPath, int block_CueIDSize, int block_DataOfsSize, int waveformEndSize)
 {
-	int HeaderSize = 0x10 + block_CueIDSize + block_DataOfsSize;
+	// points to EOF requires an extra data
+	int HeaderSize = 0x10 + block_CueIDSize + block_DataOfsSize + 4;
 	int align = HeaderSize % 32;
 	if (align) {
 		HeaderSize += 32 - align;
@@ -314,6 +315,8 @@ void AWB::WriteAWBFile(const std::string& inPath, int block_CueIDSize, int block
 		cur_CueID += 4;
 		cur_DataOfs += 4;
 	}
+	// eof
+	WriteINT32LE(&bytes[cur_DataOfs], HeaderSize + waveformEndSize);
 
 	std::ofstream newFile(inPath + ".awb", std::ios::binary | std::ios::out | std::ios::ate);
 	newFile.write(bytes.data(), bytes.size());

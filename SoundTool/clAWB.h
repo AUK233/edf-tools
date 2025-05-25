@@ -52,7 +52,7 @@ public:
 
 	void Write(const std::string& inPath);
 	void WriteInitHeader();
-	void WriteAWBFile(const std::string& inPath, int block_CueIDSize, int block_DataOfsSize);
+	void WriteAWBFile(const std::string& inPath, int block_CueIDSize, int block_DataOfsSize, int waveformEndSize);
 	void WriteAWEFile(const std::string& inPath, int block_NameOfsSize, int block_IndexSize);
 
 	Header_t v_header;

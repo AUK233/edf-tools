@@ -4,6 +4,7 @@ int DirectoryExists(LPCSTR path);
 std::string EscapeControlChars(std::string sv);
 std::string UnescapeControlChars(std::string sv);
 std::string RawDataToHexString(const char* data, size_t length);
+std::vector<char> HexStringToRawData(const char* hexString);
 
 UINT16 ReadUINT16LE(void const* pdata);
 INT32 ReadINT32LE(void const* pdata);

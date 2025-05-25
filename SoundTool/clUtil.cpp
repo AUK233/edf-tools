@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <string>
 #include <format>
+#include <vector>
 
 #include "clUtil.h"
 
@@ -52,6 +53,25 @@ std::string RawDataToHexString(const char* data, size_t length)
 	for (int i = 0; i < length; i++) {
 		out += std::format("{:02x}", data[i]);
 	}
+	return out;
+}
+
+std::vector<char> HexStringToRawData(const char* hexString)
+{
+	std::string argsStrn = hexString;
+	if (argsStrn.length() % 2 > 0)
+	{
+		argsStrn = ("0" + argsStrn);
+	}
+	//Convert to hex.
+	std::vector<char> out;
+	for (unsigned int i = 0; i < argsStrn.length(); i += 2)
+	{
+		std::string byteString = argsStrn.substr(i, 2);
+		char byte = (char)std::stol(byteString.c_str(), NULL, 16);
+		out.push_back(byte);
+	}
+
 	return out;
 }
 
