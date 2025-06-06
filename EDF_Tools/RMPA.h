@@ -1,5 +1,4 @@
 #pragma once
-#include "include/tinyxml2.h"
 
 //RMPA spawnpoint
 struct RMPASpawnPoint
@@ -92,69 +91,4 @@ private:
 	int camPos;
 	int routePos;
 	int shapePos;
-};
-
-// this is EDF6's rmpa
-
-class RMPA6
-{
-public:
-	struct inHeader_t
-	{
-		int header;
-		int version;
-		int routeCount;
-		int routeOffset;
-		int shapeCount;
-		int shapeOffset;
-		int cameraCount;
-		int cameraOffset;
-		int pointCount;
-		int pointOffset;
-		BYTE pad28[8];
-	};
-
-	struct inNode_t
-	{
-		int pad0;
-		int pad4;
-		int nameOffset;
-		int subNodeCount;
-		int subOffset;
-		int pad14[3];
-	};
-
-	struct inSubNode_t
-	{
-		int pad0;
-		int pad4;
-		int nameOffset;
-		int subNodeCount;
-		int subOffset;
-	};
-
-	struct inPointNode_t
-	{
-		int pad0;
-		float pos1[3];
-		int pad10;
-		float pos2[3];
-		int pad20[2];
-		int nameOffset;
-		int pad2C[2];
-	};
-
-	void Read(const std::wstring& path);
-	void ReadHeader(const std::vector<char>& buffer);
-	void ReadNode(const std::vector<char>& buffer, int pos, inNode_t* pNode);
-	void ReadSubNode(const std::vector<char>& buffer, int pos, inSubNode_t* pNode);
-	void ReadName(const std::vector<char>& buffer, int pos, tinyxml2::XMLElement* xmlNode);
-	void ReadValue_SetFloat3(tinyxml2::XMLElement* xmlNode, const float* vf);
-	void ReadPointNode(const std::vector<char>& buffer, tinyxml2::XMLElement* xmlHeader);
-	void ReadPointNode(const std::vector<char>& buffer, int pos, inPointNode_t* pNode);
-
-private:
-	inHeader_t header;
-	int IsBigEndian;
-
 };

@@ -169,6 +169,7 @@
     <ClInclude Include="MTAB.h" />
     <ClInclude Include="RAB.h" />
     <ClInclude Include="RMPA.h" />
+    <ClInclude Include="RMPA6.h" />
     <ClInclude Include="SGO.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -212,6 +213,7 @@
     </ClCompile>
     <ClCompile Include="RAB.cpp" />
     <ClCompile Include="RMPA.cpp" />
+    <ClCompile Include="RMPA6.cpp" />
     <ClCompile Include="SGO.cpp" />
     <ClCompile Include="EDF_Tools.cpp" />
     <ClCompile Include="stdafx.cpp">

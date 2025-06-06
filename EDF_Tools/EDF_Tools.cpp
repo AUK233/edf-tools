@@ -47,7 +47,7 @@ void init_locale(void)
 #include "util.h"
 #include "JSONAMLParser.h"
 #include "MissionScript.h" //TODO: Implement mission script class that stores and proccess data
-#include "RMPA.h" //TODO: Implement RMPA class that stores and proccess data
+//#include "RMPA.h" //TODO: Implement RMPA class that stores and proccess data
 #include "RAB.h" //RAB extractor
 
 #include "SGO.h" //SGO parser
@@ -61,6 +61,9 @@ void init_locale(void)
 #include "CANM.h" //CANM parser
 
 #include "ModManager.h"
+
+// EDF6
+#include "RMPA6.h"
 
 #define FLAG_VERBOSE 1
 #define FLAG_CREATE_FOLDER 2
