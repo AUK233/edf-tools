@@ -251,6 +251,12 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 				//Data needs a function to judge the header.
 				CheckXMLHeader(xmlStrn);
 			}
+			else if (xmlExtension == L"rmpa")
+			{
+				unique_ptr< RMPA6 > script = make_unique< RMPA6 >();
+				script->Write(xmlStrn);
+				script.reset();
+			}
 		}
 	}
 	else

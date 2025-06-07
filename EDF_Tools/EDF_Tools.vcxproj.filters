@@ -87,6 +87,9 @@
     <ClInclude Include="RMPA6.h">
       <Filter>Source Files\Formats</Filter>
     </ClInclude>
+    <ClInclude Include="HashMap.h">
+      <Filter>Source Files\Formats</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

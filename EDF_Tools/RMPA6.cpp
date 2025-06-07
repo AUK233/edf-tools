@@ -3,7 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include <Windows.h>
-#include <string>
 #include <vector>
 #include <algorithm>
 
@@ -11,6 +10,21 @@
 #include "RMPA6.h"
 
 #define DEBUGMODE
+
+// here is raw data to write
+// ================================================================================================
+static const BYTE RAW_Header[48] = {
+	0x00, 0x50, 0x4D, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xC1,
+	0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xC2, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xC3,
+	0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xC4, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+static const BYTE RAW_MainNode[32] = {
+	0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC1, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+// ================================================================================================
+
 
 void RMPA6::Read(const std::wstring& path)
 {
@@ -529,4 +543,491 @@ void RMPA6::ReadPointNode(const std::vector<char>& buffer, int pos, inPointNode_
 	else {
 		memcpy(pNode, &buffer[pos], 0x34);
 	}
+}
+
+// ==================================================================================================
+
+void RMPA6::Write(const std::wstring& path)
+{
+	std::wstring sourcePath = path + L"_rmpa.xml";
+	std::wcout << "Will output RMPA file.\n";
+	std::string UTF8Path = WideToUTF8(sourcePath);
+
+
+	tinyxml2::XMLDocument doc;
+	doc.LoadFile(UTF8Path.c_str());
+
+	tinyxml2::XMLElement* header = doc.FirstChildElement("RMPA");
+	std::vector< char > bytes = WriteData(header);
+
+	// Final write.
+	/**/
+	std::ofstream newFile(path + L".rmpa", std::ios::binary | std::ios::out | std::ios::ate);
+	newFile.write(bytes.data(), bytes.size());
+	newFile.close();
+
+	std::wcout << L"Conversion completed: " + path + L".rmpa\n";
+}
+
+std::vector<char> RMPA6::WriteData(tinyxml2::XMLElement* xmlData)
+{
+	// initialization default
+	std::vector<char> buffer(std::begin(RAW_Header), std::end(RAW_Header));
+	v_wstring.resize(2, 0);
+	std::vector<char> bytes;
+	DataNodeCount = 0;
+	int bufferSize;
+
+	// read route
+	std::wcout << L" Reading route node......\n";
+	WriteBEdword(&buffer[0xC], 0x30);
+	bytes = WriteRoute(xmlData->FirstChildElement("Route"), 0x30);
+	buffer.insert(buffer.end(), bytes.begin(), bytes.end());
+
+	// read shape
+	std::wcout << L" Reading shape node......\n";
+	bufferSize = buffer.size();
+	WriteBEdword(&buffer[0x14], bufferSize);
+	bytes = WriteShape(xmlData->FirstChildElement("Shape"), bufferSize);
+	buffer.insert(buffer.end(), bytes.begin(), bytes.end());
+
+	// read camera
+	bufferSize = buffer.size();
+	WriteBEdword(&buffer[0x1C], bufferSize);
+	bytes = WriteCamera(xmlData->FirstChildElement("Camera"), bufferSize);
+	buffer.insert(buffer.end(), bytes.begin(), bytes.end());
+
+	// read point
+	std::wcout << L" Reading point node......\n";
+	bufferSize = buffer.size();
+	WriteBEdword(&buffer[0x24], bufferSize);
+	bytes = WriteCamera(xmlData->FirstChildElement("Point"), bufferSize);
+	buffer.insert(buffer.end(), bytes.begin(), bytes.end());
+
+	// update string offset
+	bufferSize = buffer.size();
+	int str_curpos;
+	BEtoLEByte_t str_curofs;
+	for (int i = 0; i < v_update_string.size(); i++) {
+		str_curpos = v_update_string[i].pos;
+		str_curofs.s32 = v_update_string[i].offset + bufferSize;
+		WriteBEdword(&buffer[str_curpos], str_curofs.u32);
+	}
+	// LE string offset
+	for (int i = 0; i < v_updateLE_string.size(); i++) {
+		str_curpos = v_updateLE_string[i].pos;
+		str_curofs.s32 = v_updateLE_string[i].offset + bufferSize;
+		WriteINT32LE(&buffer[str_curpos], str_curofs.s32);
+	}
+
+	// write string
+	buffer.insert(buffer.end(), v_wstring.begin(), v_wstring.end());
+	v_wstring.clear();
+
+	// end
+	return buffer;
+}
+
+void RMPA6::WriteBEdwordGroup(char* pdata, UINT32* pINT, int count)
+{
+	for (int i = 0; i < count; i++) {
+		WriteBEdword(&pdata[i * 4], pINT[i]);
+	}
+}
+
+int RMPA6::WriteWideStringData(const std::wstring& in)
+{
+	// check map
+	auto it = map_wstring.find(in);
+	if (it != map_wstring.end()) {
+		return it->second;
+	}
+	// write string
+	int offset = v_wstring.size();
+	map_wstring[in] = offset;
+	WriteWideStringToBuffer(in);
+	return offset;
+}
+
+void RMPA6::WriteWideStringToBuffer(const std::wstring& in)
+{
+	auto strnBytes = reinterpret_cast<const char*>(&in[0]);
+	int size = in.size() * 2;
+
+	for (int i = 0; i < size; i += 2)
+	{
+		v_wstring.push_back(strnBytes[i + 1]);
+		v_wstring.push_back(strnBytes[i]);
+	}
+	// Zero terminate
+	v_wstring.push_back(0);
+	v_wstring.push_back(0);
+}
+
+int RMPA6::WriteCommonWideString(tinyxml2::XMLElement* xmlData, const char* name, char* buffer, int baseSize)
+{
+	auto pName = xmlData->Attribute(name);
+	if (!pName) {
+		return baseSize;
+	}
+
+	std::string str = pName;
+	if(str.empty()) {
+		return baseSize;
+	}
+
+	std::wstring wstr = UTF8ToWide(str);
+	BEtoLEByte_t str_size;
+	str_size.s32 = wstr.size();
+	WriteBEdword(buffer, str_size.u32);
+
+	int offset = WriteWideStringData(wstr);
+	offset += baseSize;
+	return offset;
+}
+
+void RMPA6::WriteFloat4FromXML(tinyxml2::XMLElement* xmlData, float* p)
+{
+	p[0] = xmlData->FloatAttribute("x");
+	p[1] = xmlData->FloatAttribute("y");
+	p[2] = xmlData->FloatAttribute("z");
+	p[3] = 0;
+}
+
+std::vector<char> RMPA6::WriteRoute(tinyxml2::XMLElement* xmlData, int inSize)
+{
+	// initialization
+	std::vector<char> buffer(std::begin(RAW_MainNode), std::end(RAW_MainNode));
+	DataNodeCount++;
+
+	// get name
+	updateDataOffset_t out_dataup;
+	out_dataup.pos = inSize + 8;
+	out_dataup.offset = WriteCommonWideString(xmlData, "name", &buffer[4], -inSize);
+	v_update_string.push_back(out_dataup);
+
+	// set temp
+	std::vector<char> v_temp;
+	std::vector<updateDataOffset_t> update_string, update_data;
+	tinyxml2::XMLElement* entry;
+
+	// read node
+	std::vector<char> v_node;
+	RMPA6VectorInt v_indexData;
+	std::vector<tinyxml2::XMLElement*> v_xmlNode;
+	int i_nodeCount = 0;
+	for (entry = xmlData->FirstChildElement("Node"); entry != 0; entry = entry->NextSiblingElement("Node"))
+	{
+		// set initial
+		v_temp.resize(0x18);
+		WriteINT32LE(&v_temp[0], -1);
+		WriteINT32LE(&v_temp[4], 0);
+		// get name
+		int nodePos = inSize + v_node.size();
+		out_dataup.pos = nodePos + 8;
+		out_dataup.offset = WriteCommonWideString(entry, "name", &v_temp[4], -nodePos);
+		update_string.push_back(out_dataup);
+		// set data info pos
+		out_dataup.pos = v_node.size();
+		out_dataup.offset = i_nodeCount;
+		update_data.push_back(out_dataup);
+
+		// read data node
+		v_indexData.push_back(WriteRouteData_GetXML(entry, v_xmlNode));
+
+		// end
+		v_node.insert(v_node.end(), v_temp.begin(), v_temp.end());
+		v_temp.clear();
+		i_nodeCount++;
+	}
+	WriteBEdword(&buffer[0xC], i_nodeCount);
+
+	// check 16-byte alignment
+	int align = v_node.size() % 16;
+	if (align) {
+		for (int i = align; i < 16; i++) {
+			v_node.push_back(0);
+		}
+	}
+	// write node index
+	std::vector<char> v_nodeIndex;
+	for (int i = 0; i < update_data.size(); i++) {
+		int curpos = update_data[i].pos;
+		std::vector<int> temp_Index = v_indexData[update_data[i].offset];
+
+		BEtoLEByte_t index_count;
+		index_count.s32 = temp_Index.size();
+		BEtoLEByte_t index_pos;
+		index_pos.s32 = v_node.size() - curpos + v_nodeIndex.size();
+
+		WriteBEdword(&v_node[curpos + 0xC], index_count.u32);
+		WriteBEdword(&v_node[curpos + 0x10], index_pos.u32);
+
+		int index_size = index_count.s32 * 4;
+		v_temp.resize(index_size);
+		WriteBEdwordGroup(v_temp.data(), (UINT32*)temp_Index.data(), index_count.s32);
+
+		align = v_temp.size() % 16;
+		if (align) {
+			for (int j = align; j < 16; j++) {
+				v_temp.push_back(0);
+			}
+		}
+
+		v_nodeIndex.insert(v_nodeIndex.end(), v_temp.begin(), v_temp.end());
+		v_temp.clear();
+	}
+	v_node.insert(v_node.end(), v_nodeIndex.begin(), v_nodeIndex.end());
+	v_nodeIndex.clear();
+
+	// read data node
+	std::vector<char> v_data;
+	WriteRouteData_GetData(v_xmlNode, v_data, 0x50);
+	// write data header
+	WriteBEdword(&buffer[0x14], v_xmlNode.size());
+	WriteBEdword(&buffer[0x18], 0x20);
+	v_xmlNode.clear();
+
+	// update offset information
+	int i_dataSize = v_data.size();
+	for (int i = 0; i < update_data.size(); i++) {
+		// data offset
+		int i_nodePos = update_data[i].pos;
+		BEtoLEByte_t i_dataOfs;
+		i_dataOfs.s32 = i_nodePos + i_dataSize;
+		i_dataOfs.s32 = -i_dataOfs.s32;
+		WriteBEdword(&v_node[i_nodePos + 0x14], i_dataOfs.u32);
+
+		// name offset
+		int i_blockSize = i_dataSize + 0x20;
+		update_string[i].pos += i_blockSize;
+		update_string[i].offset -= i_blockSize;
+	}
+	v_indexData.clear();
+	update_data.clear();
+
+	// merge data
+	buffer.insert(buffer.end(), v_data.begin(), v_data.end());
+	v_data.clear();
+	WriteBEdword(&buffer[0x10], buffer.size());
+	//
+	buffer.insert(buffer.end(), v_node.begin(), v_node.end());
+	v_node.clear();
+	//
+	v_update_string.insert(v_update_string.end(), update_string.begin(), update_string.end());
+	update_string.clear();
+
+	return buffer;
+}
+
+std::vector<int> RMPA6::WriteRouteData_GetXML(tinyxml2::XMLElement* xmlData, std::vector<tinyxml2::XMLElement*>& v_xmlNode)
+{
+	std::vector<int> out;
+	tinyxml2::XMLElement* entry;
+	for (entry = xmlData->FirstChildElement("Data"); entry != 0; entry = entry->NextSiblingElement("Data")) {
+		int index = v_xmlNode.size();
+		out.push_back(index);
+		v_xmlNode.push_back(entry);
+	}
+	return out;
+}
+
+void RMPA6::WriteRouteData_GetData(std::vector<tinyxml2::XMLElement*>& v_xmlNode, std::vector<char>& v_data, int baseSize)
+{
+	StringToIntMap map_string;
+	std::vector<outRouteNode_t> v_out_data;
+
+	tinyxml2::XMLElement* entry;
+	outRouteNode_t out_data;
+
+	// First, get index mapping
+	for (int i = 0; i < v_xmlNode.size(); i++) {
+		//add it first, then read it.
+		DataNodeCount++;
+
+		out_data.in.index = i;
+		out_data.in.IndexID = DataNodeCount;
+		out_data.pos = i * 0x30;
+
+		// check mapping
+		entry = v_xmlNode[i];
+		auto pName = entry->Attribute("wpname");
+		if (!pName) {
+			goto pushData;
+		}
+
+		out_data.str_node = pName;
+		if (out_data.str_node.empty()) {
+			goto pushData;
+		}
+
+		map_string[out_data.str_node] = i;
+
+		pushData:
+		v_out_data.push_back(out_data);
+	}
+
+	// get node data
+	int dataSize = v_xmlNode.size() * 0x30;
+	v_data.resize(dataSize);
+	std::vector<char> v_node_data;
+
+	updateDataOffset_t out_dataup;
+	tinyxml2::XMLElement* xmlNode, *xmlEntry;
+	for (int i = 0; i < v_xmlNode.size(); i++) {
+		entry = v_xmlNode[i];
+		auto pNode = &v_out_data[i];
+
+		// get name
+		int nodePos = baseSize + pNode->pos;
+		out_dataup.pos = nodePos + 0x14;
+		out_dataup.offset = WriteCommonWideString(entry, "name", &v_data[pNode->pos + 0x10], -nodePos);
+		v_update_string.push_back(out_dataup);
+
+		// get coordinate
+		xmlNode = entry->FirstChildElement("position");
+		WriteFloat4FromXML(xmlNode, pNode->in.pos);
+
+		// get linked waypoint
+		pNode->in.WPOffset = dataSize - pNode->pos + v_node_data.size();
+		std::vector<char> v_linked = WriteRouteData_GetLinkedWP(entry, pNode, map_string);
+		v_node_data.insert(v_node_data.end(), v_linked.begin(), v_linked.end());
+
+		// get info data
+		pNode->in.infoOffset = dataSize - pNode->pos - 0x28 + v_node_data.size();
+		int infoDataPos = baseSize + dataSize + v_node_data.size();
+		std::vector<char> v_info = WriteCommonInfoData(entry, &pNode->in.infoCount, infoDataPos);
+		v_node_data.insert(v_node_data.end(), v_info.begin(), v_info.end());
+
+		// update data
+		WriteBEdwordGroup(&v_data[pNode->pos], (UINT32*)&pNode->in.index, 4);
+		WriteBEdwordGroup(&v_data[pNode->pos + 0x18], (UINT32*)pNode->in.pos, 6);
+
+		// end
+	}
+
+	// finally, merge data
+	v_data.insert(v_data.end(), v_node_data.begin(), v_node_data.end());
+	v_node_data.clear();
+}
+
+std::vector<char> RMPA6::WriteRouteData_GetLinkedWP(tinyxml2::XMLElement* entry, outRouteNode_t* pNode,
+													const StringToIntMap& map_string)
+{
+	pNode->in.WPCount = 0;
+	int nodeIndex = 0;
+	std::vector<int> v_node_index;
+	tinyxml2::XMLElement* xmlNode = entry->FirstChildElement("linkedroute");
+	for (tinyxml2::XMLElement* xmlEntry = xmlNode->FirstChildElement("wpname"); xmlEntry != 0; xmlEntry = xmlEntry->NextSiblingElement("wpname")) {
+		std::string wpname = xmlEntry->GetText();
+		pNode->in.WPCount++;
+
+		auto it = map_string.find(wpname);
+		if (it != map_string.end()) {
+			nodeIndex = it->second;
+		}
+		v_node_index.push_back(nodeIndex);
+	}
+
+	// check alignment
+	int align = v_node_index.size() % 4;
+	if (align) {
+		for (int j = align; j < 4; j++) {
+			v_node_index.push_back(0);
+		}
+	}
+
+	// write to buffer
+	int tempSize = v_node_index.size();
+	std::vector<char> out(tempSize * 4);
+	WriteBEdwordGroup(&out[0], (UINT32*)&v_node_index[0], tempSize);
+
+	v_node_index.clear();
+	return out;
+}
+
+std::vector<char> RMPA6::WriteShape(tinyxml2::XMLElement* xmlData, int inSize)
+{
+	// initialization
+	std::vector<char> buffer(std::begin(RAW_MainNode), std::end(RAW_MainNode));
+	DataNodeCount++;
+
+	updateDataOffset_t out_dataup;
+	out_dataup.pos = inSize + 8;
+	out_dataup.offset = WriteCommonWideString(xmlData, "name", &buffer[4], -inSize);
+	v_update_string.push_back(out_dataup);
+
+	// set temp
+	std::vector<char> v_temp;
+	std::vector<updateDataOffset_t> update_string, update_data;
+	tinyxml2::XMLElement* entry;
+
+	// read node
+	std::vector<char> v_node;
+	int i_nodeCount = 0;
+	for (entry = xmlData->FirstChildElement("Node"); entry != 0; entry = entry->NextSiblingElement("Node")) {
+
+	}
+
+	return buffer;
+}
+
+std::vector<char> RMPA6::WriteCommonInfoData(tinyxml2::XMLElement* entry, int* pSize, int baseSize)
+{
+	std::vector<int> v_node_offset;
+
+	std::string str;
+	std::wstring wstr;
+	updateDataOffset_t updata;
+
+	int infoCount = 0;
+	int curSize = baseSize;
+	int offset;
+	for (tinyxml2::XMLElement* xmlEntry = entry->FirstChildElement("info"); xmlEntry != 0; xmlEntry = xmlEntry->NextSiblingElement("info")) {
+		// get title offset
+		str = xmlEntry->Attribute("title");
+		wstr = UTF8ToWide(str);
+		offset = WriteWideStringData(wstr);
+		//
+		updata.pos = curSize;
+		updata.offset = offset - curSize;
+		v_updateLE_string.push_back(updata);
+		curSize += 4;
+
+		// get content offset
+		str = xmlEntry->Attribute("content");
+		wstr = UTF8ToWide(str);
+		offset = WriteWideStringData(wstr);
+		//
+		updata.pos = curSize;
+		updata.offset = offset - curSize + 4;
+		v_updateLE_string.push_back(updata);
+		curSize += 4;
+
+		// end
+		infoCount++;
+	}
+	*pSize = infoCount;
+
+	// check alignment
+	if (infoCount % 2) {
+		infoCount++;
+	}
+
+	std::vector<char> out(infoCount * 8, 0);
+	return out;
+}
+
+std::vector<char> RMPA6::WriteCamera(tinyxml2::XMLElement* xmlData, int inSize)
+{
+	// initialization
+	std::vector<char> buffer(std::begin(RAW_MainNode), std::end(RAW_MainNode));
+	DataNodeCount++;
+
+	updateDataOffset_t out_dataup;
+	out_dataup.pos = inSize + 8;
+	out_dataup.offset = WriteCommonWideString(xmlData, "name", &buffer[4], -inSize);
+	v_update_string.push_back(out_dataup);
+
+	return buffer;
 }

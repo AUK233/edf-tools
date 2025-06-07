@@ -1,5 +1,8 @@
 #pragma once
 #include "include/tinyxml2.h"
+#include "HashMap.h"
+
+typedef std::vector<std::vector<int>> RMPA6VectorInt;
 
 class RMPA6
 {
@@ -135,9 +138,58 @@ public:
 	void ReadPointNode(const std::vector<char>& buffer, tinyxml2::XMLElement* xmlHeader);
 	void ReadPointNode(const std::vector<char>& buffer, int pos, inPointNode_t* pNode);
 
+	// ==================================================================================================
+	// write
+	struct updateDataOffset_t {
+		int pos, offset;
+	};
+
+	union BEtoLEByte_t {
+		INT32 s32;
+		UINT32 u32;
+		float f32;
+	};
+
+	void Write(const std::wstring& path);
+	std::vector<char> WriteData(tinyxml2::XMLElement* xmlData);
+
+	inline void WriteBEdword(char* pdata, UINT32 value) {
+		*(UINT32*)pdata = _byteswap_ulong(value);
+	}
+	void WriteBEdwordGroup(char* pdata, UINT32* pINT, int count);
+	inline void WriteINT32LE(char* pdata, INT32 value)
+	{
+		*(INT32*)pdata = value;
+	}
+
+	int WriteWideStringData(const std::wstring& in);
+	void WriteWideStringToBuffer(const std::wstring& in);
+	int WriteCommonWideString(tinyxml2::XMLElement* xmlData, const char* name, char* buffer, int baseSize);
+	void WriteFloat4FromXML(tinyxml2::XMLElement* xmlData, float* p);
+
+	std::vector<char> WriteRoute(tinyxml2::XMLElement* xmlData, int inSize);
+	std::vector<int> WriteRouteData_GetXML(tinyxml2::XMLElement* xmlData, std::vector<tinyxml2::XMLElement*>& v_xmlNode);
+	void WriteRouteData_GetData(std::vector<tinyxml2::XMLElement*>& v_xmlNode, std::vector<char>& v_data, int baseSize);
+	std::vector<char> WriteRouteData_GetLinkedWP(tinyxml2::XMLElement* entry, outRouteNode_t* pNode,
+												const StringToIntMap& map_string);
+
+	std::vector<char> WriteShape(tinyxml2::XMLElement* xmlData, int inSize);
+
+	std::vector<char> WriteCommonInfoData(tinyxml2::XMLElement* entry, int* pSize, int baseSize);
+	// it's not supported, but it's necessary.
+	std::vector<char> WriteCamera(tinyxml2::XMLElement* xmlData, int inSize);
+
 private:
 	inHeader_t header;
 	int IsBigEndian;
 	int DataNodeCount;
 
+	// to rmpa
+	std::vector<char> v_wstring;
+	WStringToIntMap map_wstring;
+
+	std::vector<updateDataOffset_t> v_update_string;
+	std::vector<updateDataOffset_t> v_updateLE_string;
+
+	//std::vector<updateDataOffset_t> v_update_data;
 };
