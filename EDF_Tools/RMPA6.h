@@ -88,6 +88,11 @@ public:
 		int infoCount, infoOffset;
 	};
 
+	struct outShapeNode_t {
+		inShapeNode_t in;
+		int pos;
+	};
+
 	__declspec(align(16)) struct inShapeData_t
 	{
 		// W is used for alignment, it has no effect.
@@ -113,8 +118,15 @@ public:
 		float pos1[3];
 		int pad10;
 		float pos2[3];
-		// another data block
-		inSubNode_t data;
+		int pad20;
+		int nameSize, nameOffset;
+		// info's offset starts from here
+		int infoCount, infoOffset;
+	};
+
+	struct outPointNode_t {
+		inPointNode_t in;
+		int pos;
 	};
 
 	void Read(const std::wstring& path);
@@ -174,10 +186,14 @@ public:
 												const StringToIntMap& map_string);
 
 	std::vector<char> WriteShape(tinyxml2::XMLElement* xmlData, int inSize);
+	std::vector<char> WriteShapeData(tinyxml2::XMLElement* xmlData, int baseSize, int* nodeCount);
 
 	std::vector<char> WriteCommonInfoData(tinyxml2::XMLElement* entry, int* pSize, int baseSize);
 	// it's not supported, but it's necessary.
 	std::vector<char> WriteCamera(tinyxml2::XMLElement* xmlData, int inSize);
+
+	std::vector<char> WritePoint(tinyxml2::XMLElement* xmlData, int inSize);
+	std::vector<char> WritePointData(tinyxml2::XMLElement* xmlData, int baseSize, int* nodeCount);
 
 private:
 	inHeader_t header;
@@ -190,6 +206,4 @@ private:
 
 	std::vector<updateDataOffset_t> v_update_string;
 	std::vector<updateDataOffset_t> v_updateLE_string;
-
-	//std::vector<updateDataOffset_t> v_update_data;
 };
