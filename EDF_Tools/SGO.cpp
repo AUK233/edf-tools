@@ -14,8 +14,8 @@
 #include <locale.h>
 
 #include "util.h"
-#include "DSGO.h"
 #include "SGO.h"
+#include "DSGO.h"
 #include "Middleware.h"
 #include "include/tinyxml2.h"
 

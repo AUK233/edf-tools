@@ -15,10 +15,12 @@ Just drag the file to the .exe, or run the .exe on terminal then pass the file p
 The output will be put to the original file's location.
 
 The filename extension should be correct, Like:
+
 - Acceptable: `EXAMPLE.rab`, Unacceptable: `EXAMPLE.rabbackup`
 - Acceptable: `EXAMPLE_MDB.xml`, Unacceptable: `EXAMPLE.xml`
 
 Support file types:
+
 - `.canm` <-> `.xml`
 - `.cas` <-> `.xml`
 - `.mdb` <-> `.xml`
@@ -39,6 +41,7 @@ convert folder back to `.rab` or `.mrab`:
 ```
 
 Example:
+
 ```batch
 "EDF Tool.exe" /ARCHIVE ANTHILL301
 ```

@@ -9,7 +9,7 @@
 #include "util.h"
 #include "RMPA6.h"
 
-#define DEBUGMODE
+//#define DEBUGMODE
 
 // here is raw data to write
 // ================================================================================================

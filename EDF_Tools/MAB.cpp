@@ -451,7 +451,15 @@ void MAB::Write(const std::wstring& path, tinyxml2::XMLNode* header)
 
 std::vector<char> MAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNode* header)
 {
-	std::vector< char > bytes;
+	// check version
+	int mabVersion = mainData->IntAttribute("version", 5);
+	if (mabVersion == 6) {
+		GameVersion = 0x83; // EDF6
+	}
+	else {
+		GameVersion = 3;
+	}
+
 
 	tinyxml2::XMLElement *entry, *entry2, *entry3, *entry4;
 
@@ -579,7 +587,8 @@ std::vector<char> MAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNo
 	}
 
 	// push bytes!
-	bytes.resize(0x24, 0);
+
+	std::vector< char > bytes(0x24, 0);
 	bytes[0] = 0x4D;
 	bytes[1] = 0x41;
 	bytes[2] = 0x42;
@@ -597,10 +606,14 @@ std::vector<char> MAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNo
 	memcpy(&bytes[0x20], &StringOffset, 4U);
 
 	// write bone
-	for (size_t i = 0; i < boneData.size(); i++)
+	std::vector<char> v_temp_bone(BoneCount * 8);
+	for (size_t i = 0; i < BoneCount; i++)
 	{
-		bytes.insert(bytes.end(), boneData[i].bytes.begin(), boneData[i].bytes.end());
+		memcpy(&v_temp_bone[i*8], &boneData[i], 8U);
 	}
+
+	bytes.insert(bytes.end(), v_temp_bone.begin(), v_temp_bone.end());
+	v_temp_bone.clear();
 
 	for (size_t i = 0; i < bonePtrData.size(); i++)
 	{
@@ -642,6 +655,11 @@ std::vector<char> MAB::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XMLNo
 	// write wide string
 	for (size_t i = 0; i < NodeWString.size(); i++)
 		PushWStringToVector(NodeWString[i].name, &bytes);
+
+	// convert absolute offsets to relative
+	if (GameVersion == 0x83) {
+		WriteData_ConvertOffests(bytes);
+	}
 
 
 	// debug only
@@ -738,6 +756,15 @@ MABExtraData MAB::GetExtraData(tinyxml2::XMLElement* entry, std::string dataName
 	out.name = dataName;
 	out.bytes = CheckDataType(entry, header);
 	out.pos = pos;
+
+	size_t dataSize = out.bytes.size();
+	size_t alignSize = dataSize % 16;
+	if (alignSize) {
+		for (size_t i = alignSize; i < 16; i++) {
+			out.bytes.push_back(0);
+		}
+	}
+
 	return out;
 }
 
@@ -774,24 +801,20 @@ int MAB::GetMABExtraOffset(const std::string& namestr)
 	return pos;
 }
 
-MABData MAB::GetMABBoneData(tinyxml2::XMLElement* entry2, int ptrpos)
-{
-	MABData out;
 
-	short value[2];
-	value[0] = entry2->IntAttribute("ID");
-	value[1] = 0;
-	int offset = ptrpos + (bonePtrData.size() * 0x20);
+MAB::inMABBone_t MAB::GetMABBoneData(tinyxml2::XMLElement* entry2, int ptrpos)
+{
+	inMABBone_t out;
+
+	out.s16[0] = entry2->IntAttribute("ID");
+	out.s16[1] = 0;
+	out.offset = ptrpos + (bonePtrData.size() * 0x20);
 	// get ptr
 	for (tinyxml2::XMLElement* entry3 = entry2->FirstChildElement("ptr"); entry3 != 0; entry3 = entry3->NextSiblingElement("ptr"))
 	{
 		bonePtrData.push_back(GetMABBonePtrData(entry3));
-		value[1] += 1;
+		out.s16[1] += 1;
 	}
-	// push bytes
-	out.bytes.resize(0x8);
-	memcpy(&out.bytes[0], &value, 4U);
-	memcpy(&out.bytes[4], &offset, 4U);
 
 	return out;
 }
@@ -946,4 +969,152 @@ MABData MAB::GetMABAnimePtrData(tinyxml2::XMLElement* entry3, int nullpos)
 	memcpy(&out.bytes[8], &value, 8U);
 
 	return out;
+}
+
+void MAB::WriteData_ConvertOffests(std::vector<char>& bytes)
+{
+	memcpy(&bytes[8], &GameVersion, 4U);
+
+	// convert bone offset
+	int curpos = BoneOffset;
+	for(int i = 0; i < BoneCount; i++)
+	{
+		INT16 data_count = *(INT16*)&bytes[curpos + 2];
+		int data_ofs = *(int*)&bytes[curpos + 4];
+		if (data_ofs) {
+			WriteData_ConvertOffest_Bone(bytes, data_ofs, data_count);
+
+			data_ofs -= curpos;
+			*(int*)&bytes[curpos + 4] = data_ofs;
+		}
+		//
+		curpos += 8;
+	}
+
+	// convert anime offset
+	curpos = AnimationOffset;
+	for (int i = 0; i < AnimationCount; i++)
+	{
+		int data_ofs = *(int*)&bytes[curpos];
+		int unk_ofs = *(int*)&bytes[curpos + 4];
+		int str_ofs = *(int*)&bytes[curpos + 8];
+		int data_count = *(int*)&bytes[curpos + 12];
+
+		if (unk_ofs) {
+			unk_ofs -= curpos;
+			*(int*)&bytes[curpos + 4] = unk_ofs;
+		}
+
+		if (str_ofs) {
+			str_ofs -= curpos;
+			*(int*)&bytes[curpos + 8] = str_ofs;
+		}
+
+		if (data_ofs) {
+			WriteData_ConvertOffest_Anime(bytes, data_ofs, data_count);
+
+			data_ofs -= curpos;
+			*(int*)&bytes[curpos] = data_ofs;
+		}
+
+		//
+		curpos += 0x10;
+	}
+}
+
+void MAB::WriteData_ConvertOffest_Bone(std::vector<char>& bytes, int ptrpos, int count)
+{
+	int curpos = ptrpos;
+	// get parameters
+	for (int i = 0; i < count; i++) {
+		// get string offset
+		int strofs1 = *(int*)&bytes[curpos];
+		int strofs2 = *(int*)&bytes[curpos+4];
+		
+		if (strofs1) {
+			strofs1 -= curpos;
+			*(int*)&bytes[curpos] = strofs1;
+		}
+
+		if (strofs2) {
+			strofs2 -= curpos;
+			*(int*)&bytes[curpos + 4] = strofs2;
+		}
+
+		// get type
+		int type = *(int*)&bytes[curpos + 8];
+		switch (type) {
+		case 4:
+		case 3: {
+			int fofs1 = *(int*)&bytes[curpos + 0x14];
+			if (fofs1) {
+				fofs1 -= curpos;
+				*(int*)&bytes[curpos + 0x14] = fofs1;
+			}
+			goto isCase0;
+		}
+		case 2: {
+			int fofs3 = *(int*)&bytes[curpos + 0x14];
+
+			if (fofs3) {
+				fofs3 -= curpos;
+				*(int*)&bytes[curpos + 0x14] = fofs3;
+			}
+		}
+		case 1: {
+			int fofs2 = *(int*)&bytes[curpos + 0x10];
+
+			if (fofs2) {
+				fofs2 -= curpos;
+				*(int*)&bytes[curpos + 0x10] = fofs2;
+			}
+		}
+		case 0: {
+			isCase0:
+			// get float group offset
+			int fofs = *(int*)&bytes[curpos + 0xC];
+			if (fofs) {
+				fofs -= curpos;
+				*(int*)&bytes[curpos + 0xC] = fofs;
+			}
+			break;
+		}
+		default: break;
+		}
+
+		// get extra data offset
+		int extraofs = *(int*)&bytes[curpos + 0x1C];
+		if (extraofs)
+		{
+			extraofs -= curpos;
+			*(int*)&bytes[curpos + 0x1C] = extraofs;
+		}
+
+		// end
+		curpos += 0x20;
+	}
+}
+
+void MAB::WriteData_ConvertOffest_Anime(std::vector<char>& bytes, int ptrpos, int count)
+{
+	int curpos = ptrpos;
+	// get dataA
+	for (int i = 0; i < count; i++) {
+		// get string offset
+		int strofs = *(int*)&bytes[curpos];
+		if (strofs) {
+			strofs -= curpos;
+			*(int*)&bytes[curpos] = strofs;
+		}
+
+		// get SGO offset
+
+		int sgoOfs = *(int*)&bytes[curpos + 12];
+		if (sgoOfs) {
+			sgoOfs -= curpos;
+			*(int*)&bytes[curpos + 12] = sgoOfs;
+		}
+
+		curpos += 0x10;
+	}
 }

@@ -11,6 +11,7 @@
 #include "SGO.h"
 #include "MAB.h"
 #include "MTAB.h"
+#include "DSGO.h"
 #include "include/tinyxml2.h"
 
 void CheckDataType(const std::vector<char>& buffer, tinyxml2::XMLElement*& xmlHeader, const std::string& str)
@@ -94,6 +95,12 @@ void CheckXMLHeader(const std::wstring& path)
 		writer->Write(path, header);
 		writer.reset();
 	}
+	else if (headerType == "DSGO")
+	{
+		std::unique_ptr< DSGO > writer = std::make_unique< DSGO >();
+		writer->Write(path, header);
+		writer.reset();
+	}
 }
 
 // Check for the extra file header
@@ -117,6 +124,12 @@ std::vector<char> CheckDataType(tinyxml2::XMLElement* Data, tinyxml2::XMLNode* h
 	else if (headerType == "MTAB")
 	{
 		std::unique_ptr< MTAB > writer = std::make_unique< MTAB >();
+		bytes = writer->WriteData(Data, header);
+		writer.reset();
+	}
+	else if (headerType == "DSGO")
+	{
+		std::unique_ptr< DSGO > writer = std::make_unique< DSGO >();
 		bytes = writer->WriteData(Data, header);
 		writer.reset();
 	}

@@ -50,13 +50,24 @@ public:
 	int GetMABStringOffset(const std::string& namestr);
 	int GetMABExtraOffset(const std::string& namestr);
 
-	MABData GetMABBoneData(tinyxml2::XMLElement* entry2, int ptrpos);
+	struct inMABBone_t
+	{
+		// 0 is id
+		short s16[2];
+		int offset;
+	};
+
+	inMABBone_t GetMABBoneData(tinyxml2::XMLElement* entry2, int ptrpos);
 	MABData GetMABBonePtrData(tinyxml2::XMLElement* entry3);
 
 	int GetMABBonePtrValue(tinyxml2::XMLElement* entry);
 
 	MABData GetMABAnimeData(tinyxml2::XMLElement* entry2, int ptrpos, int nullpos);
 	MABData GetMABAnimePtrData(tinyxml2::XMLElement* entry3, int nullpos);
+
+	void WriteData_ConvertOffests(std::vector<char>& bytes);
+	void WriteData_ConvertOffest_Bone(std::vector<char>& bytes, int ptrpos, int count);
+	void WriteData_ConvertOffest_Anime(std::vector<char>& bytes, int ptrpos, int count);
 
 private:
 	int GameVersion = 3;
@@ -76,7 +87,7 @@ private:
 	std::vector< MABExtraData > ExtraData;
 
 	//only wrtie
-	std::vector< MABData > boneData;
+	std::vector< inMABBone_t > boneData;
 	std::vector< MABData > bonePtrData;
 	std::vector< MABData > animeData;
 	std::vector< MABData > animePtrData;
