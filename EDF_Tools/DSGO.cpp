@@ -80,6 +80,8 @@ void DSGO::ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* heade
 		datanode[i].pos = nodepos;
 		datanode[i].readCount = 0;
 		datanode[i].readByType4 = 0;
+		datanode[i].hasMark = 0;
+		datanode[i].markDone = 0;
 	}
 	// Next, find the type4 loaded node
 	PreReadDSGONode(big_endian, buffer, datanode);
@@ -117,6 +119,7 @@ void DSGO::PreReadDSGONode(bool big_endian, const std::vector<char>& buffer, std
 						int nodeIndex = ReadInt32(&buffer[curPos+4], big_endian);
 						if (nodeIndex < DataNodeCount) {
 							datanode[nodeIndex].readByType4 = 1;
+							datanode[nodeIndex].hasMark = 1;
 							std::string tempStr = "mark";
 							tempStr += std::to_string(nodeIndex);
 							datanode[nodeIndex].nodeMark = tempStr;
@@ -163,8 +166,38 @@ void DSGO::ReadDSGONode(bool big_endian, const std::vector<char>& buffer, int no
 
 	// Output node
 	for (int i = 0; i < varSize; i++) {
-		int64_t type = datanode[nodes[i]].type;
 		tinyxml2::XMLElement* xmlNode;
+
+		// first, check for duplicates
+		if (datanode[nodes[i]].readCount) {
+			xmlNode = header->InsertNewChildElement("reuse");
+			// node name needs to be preserved
+			ReadDSGONodeSetNodeName(names, i, xmlNode);
+
+			std::string nodeMark;
+			if (datanode[nodes[i]].hasMark) {
+				nodeMark = datanode[nodes[i]].nodeMark;
+			} else {
+				nodeMark = "mark" + std::to_string(nodes[i]);
+				datanode[nodes[i]].nodeMark = nodeMark;
+				datanode[nodes[i]].hasMark = 1;
+			}
+			xmlNode->SetAttribute("MARKNAME", nodeMark.c_str());
+
+			if (!datanode[nodes[i]].markDone) {
+				datanode[nodes[i]].xmlNode->SetAttribute("MARKNAME", nodeMark.c_str());
+				datanode[nodes[i]].markDone = 1;
+			}
+
+			//xmlNode->SetAttribute("reusable", datanode[nodes[i]].readCount);
+			datanode[nodes[i]].readCount = 999;
+			// skip next operation
+			continue;
+		}
+		// node read count + 1
+		datanode[nodes[i]].readCount += 1;
+
+		int64_t type = datanode[nodes[i]].type;
 		switch (type) {
 		case 0: {
 			xmlNode = header->InsertNewChildElement("val");
@@ -253,15 +286,14 @@ void DSGO::ReadDSGONode(bool big_endian, const std::vector<char>& buffer, int no
 		xmlNode->SetAttribute("pos", datanode[nodes[i]].pos);
 #endif
 
-		// check for duplicates
-		if (datanode[nodes[i]].readCount) {
-			xmlNode->SetAttribute("reusable", datanode[nodes[i]].readCount);
-		}
-		// node read count + 1
-		datanode[nodes[i]].readCount += 1;
+		// save xml node
+		datanode[nodes[i]].xmlNode = xmlNode;
 		// check loaded by type4
 		if (datanode[nodes[i]].readByType4) {
-			xmlNode->SetAttribute("MARKNAME", datanode[nodes[i]].nodeMark.c_str());
+			if (!datanode[nodes[i]].markDone) {
+				xmlNode->SetAttribute("MARKNAME", datanode[nodes[i]].nodeMark.c_str());
+				datanode[nodes[i]].markDone = 1;
+			}
 		}
 		// end
 	}

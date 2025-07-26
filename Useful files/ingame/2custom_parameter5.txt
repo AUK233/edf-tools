@@ -1,0 +1,112 @@
+Weapon_Swing
+"value": [
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "ptr", // Number of attack, this is first
+              "value": [
+                {
+                  "type": "string",
+                  "value": "pile_swing1" // Animation name
+                },
+                {
+                  "type": "float",
+                  "value": 2.5 // Animation speed = Time required for the whole attack.
+                },
+                {
+                  "type": "float",
+                  "value": 1 // Damage Adjust
+                },
+                {
+                  "type": "float",
+                  "value": 1 // Hitsize Adjust
+                },
+                {
+                  "type": "float",
+                  "value": 1 // Range Adjust
+                },
+                {
+                  "type": "int",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "ptr", // second attack
+              "value": [
+                {
+                  "type": "string",
+                  "value": "pile_swingH1"
+                },
+                {
+                  "type": "float",
+                  "value": 3.0
+                },
+                {
+                  "type": "float",
+                  "value": 4
+                },
+                {
+                  "type": "float",
+                  "value": 2
+                },
+                {
+                  "type": "float",
+                  "value": 2
+                },
+                {
+                  "type": "int",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+--------------------------------------------------------------
+Weapon_ChargeShoot
+"value": [
+        {
+          "type": "string", // Animation name
+          "value": "recoil_lance_heavy"
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 1
+        },
+        {
+          "type": "float", // Animation speed?
+          "value": 1
+        },
+        {
+          "type": "float", // Attenuation coefficient?
+          "value": 2
+        },
+        {
+          "type": "float", // Single shot recoil
+          "value": 1
+        },
+        {
+          "type": "int", // Attenuation type, 8 is no attenuation.
+          "value": 7
+        }
+        // not necessary
+        {
+          "type": "float", // Attenuation coefficient?
+          "value": 1
+        },
+        {
+          "type": "int", // Additional attenuation type
+          "value": 6
+        },
+        {
+          "type": "float",
+          "value": 0
+        }
+      ]
+--------------------------------------------------------------

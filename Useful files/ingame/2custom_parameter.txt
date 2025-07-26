@@ -1,0 +1,429 @@
+Weapon_Swing
+"value": [
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "ptr", // Number of attack, this is first
+              "value": [
+                {
+                  "type": "string",
+                  "value": "pile_swing1" // Animation name
+                },
+                {
+                  "type": "float",
+                  "value": 2.5 // Animation speed = Time required for the whole attack.
+                },
+                {
+                  "type": "float",
+                  "value": 1 // Damage Adjust
+                },
+                {
+                  "type": "float",
+                  "value": 1 // Hitsize Adjust
+                },
+                {
+                  "type": "float",
+                  "value": 1 // Range Adjust
+                },
+                {
+                  "type": "int",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "ptr", // second attack
+              "value": [
+                {
+                  "type": "string",
+                  "value": "pile_swingH1"
+                },
+                {
+                  "type": "float",
+                  "value": 3.0
+                },
+                {
+                  "type": "float",
+                  "value": 4
+                },
+                {
+                  "type": "float",
+                  "value": 2
+                },
+                {
+                  "type": "float",
+                  "value": 2
+                },
+                {
+                  "type": "int",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+--------------------------------------------------------------
+Weapon_HeavyShoot
+"value": [
+        {
+          "type": "string",
+          "value": "waist_recoil_H" // Animation name
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 2 // Animation application options, it is recommended to refer to the original version
+        },
+        {
+          "type": "float",
+          "value": 0.75 // Animation speed
+        },
+        {
+          "type": "int",
+          "value": 1
+        },
+        {
+          "type": "ptr",
+          "value": [ //equipment weight effect, <= 1.
+            {
+              "type": "float",
+              "value": 1 ////move speed adjust
+            },
+            {
+              "type": "float",
+              "value": 0.800000011920929 //rotation speed adjust
+            },
+            {
+              "type": "float",
+              "value": 0.125 //sight speed adjust
+            }
+          ]
+        },
+        {
+          "type": "ptr",
+          "value": [ //seems useless
+            {
+              "type": "float",
+              "value": 1
+            },
+            {
+              "type": "float",
+              "value": 0.800000011920929
+            },
+            {
+              "type": "float",
+              "value": 0.009999999776482582
+            }
+          ]
+        },
+        {
+          "type": "float",
+          "value": 0.009999999776482582 //speed adjust in firing
+        },
+        {
+          "type": "ptr",
+          "value": [ //sight recoil
+            {
+              "type": "float",
+              "value": -0.01 //down or up???
+            },
+            {
+              "type": "float",
+              "value": 0.01500000037252903 //left or right???
+            },
+            {
+              "type": "float",
+              "value": 0 //suggested as 0
+            }
+          ]
+        },
+        {
+          "type": "float",
+          "value": 0.8999999761581421 //sight recoil adjust
+        }
+      ]
+--------------------------------------------------------------
+Weapon_Shield
+"value": [
+        {
+          "type": "float",
+          "value": 0.10000000149011612 //damage reduction
+        },
+        {
+          "type": "float",
+          "value": 0.4000000059604645 //radian, = half of the actual shield coverage
+        },
+        {
+          "type": "float",
+          "value": 0.014999999664723873 //reflection cost, can = 0.
+        },
+        {
+          "type": "ptr", //regular stance effect, <= 1.
+          "value": [ //when not needed, use int = 0.
+            {
+              "type": "float",
+              "value": 0.1 //move speed adjust
+            },
+            {
+              "type": "float",
+              "value": 0.5 //rotation speed adjust
+            },
+            {
+              "type": "float",
+              "value": 0.5 //sight speed adjust
+            }
+          ]
+        },
+        {
+          "type": "ptr", //blocking stance effect, parameters are the same as above.
+          "value": [ //when not needed, use int = 0.
+            {
+              "type": "float",
+              "value": 0.1
+            },
+            {
+              "type": "float",
+              "value": 0.5
+            },
+            {
+              "type": "float",
+              "value": 0.5
+            }
+          ]
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "string",
+              "value": "shield_guard"
+            },
+            {
+              "type": "float",
+              "value": 2 //action speed
+            }
+          ]
+        },
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "string",
+              "value": "shield_guard_end"
+            },
+            {
+              "type": "float",
+              "value": 2
+            }
+          ]
+        },
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "string",
+              "value": "shield_bash"
+            },
+            {
+              "type": "float",
+              "value": 8
+            }
+          ]
+        }
+      ]
+--------------------------------------------------------------
+Weapon_ImpactHammer
+      "value": [
+        {
+          "type": "string",
+          "value": "hammer_charge"
+        },
+        {
+          "type": "float",
+          "value": 1
+        },
+        {
+          "type": "float",
+          "value": 0 // Damage Reduction %
+        },
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "ptr",
+              "value": [ // charge attack stage, this is 1.
+                {
+                  "type": "int",
+                  "value": 0 // charge time
+                },
+                {
+                  "type": "string",
+                  "value": "hammer_turnSwing" // Animation name
+                },
+                {
+                  "type": "float",
+                  "value": 1.75 // Animation speed
+                },
+                {
+                  "type": "float",
+                  "value": 1 // Damage Adjust
+                },
+                {
+                  "type": "float",
+                  "value": 1 // Hitsize Adjust
+                },
+                {
+                  "type": "float",
+                  "value": 1 // Range Adjust
+                },
+                {
+                  "type": "string",
+                  "value": "SlashWaveBullet01" // AmmoClass adjust, if no need, use int = 0.
+                }
+              ]
+            },
+            {
+              "type": "ptr",
+              "value": [ // 2.
+                {
+                  "type": "int",
+                  "value": 30
+                },
+                {
+                  "type": "string",
+                  "value": "hammer_turnImpact"
+                },
+                {
+                  "type": "float",
+                  "value": 1.5
+                },
+                {
+                  "type": "float",
+                  "value": 3
+                },
+                {
+                  "type": "float",
+                  "value": 2
+                },
+                {
+                  "type": "float",
+                  "value": 1.5
+                },
+                {
+                  "type": "string",
+                  "value": "SlashWaveBullet01Exp"
+                }
+              ]
+            },
+            {
+              "type": "ptr",
+              "value": [ // 3.
+                {
+                  "type": "int",
+                  "value": 300
+                },
+                {
+                  "type": "string",
+                  "value": "hammer_jumpKnock"
+                },
+                {
+                  "type": "float",
+                  "value": 1.5
+                },
+                {
+                  "type": "float",
+                  "value": 10
+                },
+                {
+                  "type": "float",
+                  "value": 1
+                },
+                {
+                  "type": "float",
+                  "value": 10
+                },
+                {
+                  "type": "string",
+                  "value": "SlashWaveBullet01Exp"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ptr",
+          "value": [ // fire sounds adjust, int = 0 means no need.
+            {
+              "type": "int",
+              "value": 0 // stage 1.
+            },
+            {
+              "type": "ptr",
+              "value": [ // stage 2.
+                {
+                  "type": "int",
+                  "value": 0
+                },
+                {
+                  "type": "string",
+                  "value": "weapon_Fencer_HM_longRangeBladeAlpha_lv2"
+                },
+                {
+                  "type": "float",
+                  "value": 0.7943000197410583
+                },
+                {
+                  "type": "float",
+                  "value": 1
+                },
+                {
+                  "type": "float",
+                  "value": 3
+                },
+                {
+                  "type": "float",
+                  "value": 25
+                }
+              ]
+            },
+            {
+              "type": "ptr",
+              "value": [ // stage 3.
+                {
+                  "type": "int",
+                  "value": 0
+                },
+                {
+                  "type": "string",
+                  "value": "weapon_Fencer_HM_longRangeBladeAlpha_lv3"
+                },
+                {
+                  "type": "float",
+                  "value": 0.6309999823570251
+                },
+                {
+                  "type": "float",
+                  "value": 1
+                },
+                {
+                  "type": "float",
+                  "value": 3
+                },
+                {
+                  "type": "float",
+                  "value": 25
+                }
+              ]
+            }
+          ]
+        }
+      ]

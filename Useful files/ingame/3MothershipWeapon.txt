@@ -1,0 +1,14 @@
+﻿----- ptr 5 -----
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "int",
+                      "value": 18 // ammo size?
+                    },
+                    {
+                      "type": "float",
+                      "value": 0.25
+                    }
+                  ]
+                },

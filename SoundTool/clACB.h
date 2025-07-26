@@ -83,6 +83,11 @@ struct UTF_Sequence_t {
 	std::vector<int> v_waveform;
 };
 
+struct UTF_Command_t {
+	INT16 cmdType;
+	INT8 valueSize;
+};
+
 class ACB {
 public:
 
@@ -111,6 +116,7 @@ public:
 	void ReadUTFParameter_FP32(const std::vector<char>& in, const UTF_GetParameters& inPtr);
 	void ReadUTFParameter_String(const std::vector<char>& in, const UTF_GetParameters& inPtr);
 	void ReadUTFParameter_ToData(const std::vector<char>& in, const UTF_GetParameters& inPtr);
+	void ReadUTFData_CommandCode(const std::vector<char>& in, tinyxml2::XMLElement* xmldata);
 	// get waveform name
 	void ReadAWBWaveformName(tinyxml2::XMLElement* xmlHeader, UTF_WaveformName_t* pName);
 	tinyxml2::XMLElement* ReadAWBWaveformName_GetNode(tinyxml2::XMLElement* xmldata, const char* name);
@@ -170,6 +176,7 @@ public:
 	void WriteUTFParameterData(tinyxml2::XMLElement* xmldata, UTF_Data_t* p_data, UTF_PTRData_t* p);
 	void WriteUTFNodeData(tinyxml2::XMLElement* xmldata, UTF_Data_t* p_data, std::vector<char>& buffer);
 	void WriteUTFNodePTRData(tinyxml2::XMLElement* xmldata, UTF_Data_t* p_data, char* buffer);
+	std::vector<char> WriteUTF_CommandData(tinyxml2::XMLElement* xmldata, int* pOutSize);
 
 	ACB_PassParameters* common_parameter = 0;
 private:

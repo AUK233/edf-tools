@@ -47,6 +47,12 @@ public:
 		int32_t readByType4;
 		// add the node's identifying name
 		std::string nodeMark;
+		// save xml node
+		tinyxml2::XMLElement* xmlNode;
+		// check if mark exists
+		int32_t hasMark;
+		// check if mark has been written to xml
+		int32_t markDone;
 	};
 
 	void ReadData(const std::vector<char>& buffer, tinyxml2::XMLElement* header, tinyxml2::XMLElement* xmlHeader);

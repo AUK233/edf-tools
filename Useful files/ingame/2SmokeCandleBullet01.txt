@@ -1,0 +1,587 @@
+    {
+      "type": "ptr",
+      "name": "Ammo_CustomParameter",
+      "value": [
+        {
+          "type": "float",
+          "name": "SmokeSpread",
+          "value": 0.05000000074505806
+        },
+        {
+          "type": "int1",
+          "name": "SmokeSize",
+          "value": 180
+        },
+        {
+          "type": "int2",
+          "name": "SummonDelay",
+          "value": 120
+        },
+        {
+          "type": "int3",
+          "name": "SummonType",
+          "value": 1
+        },
+        {
+          "type": "ptr",
+          "name": "Summon_CustomParameter",
+          "value": []
+        },
+        {
+          "type": "ptr",
+          "value": [ //sounds
+            {
+              "type": "string",
+              "value": "輸送部隊目標確認"
+            },
+            {
+              "type": "string",
+              "value": "輸送部隊発射ベガルタ"
+            },
+            {
+              "type": "string",
+              "value": "輸送部隊攻撃後"
+            }
+          ]
+        },
+        {
+          "type": "int",
+          "value": 1 // if add it = 1, can call vehicle in underground
+        }
+-------------------------------------------
+when int3 = 1, Summon_CustomParameter
+          "value": [
+            {
+              "type": "string",
+              "value": "app:/Object/Transporter401.sgo" //TransporterSGO
+            },
+            {
+              "type": "string",
+              "value": "app:/object/Transporter401_ContainerM.sgo" //ContainerSGO
+            },
+            {
+              "type": "string",
+              "value": "app:/object/Vehicle406_Begaruta_green.sgo" //VehicleSGO
+            },
+            {
+              "type": "ptr",
+              "value": [
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "float",
+                      "value": 90 //hp scale
+                    },
+                    {
+                      "type": "float",
+                      "value": 42 //damamge scale
+                    }
+                  ]
+                },
+
+----------------------------------------------------
+when vehicle is bm03 begaruta
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "float",
+                      "value": 12 //move speed
+                    },
+                    {
+                      "type": "float",
+                      "value": 0.014999999664723873 //move damping
+                    },
+                    {
+                      "type": "float",
+                      "value": 55 //turn speed
+                    },
+                    {
+                      "type": "float",
+                      "value": 0.05999999865889549 //turn damping
+                    }
+                  ]
+                },
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "float",
+                      "value": 50 //jump height
+                    },
+                    {
+                      "type": "float",
+                      "value": 3 //take off speed
+                    },
+                    {
+                      "type": "float",
+                      "value": 60 //Inertial movement correlation, not recommended to set too big or too small.
+                    },
+                    {
+                      "type": "int",
+                      "value": 240 //Injection time
+                    },
+                    {
+                      "type": "float",
+                      "value": 0.5400000214576721 //single injection distance
+                    },
+                    {
+                      "type": "int",
+                      "value": 80 //Injection delay
+                    }
+                  ]
+                },
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "ptr",
+                      "value": [ //body turn
+                        {
+                          "type": "float",
+                          "value": 120 //body turn speed
+                        },
+                        {
+                          "type": "float",
+                          "value": 0.10000000149011612 //Vertical turn damping
+                        },
+                        {
+                          "type": "float",
+                          "value": 0.10000000149011612 //Lateral turn damping
+                        }
+                      ]
+                    }
+                  ]Damping is not recommended to set them more than 1. and can't set it to 0. 
+                },
+                {
+                  "type": "ptr",
+                  "value": [ //Weapon set
+                    {
+                      "type": "ptr",
+                      "value": [ //right hand weapon
+                        {
+                          "type": "string",
+                          "value": "app:/weapon/v_406begaruta_flamethrower01.sgo"
+                        },
+                        {
+                          "type": "ptr",
+                          "value": [
+                            {
+                              "type": "float",
+                              "value": 0 //no effect?
+                            },
+                            {
+                              "type": "float",
+                              "value": 0 //recoil
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ptr",
+                      "value": [ //left hand weapon
+                        {
+                          "type": "string",
+                          "value": "app:/weapon/v_406begaruta_flamethrower01.sgo"
+                        },
+                        {
+                          "type": "ptr",
+                          "value": [
+                            {
+                              "type": "float",
+                              "value": 0
+                            },
+                            {
+                              "type": "float",
+                              "value": 0
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ptr",
+                      "value": [ //right hand mount weapon
+                        {
+                          "type": "int",
+                          "value": 0
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ptr",
+                      "value": [ //left hand mount weapon
+                        {
+                          "type": "int",
+                          "value": 0
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ptr",
+                      "value": [ //right shoulder weapon
+                        {
+                          "type": "string",
+                          "value": "app:/weapon/v_406begaruta_longSpreadCannon01_r.sgo"
+                        },
+                        {
+                          "type": "ptr",
+                          "value": [
+                            {
+                              "type": "float",
+                              "value": 20
+                            },
+                            {
+                              "type": "float",
+                              "value": 0.02500000037252903
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ptr",
+                      "value": [ //left shoulder weapon
+                        {
+                          "type": "string",
+                          "value": "app:/weapon/v_406begaruta_longSpreadCannon01_l.sgo"
+                        },
+                        {
+                          "type": "ptr",
+                          "value": [
+                            {
+                              "type": "float",
+                              "value": 20
+                            },
+                            {
+                              "type": "float",
+                              "value": 0.02500000037252903
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "float",
+                      "value": 0.05000000074505806 //Vertical damping?
+                    },
+                    {
+                      "type": "float",
+                      "value": 0.20000000298023224 //Lateral damping?
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+----------------------------------------------------
+when vehicle is Depth Crawler
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "float",
+                      "value": 10 //move speed
+                    },
+                    {
+                      "type": "float",
+                      "value": 0.05999999865889549 //move damping
+                    },
+                    {
+                      "type": "float",
+                      "value": 2 //take off speed
+                    },
+                    {
+                      "type": "float",
+                      "value": 20 //jump move distance
+                    },
+                    {
+                      "type": "float",
+                      "value": 30 //jump height
+                    },
+                    {
+                      "type": "int",
+                      "value": 0
+                    },
+                    {
+                      "type": "float",
+                      "value": 1.25 //avoidance speed
+                    }
+                  ]
+                },
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "ptr",
+                      "value": [
+                        {
+                          "type": "string",
+                          "value": "app:/weapon/v_502_groundrobo_gatling.sgo"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ptr",
+                      "value": [
+                        {
+                          "type": "string",
+                          "value": "app:/weapon/v_502_groundrobo_Cannon01B_l.sgo"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ptr",
+                      "value": [
+                        {
+                          "type": "string",
+                          "value": "app:/weapon/v_502_groundrobo_Cannon01B_r.sgo"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ptr",
+                  "value": [ // light
+                    {
+                      "type": "ptr",
+                      "value": [
+                        {
+                          "type": "string",
+                          "value": "ライト１"
+                        },
+                        {
+                          "type": "float",
+                          "value": 0.699999988079071 //light size
+                        },
+                        {
+                          "type": "float",
+                          "value": 200 //light range
+                        },
+                        {
+                          "type": "ptr",
+                          "value": [
+                            {
+                              "type": "float",
+                              "value": 1
+                            },
+                            {
+                              "type": "float",
+                              "value": 1
+                            },
+                            {
+                              "type": "float",
+                              "value": 1
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ptr",
+                      "value": [
+                        {
+                          "type": "string",
+                          "value": "ライト２"
+                        },
+                        {
+                          "type": "float",
+                          "value": 0.699999988079071
+                        },
+                        {
+                          "type": "float",
+                          "value": 200
+                        },
+                        {
+                          "type": "ptr",
+                          "value": [
+                            {
+                              "type": "float",
+                              "value": 1
+                            },
+                            {
+                              "type": "float",
+                              "value": 1
+                            },
+                            {
+                              "type": "float",
+                              "value": 1
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+----------------------------------------------------
+when vehicle is EF24
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "float", //movement speed
+                      "value": 60
+                    },
+                    {
+                      "type": "float", //movement damping, also affect rotation.
+                      "value": 0.0024999999441206455
+                    },
+                    {
+                      "type": "float", //rotation speed
+                      "value": 10
+                    },
+                    {
+                      "type": "float", //rotation damping
+                      "value": 0.004999999888241291
+                    },
+                    {
+                      "type": "float", //lift-off speed
+                      "value": 4
+                    },
+                    {
+                      "type": "float", //tilt amount when moving
+                      "value": 45
+                    },
+                    {
+                      "type": "float", //damping? if > 1 will become uncontrollable
+                      "value": 0.014999999664723873
+                    }
+                  ]
+                },
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "ptr",
+                      "value": [
+                        {
+                          "type": "string",
+                          "value": "app:/weapon/v_302heli_gatling01.sgo"
+                        },
+                        {
+                          "type": "ptr",
+                          "value": [
+                            {
+                              "type": "float",
+                              "value": 0
+                            },
+                            {
+                              "type": "float",
+                              "value": 0
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "ptr",
+                      "value": [
+                        {
+                          "type": "string",
+                          "value": "app:/weapon/v_302heli_missile01.sgo"
+                        },
+                        {
+                          "type": "ptr",
+                          "value": [
+                            {
+                              "type": "float",
+                              "value": 0
+                            },
+                            {
+                              "type": "float",
+                              "value": 0
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+---------------------------------------------------------------------------------------
+when vehicle is E551 Gigantus
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "float", //control performance? seems to be related to grip, but it also affects the turning.
+                      "value": 0.029999999329447746
+                    },
+                    {
+                      "type": "float", //move speed
+                      "value": 17.5
+                    },
+                    {
+                      "type": "float", //move damping
+                      "value": 0.012500000186264515
+                    },
+                    {
+                      "type": "float", //turn speed
+                      "value": 1.7999999523162842
+                    },
+                    {
+                      "type": "float", //turn damping
+                      "value": 0.029999999329447746
+                    },
+                    {
+                      "type": "float", //control performance, the bigger the more hard to control
+                      "value": 0.25
+                    }
+                  ]
+                },
+                {
+                  "type": "ptr",
+                  "value": [
+                    {
+                      "type": "ptr",
+                      "value": [
+                        {
+                          "type": "string",
+                          "value": "app:/weapon/v_301tank_cannon03.sgo"
+                        },
+                        {
+                          "type": "ptr",
+                          "value": [
+                            {
+                              "type": "float", // Recoil
+                              "value": 0.10000000149011612
+                            },
+                            {
+                              "type": "float", // Body upward amplitude
+                              "value": 1
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ptr",
+                          "value": [
+                            {
+                              "type": "float", // turret speed
+                              "value": 40
+                            },
+                            {
+                              "type": "float", // turret vertical turn damping
+                              "value": 0.05000000074505806
+                            },
+                            {
+                              "type": "float", // turret lateral turn damping
+                              "value": 0.10000000149011612
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+---------------------------------------------------------------------------------------

@@ -1,0 +1,27 @@
+﻿-----------------------------------------
+    {
+      "type": "ptr",
+      "name": "move_turn_info",
+      "value": [
+        {
+          "type": "float",
+          "value": 0.009999999776482582
+        },
+        {
+          "type": "float", // A certain speed, too high will cause ghosting.
+          "value": 0.02500000037252903
+        },
+        {
+          "type": "float", // The omnidirectional rotation speed, it should not be too high.
+          "value": 0.019999999552965164
+        },
+        {
+          "type": "float", // Similar to weight.
+          "value": 0.10000000149011612
+        },
+        {
+          "type": "float", // Forward angle.
+          "value": 0.05000000074505806
+        }
+      ]
+    },

@@ -1,0 +1,348 @@
+﻿---------------------------
+    {
+      "type": "ptr",
+      "name": "bullet_setting",
+      "value": [
+        {
+          "type": "string", // AmmoClass
+          "value": "SolidBullet02"
+        },
+        {
+          "type": "float", // Base Damage
+          "value": 3.299999952316284
+        },
+        {
+          "type": "ptr", // Usually 1
+          "value": [
+            {
+              "type": "float",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "int", // Hit impact strength
+          "value": -1
+        },
+        {
+          "type": "int", // AmmoExplosion, Int can be used when there is no decimal
+          "value": 0
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "float", // AmmoSize
+          "value": 1
+        },
+        {
+          "type": "float", // maybe AmmoHitSizeAdjust
+          "value": 0.5
+        },
+        {
+          "type": "float", // maybe AmmoHitImpulseAdjust
+          "value": 0.05000000074505806
+        },
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "float",
+              "value": 0.03999999910593033
+            },
+            {
+              "type": "float",
+              "value": 1.7999999523162842
+            }
+          ]
+        },
+        {
+          "type": "float", // AmmoSpeed
+          "value": 3.299999952316284
+        },
+        {
+          "type": "ptr", // speed increment with Difficulty
+          "value": [
+            {
+              "type": "float", // factor?
+              "value": 0.12999999523162842
+            },
+            {
+              "type": "float", // max multiplier
+              "value": 6
+            }
+          ]
+        },
+        {
+          "type": "int", // AmmoGravityFactor, Int can be used when there is no decimal
+          "value": 0
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "ptr", // AmmoColor, Alpha can be missed
+          "value": [
+            {
+              "type": "float",
+              "value": 0.5
+            },
+            {
+              "type": "float",
+              "value": 0.5
+            },
+            {
+              "type": "int",
+              "value": 2
+            }
+          ]
+        },
+        {
+          "type": "ptr", // color increment with Difficulty
+          "value": [
+            {
+              "type": "float", // factor?
+              "value": 0.20000000298023224
+            },
+            {
+              "type": "float", // max multiplier
+              "value": 4
+            }
+          ]
+        },
+        {
+          "type": "float", // Range, or Search Range
+          "value": 240
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "ptr", // Ammo_CustomParameter
+          "value": [
+            {
+              "type": "float",
+              "value": 0.25
+            },
+            {
+              "type": "float",
+              "value": 1
+            },
+            {
+              "type": "float",
+              "value": 0.5
+            },
+            {
+              "type": "float",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "string",
+              "value": "カエルアサルト発射"
+            },
+            {
+              "type": "int",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "type": "string",
+          "value": "カエルアサルト命中"
+        }
+      ]
+    },
+---------------------------
+    {
+      "type": "ptr", // Like FireSpread, copy armorfrog
+      "name": "ex_fire_setting",
+      "value": null
+    },
+----
+    {
+      "type": "ptr",
+      "name": "fire_setting",
+      "value": [
+        {
+          "type": "int", // FireCount
+          "value": 1
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "int", // AmmoCount
+          "value": 15
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "int", // FireInterval
+          "value": 15
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "float", // FireAccuracy
+          "value": 0.012500000186264515
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "int", // ReloadTime
+          "value": 300
+        },
+        {
+          "type": "ptr",
+          "value": null
+        }
+      ]
+    },
+---------------------------
+    {
+      "type": "ptr",
+      "name": "flicker_setting",
+      "value": [
+        {
+          "type": "float",
+          "value": 0.009999999776482582
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "float",
+          "value": 0.0010000000474974513
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "float",
+          "value": 0.019999999552965164
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "float",
+          "value": 0.8999999761581421
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "float",
+          "value": 0.009999999776482582
+        },
+        {
+          "type": "ptr",
+          "value": null
+        },
+        {
+          "type": "float",
+          "value": 1
+        },
+        {
+          "type": "ptr",
+          "value": null
+        }
+      ]
+    },
+    {
+      "type": "ptr",
+      "name": "muzzle_flash",
+      "value": [
+        {
+          "type": "string",
+          "value": "MuzzleFlash01"
+        },
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "string",
+              "value": "マズルフラッシュ01.dds"
+            },
+            {
+              "type": "float",
+              "value": 24
+            },
+            {
+              "type": "float",
+              "value": 2.4000000953674316
+            },
+            {
+              "type": "float",
+              "value": 0.7850000262260437
+            },
+            {
+              "type": "int",
+              "value": 4
+            },
+            {
+              "type": "float",
+              "value": 12
+            },
+            {
+              "type": "float",
+              "value": 1.2000000476837158
+            },
+            {
+              "type": "int",
+              "value": 2
+            },
+            {
+              "type": "ptr",
+              "value": [
+                {
+                  "type": "float",
+                  "value": 1
+                },
+                {
+                  "type": "float",
+                  "value": 2
+                },
+                {
+                  "type": "float",
+                  "value": 16
+                },
+                {
+                  "type": "float",
+                  "value": 10
+                }
+              ]
+            },
+            {
+              "type": "float",
+              "value": -0.20000000298023224
+            },
+            {
+              "type": "float",
+              "value": 15
+            }
+          ]
+        }
+      ]
+    },
+---------------------------
+In humanoid_base_parts_config, The first int of each part is the durability of this part

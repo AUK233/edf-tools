@@ -1,0 +1,213 @@
+﻿-----------------------------------------
+    {
+      "type": "ptr",
+      "name": "battery_config",
+      "value": [
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "string",
+              "value": "muzzleL01"
+            },
+            {
+              "type": "ptr",
+              "value": [
+                {
+                  "type": "string",
+                  "value": "bullet_object"
+                },
+                {
+                  "type": "int", // AmmoCount
+                  "value": 100
+                },
+                {
+                  "type": "float",
+                  "value": 0
+                },
+                {
+                  "type": "float", // AmmoDamage
+                  "value": 5.5
+                },
+                {
+                  "type": "int",
+                  "value": 0
+                },
+                {
+                  "type": "int", // fire sound
+                  "value": 0
+                },
+                {
+                  "type": "int", // FireInterval
+                  "value": 12
+                },
+                {
+                  "type": "int", // FireCount
+                  "value": 1
+                },
+                {
+                  "type": "float", // FireAccuracy
+                  "value": 0.05000000074505806
+                }
+              ]
+            },
+            {
+              "type": "int", // charge effect
+              "value": 0
+            },
+            {
+              "type": "int", // charge time
+              "value": 0
+            }
+          ]
+        }
+      ]
+    },
+-----------------------------------------
+    {
+      "type": "ptr",
+      "name": "bullet_object",
+      "value": [
+        {
+          "type": "string",
+          "value": "LaserBullet02"
+        },
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "int",
+              "value": 0
+            },
+            {
+              "type": "ptr",
+              "value": [
+                {
+                  "type": "int", // AmmoSpeed
+                  "value": 0
+                },{
+                  "type": "float", // int is 0
+                  "value": 4
+                },
+                {
+                  "type": "int", // AmmoAlive
+                  "value": 1
+                },{
+                  "type": "int", // int is 1
+                  "value": 120
+                },
+                {
+                  "type": "int", // AmmoExplosion
+                  "value": 2
+                },{
+                  "type": "float", // int is 2
+                  "value": 3
+                },
+                {
+                  "type": "int", // AmmoSize
+                  "value": 8
+                },{
+                  "type": "float", // int is 8
+                  "value": 0.8999999761581421
+                },
+                {
+                  "type": "int", // sweep distance?
+                  "value": 9
+                },{
+                  "type": "float", // int is 9
+                  "value": 1.5
+                },
+                {
+                  "type": "int", // AmmoHitImpulseAdjust?
+                  "value": 10
+                },{
+                  "type": "float", // int is 10
+                  "value": 0.0010000000474974513
+                },
+                {
+                  "type": "int",
+                  "value": 11
+                },{
+                  "type": "float",
+                  "value": 0.8999999761581421
+                },
+                {
+                  "type": "int", // AmmoColor
+                  "value": 12
+                },{
+                  "type": "ptr", // int is 12
+                  "value": [
+                    {
+                      "type": "float",
+                      "value": 0.1
+                    },
+                    {
+                      "type": "float",
+                      "value": 1
+                    },
+                    {
+                      "type": "float",
+                      "value": 0.1
+                    },
+                    {
+                      "type": "float",
+                      "value": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "int", // AmmoGravityFactor
+                  "value": 13
+                },{
+                  "type": "float", // int is 13
+                  "value": 3
+                },
+                {
+                  "type": "int",
+                  "value": 14
+                },{
+                  "type": "string",
+                  "value": "小型UFOビーム命中"
+                }
+              ]
+            },
+            {
+              "type": "ptr",
+              "value": [
+                {
+                  "type": "int",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+-----------------------------------------
+    {
+      "type": "ptr",
+      "name": "level_adjust",
+      "value": [
+        {
+          "type": "float", // = self * DifficultyFactor / 10 - self * node1 + self
+          "value": 1.5
+        },
+        {
+          "type": "float",
+          "value": 0.07692307978868484
+        },
+        {
+          "type": "float",
+          "value": 3.5
+        },
+        {
+          "type": "float",
+          "value": 0.1428571492433548
+        },
+        {
+          "type": "float",
+          "value": 1
+        }
+      ]
+    },

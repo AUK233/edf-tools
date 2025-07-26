@@ -1,0 +1,31 @@
+    {
+      "type": "ptr",
+      "name": "FireSe",
+      "value": [
+        {
+          "type": "int", // sound type?
+          "value": 1
+        },
+        {
+          "type": "string",
+          "name": "SoundName",
+          "value": "weapon_Ranger_AF_HeatBasterZ"
+        },
+        {
+          "type": "float", // sound volume
+          "value": 0.7943000197410583
+        },
+        {
+          "type": "float", // hz adjust?
+          "value": 1
+        },
+        {
+          "type": "float", // hz adjust?
+          "value": 2
+        },
+        {
+          "type": "float", // sound range
+          "value": 25
+        }
+      ]
+    },

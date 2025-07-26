@@ -1,0 +1,75 @@
+﻿彈數 Capacity 弾数
+武器 Weapon 武器
+
+連射速度 ROF 連射速度
+發/秒 /sec 発／秒
+
+傷害 Damage ダメージ
+(3連射) (3 burst) (3バースト)
+[貫通]  [PT]  [貫通]
+
+裝填時間   Reload Time   リロード時間
+秒  sec  秒
+
+"value": "$0pt（初始值 $1％）"
+"value": "$0pt (Initial: $1%)"
+"value": "$0pt（初期値 $1％）"
+
+[自動] [Automatic] [自動]
+[完全裝填] [Fully Reload] [完全リロード]
+[自動充能] [Auto Charge] [自動チャージ]
+[完全充能] [Fully Charge] [完全チャージ]
+
+爆炸範圍 Blast Area 爆破範囲
+半徑$0m Radius $0m 半径$0ｍ
+
+有效射程距離 Range 有効射程距離 ｍ
+
+彈速   Shot Speed  弾速
+秒速$0m  $0m/s  秒速$0ｍ
+
+準度 Accuracy 精度
+
+縮放 Zoom ズーム
+
+倍 x 
+
+雷射瞄準器  Laser Sight レーザーサイト
+裝備 Equipped 装備
+
+持續扣住扳機（持續按住攻擊按鈕）可連續射擊。
+Holding the trigger (pressing and holding the attack button) will continually fire shots.
+トリガーを引き続ける（攻撃ボタンを押し続ける）ことで連続射撃が可能。
+
+\n配備雷射瞄準器。
+Equipped with a laser sight.
+\nレーザーサイトを装備。
+
+\n\n為了有效運用此武器，會在動力裝甲的背部加裝「輔助推進器」。按下裝備使用按鈕後，會往前進方向進行被稱為推進衝刺的高速移動。
+\n\nTo use this weapon effectively, the back of your powered exoskeleton must be equipped with a Side Thruster. Press the use button to perform a %dq%thrust-dash%dq% forward.
+\n\nこの武装を効果的に運用するため、パワードスケルトンの背部には「サイドスラスター」が装着される。装備使用ボタンを押すと、進行方向にスラスターダッシュと呼ばれる高速移動をおこなう。
+
+\n\n為了有效運用此武器，會在動力裝甲的背部加裝「跳躍噴射器」。按下裝備使用按鈕後，會往前進方向進行被稱為噴射跳躍的跳躍行動。
+\n\nTo use this weapon effectively, the back of your powered exoskeleton must be equipped with a Jump Booster. Press the use button to perform a %dq%boost jump%dq% forward.
+\n\nこの武装を効果的に運用するため、パワードスケルトンの背部には「ジャンプブースター」が装着される。装備使用ボタンを押すと、進行方向にブーストジャンプと呼ばれる跳躍をおこなう。
+
+\n\n配備有狙擊鏡，使用縮放／啟動按鈕進行縮放。
+\n\nEquipped with a scope. Press the Zoom/Activate button to zoom.
+\n\nスコープが装備されており、ズーム／起動ボタンでズーム可能。
+
+\n\n按下裝填按鈕後，可捨棄已經設置的裝置。並為了重新設置而開始裝填。重新裝填會自動在裝置內進行，因此無須拿著此裝置。
+\n\nPress the reload button to discard the installed device and start reloading for device reinstallation. Since the device performs the reload automatically, it is unnecessary for you to carry it.
+\n\nリロードボタンを押すことで、すでに設置している装置を破棄。再設置のため装填を開始する。再装填は装置が自動的におこなうため、この装置を手に持ち続ける必要はない。
+
+\n\n由於可能會有誤射到我方的危險，因此搭載了高性能的安全裝置，可以不用擔心夥伴遭到射擊。
+\n\nIt comes with increased concern over accidental ally strikes, hence it is equipped with a high performance safety device. You do not have to worry about friendly-fire.
+\n\n味方への誤射を懸念し、高性能の安全装置が搭載されている。そのため、仲間の被弾を心配する必要はない。
+
+\n\n剩餘彈藥越多，則需要的裝填時間便更短。
+\n\nThe more ammunition remaining, the faster the reload time.
+\n\n残弾数が多いほどリロード時間が短くなります。
+
+\n\n需要在戰場上取得一定的功績（擊破多數敵人）才能請求再次攻擊。（夥伴的擊破數也能列入功績計算）
+\n\nIn order to re-request this, you need to achieve a certain number of credits during the mission by defeating enemies. Your allies' kills will also help you earn credits.
+\n\n攻撃を再度要請するためには、戦場で一定の功績（多数の敵を撃破する）が必要である。（功績は仲間による撃破も含まれる）
+

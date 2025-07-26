@@ -1,0 +1,694 @@
+RocketBullet01
+      "value": [
+        {
+          "type": "int",
+          "value": 2 //Explosion FX type?
+        },
+        {
+          "type": "int",
+          "value": 180 //Tail flame length
+        },
+        {
+          "type": "int",
+          "value": 0 //Tail smoke length
+        },
+        {
+          "type": "float",
+          "value": 0.01 //Ammo acceleration
+        }
+      ]
+--------------------------------
+SentryGunBullet01
+      "value": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "string",
+          "value": ""
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int", // activate interval
+          "value": 8
+        },
+        {
+          "type": "float",
+          "name": "SearchRange",
+          "value": 480
+        },
+        {
+          "type": "float",
+          "name": "TurnSpeed",
+          "value": 0.07500000111758709
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "string", // fire point?
+          "value": "spine"
+        },
+        {
+          "type": "ptr", // fire point coordinate adjust
+          "value": [
+            {
+              "type": "float", // left and right, >0 is left, <0 is right
+              "value": 0
+            },
+            {
+              "type": "float", // height
+              "value": 0.25
+            },
+            {
+              "type": "float", // front and back, >0 is front, <0 is back
+              "value": 1.25
+            }
+          ]
+        },
+        {
+          "type": "string", // = AmmoClass
+          "value": "LaserBullet01"
+        },
+        {
+          "type": "int", // = AmmoCount
+          "value": 1400
+        },
+        {
+          "type": "int", // = FireInterval
+          "value": 2
+        },
+        {
+          "type": "int", // = AmmoAlive
+          "value": 13
+        },
+        {
+          "type": "float", // = AmmoSpeed
+          "value": 35
+        },
+        {
+          "type": "float", // = AmmoSize
+          "value": 0.5
+        },
+        {
+          "type": "ptr", // = Ammo_CustomParameter
+          "value": [
+          ]
+        },
+        {
+          "type": "ptr", // = FireSe, and don't use sound that has background sound.
+          "value": [
+          ]
+        },
+        {
+          "type": "string", // = MuzzleFlash
+          "value": "LaserMuzzleFlash01"
+        },
+        {
+          "type": "ptr", // = MuzzleFlash_CustomParameter
+          "value": [
+          ]
+        }
+      ]
+--------------------------------
+MissileBullet01
+"value": [
+        {
+          "type": "int",
+          "value": 0 // 0 = no guide, 
+        },
+        {
+          "type": "int",
+          "value": 1
+        },
+        {
+          "type": "int",
+          "value": 100 //Tail smoke length
+        },
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "float",
+              "value": 0
+            },
+            {
+              "type": "float",
+              "value": 0
+            },
+            {
+              "type": "float",
+              "value": -0.05000000074505806
+            }
+          ]
+        },
+        {
+          "type": "float",
+          "value": 0.004999999888241291 //acceleration
+        },
+        {
+          "type": "float",
+          "value": 0 //guide performance
+        },
+        {
+          "type": "float",
+          "value": 10 //max speed
+        },
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "int",
+              "value": 30 //ignition delay
+            },
+            {
+              "type": "float",
+              "value": 0.8999999761581421
+            }
+          ]
+        },
+        {
+          "type": "int",
+          "value": 0 //unable to guide time
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "ptr",
+          "value": [ // or null, speed delta
+            {
+              "type": "float",
+              "value": 0.10000000149011612
+            },
+            {
+              "type": "float",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "ptr",
+          "value": [ //ignition sound
+            {
+              "type": "int",
+              "value": 0
+            },
+            {
+              "type": "string",
+              "value": "weapon_Ranger_ML_go_MediumPow"
+            },
+            {
+              "type": "float",
+              "value": 0.20000000298023224
+            },
+            {
+              "type": "float",
+              "value": 0.5946099758148193
+            },
+            {
+              "type": "float",
+              "value": 1
+            },
+            {
+              "type": "float",
+              "value": 100
+            }
+          ]
+        }
+      ]
+--------------------------------
+ClusterBullet01
+      "value": [
+        {
+          "type": "float", //speed damping
+          "value": 0.9900000095367432
+        },
+        {
+          "type": "float", // = FireAccuracy, min
+          "value": 0
+        },
+        {
+          "type": "float", // = FireAccuracy, max
+          "value": 0
+        },
+        {
+          "type": "int", //fire direction, 0 = Down, 1 = Up, 2 = forward, 3 = move direction
+          "value": 0
+        },
+        {
+          "type": "ptr", //when not needed, use int = 0.
+          "value": [ // lock-on
+            {
+              "type": "int", //lock-on type?
+              "value": 1
+            },
+            {
+              "type": "float", //lock-on range
+              "value": 350
+            }
+          ]
+        },
+        {
+          "type": "ptr",
+          "value": [
+            {
+              "type": "ptr",
+              "value": [
+                {
+                  "type": "float",
+                  "value": 0
+                },
+                {
+                  "type": "float",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "ptr",
+              "value": [
+                {
+                  "type": "float",
+                  "value": 0
+                },
+                {
+                  "type": "float", //firepoint height
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "int", // = AmmoCount
+              "value": 600
+            },
+            {
+              "type": "int", // = FireInterval
+              "value": 2
+            },
+            {
+              "type": "string", // = AmmoClass
+              "value": "LaserBullet01"
+            },
+            {
+              "type": "float", // = AmmoSpeed
+              "value": 15
+            },
+            {
+              "type": "float", // = AmmoGravityFactor
+              "value": 0
+            },
+            {
+              "type": "float", // = AmmoSize
+              "value": 0.5
+            },
+            {
+              "type": "float", // = AmmoHitSizeAdjust
+              "value": 1
+            },
+            {
+              "type": "float", // = AmmoExplosion
+              "value": 0
+            },
+            {
+              "type": "int", // = AmmoAlive
+              "value": 10
+            },
+            {
+              "type": "int", // = AmmoIsPenetration
+              "value": 0
+            },
+            {
+              "type": "ptr", // = AmmoColor
+              "value": [
+                {
+                  "type": "float",
+                  "value": 0.30000001192092896
+                },
+                {
+                  "type": "float",
+                  "value": 0.30000001192092896
+                },
+                {
+                  "type": "float",
+                  "value": 1
+                },
+                {
+                  "type": "float",
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "type": "ptr", // = Ammo_CustomParameter
+              "value": [
+              ]
+            },
+            {
+              "type": "int",
+              "value": 0
+            },
+            {
+              "type": "int",
+              "value": 0
+            },
+            {
+              "type": "int",
+              "value": 1
+            },
+            {
+              "type": "ptr", // = FireSe
+              "value": [
+              ]
+            },
+            {
+              "type": "ptr",  // = AmmoHitSe
+              "value": [
+              ]
+            }
+          ]
+        }
+      ]
+--------------------------------
+HomingLaserBullet01
+      "value": [
+        {
+          "type": "int", // 0 = no guide, 1 and 2 can guide
+          "value": 2
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int", //Tail length
+          "value": 10
+        },
+        {
+          "type": "float", //acceleration
+          "value": 1.2000000476837158
+        },
+        {
+          "type": "float", //guide performance
+          "value": 1
+        },
+        {
+          "type": "float", //max speed
+          "value": 6
+        },
+        {
+          "type": "int", //unable to guide time
+          "value": 8
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "float",
+          "value": 1
+        },
+        {
+          "type": "ptr",
+          "value": null
+        }
+      ]
+--------------------------------
+NapalmBullet01
+      "value": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "ptr", // = FireAccuracy
+          "value": [
+            {
+              "type": "float", // min
+              "value": 0
+            },
+            {
+              "type": "float", // max
+              "value": 0.5
+            }
+          ]
+        },
+        {
+          "type": "float",
+          "value": 0.05000000074505806
+        },
+        {
+          "type": "int",
+          "name": "SubProjectileSize",
+          "value": 60
+        },
+        {
+          "type": "ptr",
+          "name": "EmitterParameter",
+          "value": [
+            {
+              "type": "ptr",
+              "value": [
+                {
+                  "type": "float",
+                  "value": 0
+                },
+                {
+                  "type": "float",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "ptr",
+              "value": [
+                {
+                  "type": "float",
+                  "value": 0
+                },
+                {
+                  "type": "float", //firepoint height
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "int", // = AmmoCount
+              "value": 150
+            },
+            {
+              "type": "int", // = FireInterval
+              "value": 2
+            },
+            {
+              "type": "string", // = AmmoClass
+              "value": "HomingLaserBullet01"
+            },
+            {
+              "type": "float", // = AmmoSpeed
+              "value": 1
+            },
+            {
+              "type": "float", // = AmmoGravityFactor
+              "value": 0
+            },
+            {
+              "type": "float", // = AmmoSize
+              "value": 1
+            },
+            {
+              "type": "float", // = AmmoHitSizeAdjust
+              "value": 1
+            },
+            {
+              "type": "float", // = AmmoExplosion
+              "value": 0
+            },
+            {
+              "type": "int", // = AmmoAlive
+              "value": 180
+            },
+            {
+              "type": "int", // = AmmoIsPenetration
+              "value": 0
+            },
+            {
+              "type": "ptr", // = AmmoColor
+              "value": [
+                {
+                  "type": "float",
+                  "value": 0.6000000238418579
+                },
+                {
+                  "type": "float",
+                  "value": 2
+                },
+                {
+                  "type": "float",
+                  "value": 4
+                },
+                {
+                  "type": "float",
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "type": "ptr", // = Ammo_CustomParameter
+              "value": [
+              ]
+            },
+            {
+              "type": "int",
+              "value": 0
+            },
+            {
+              "type": "int",
+              "value": 0
+            },
+            {
+              "type": "int",
+              "value": 0
+            },
+            {
+              "type": "ptr", // = FireSe
+              "value": [
+              ]
+            },
+            {
+              "type": "ptr", // = AmmoHitSe
+              "value": [
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ptr",
+          "name": "EmitterSe",
+          "value": [
+          ]
+        }
+      ]
+--------------------------------
+BarrierBullet01
+"value": [
+        {
+          "type": "float", //sector angle, radian
+          "value": 3.140000104904175
+        },
+        {
+          "type": "float", //horizontal size
+          "value": 12
+        },
+        {
+          "type": "float", //height
+          "value": 12
+        },
+        {
+          "type": "ptr",
+          "value": [ //shield volume
+            {
+              "type": "float", //decide horizontal volume
+              "value": 1
+            },
+            {
+              "type": "float", //decide height
+              "value": 1
+            },
+            {
+              "type": "float", //decide longitudinal volume, 0 = flat graphics
+              "value": 0
+            }
+          ]
+        },
+        {
+          "type": "ptr",
+          "value": [ //shield position
+            {
+              "type": "float", // Horizontal, > 0 is left
+              "value": 0
+            },
+            {
+              "type": "float", // Height
+              "value": 0
+            },
+            {
+              "type": "float", // Longitudinal, > 0 is front
+              "value": 1
+            }
+          ]
+        }
+      ]
+--------------------------------
+FlameBullet02
+      "value": [
+        {
+          "type": "int", //Flame type, Known 0 and 4.
+          "value": 0 //0 seems to have a push back effect.
+        },
+        {
+          "type": "float", //Flame grows velocity
+          "value": 0.1599999964237213
+        },
+        {
+          "type": "float", //Flame move damping.
+          "value": 1
+        },
+        {
+          "type": "int", //Flame damage by frame, 0 = close, 1 = open.
+          "value": 0
+        },
+        {
+          "type": "ptr", //Flame grows color change
+          "value": [
+            {
+              "type": "float", //Red
+              "value": -0.20000000298023224
+            },
+            {
+              "type": "float", //Green
+              "value": -1
+            },
+            {
+              "type": "float", //Blue
+              "value": -1
+            },
+            {
+              "type": "float", //Alpha
+              "value": 0
+            }
+          ]
+        }
+      ]
+-------------------------------------------------
+SupportUnitBullet01
+      "value": [
+        {
+          "type": "int", //buff type
+          "value": 1 //0 = heal, 1 = energy, 2 = defense, 3 = power
+        },
+        {
+          "type": "ptr", // Buff point position
+          "value": [
+            {
+              "type": "float",
+              "value": 0
+            },
+            {
+              "type": "float", // Height
+              "value": 1
+            },
+            {
+              "type": "float",
+              "value": 0
+            }
+          ]
+        }
+      ]
+-------------------------------------------------

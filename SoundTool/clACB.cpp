@@ -549,8 +549,14 @@ void ACB::ReadUTFParameter_ToData(const std::vector<char>& in, const UTF_GetPara
 		xmlptr->SetAttribute("value", "MEM");
 		common_parameter->awb_memory.assign(in.begin() + dataPos, in.begin() + dataPos + dataSize);
 		return;
-	}else if (!strcmp(data.name, "StreamAwbAfs2Header")) {
+	} else if (!strcmp(data.name, "StreamAwbAfs2Header")) {
 		xmlptr->SetAttribute("value", "MAP");
+		return;
+	}
+	else if (!strcmp(data.name, "Command")) {
+		xmlptr->SetAttribute("value", "CMD");
+		std::vector<char> cmdBuffer(in.begin() + dataPos, in.begin() + dataPos + dataSize);
+		ReadUTFData_CommandCode(cmdBuffer, xmlptr);
 		return;
 	}
 
@@ -568,6 +574,68 @@ void ACB::ReadUTFParameter_ToData(const std::vector<char>& in, const UTF_GetPara
 		xmlptr->SetAttribute("value", "RAW");
 		std::string rawData = RawDataToHexString(&in[dataPos], dataSize);
 		xmlptr->SetText(rawData.c_str());
+	}
+}
+
+void ACB::ReadUTFData_CommandCode(const std::vector<char>& in, tinyxml2::XMLElement* xmldata)
+{
+	int inSize = in.size();
+	int curpos = 0;
+	while (curpos < inSize) {
+		// get command
+		UTF_Command_t cmdCode;
+		cmdCode.cmdType = ReadUINT16(&in[curpos], 1);
+		cmdCode.valueSize = in[curpos + 2];
+		curpos += 3;
+
+		tinyxml2::XMLElement* xmlptr;
+		switch (cmdCode.cmdType) {
+		case 0x57: {
+			if (cmdCode.valueSize != 2) {
+				goto defaultCMD;
+			}
+
+			xmlptr = xmldata->InsertNewChildElement("cmd");
+			xmlptr->SetAttribute("code", cmdCode.cmdType);
+
+			// get data
+			INT16 volume = ReadUINT16(&in[curpos], 1);
+			xmlptr->SetAttribute("volume", volume);
+
+			xmlptr->SetAttribute("note", "adjust volume, but it is an integer that will divide by 100 when game reads it");
+			break;
+		}
+		case 0x7D0: {
+			if (cmdCode.valueSize != 4) {
+				goto defaultCMD;
+			}
+
+			xmlptr = xmldata->InsertNewChildElement("cmd");
+			xmlptr->SetAttribute("code", cmdCode.cmdType);
+
+			// get data
+			INT16 wavetype = ReadUINT16(&in[curpos], 1);
+			INT16 waveId = ReadUINT16(&in[curpos + 2], 1);
+			xmlptr->SetAttribute("wavetype", wavetype);
+			xmlptr->SetAttribute("waveId", waveId);
+
+			xmlptr->SetAttribute("note", "get wave from waveform id");
+			break;
+		}
+		default: {
+			defaultCMD:
+			xmlptr = xmldata->InsertNewChildElement("opcode");
+			xmlptr->SetAttribute("type", cmdCode.cmdType);
+			//xmlptr->SetAttribute("size", cmdCode.valueSize);
+			if (cmdCode.valueSize) {
+				std::string rawData = RawDataToHexString(&in[curpos], cmdCode.valueSize);
+				xmlptr->SetText(rawData.c_str());
+			}
+			break;
+		}
+		}
+		//
+		curpos += cmdCode.valueSize;
 	}
 }
 
@@ -1328,6 +1396,19 @@ void ACB::WriteUTFNodePTRData(tinyxml2::XMLElement* xmldata, UTF_Data_t* p_data,
 		p_data->v_data.insert(p_data->v_data.end(), bytes.begin(), bytes.end());
 		return;
 	}
+	else if (data_type == "CMD") {
+		int dataSize = 0;
+		std::vector<char> bytes = WriteUTF_CommandData(xmldata, &dataSize);
+		if (dataSize == 0) {
+			goto SetNullValue;
+		}
+
+		int dataPos = p_data->v_data.size();
+		WriteINT32BE(&buffer[0], dataPos);
+		WriteINT32BE(&buffer[4], dataSize);
+		p_data->v_data.insert(p_data->v_data.end(), bytes.begin(), bytes.end());
+		return;
+	}
 	else if (data_type == "RAW") {
 		std::string argsStrn = xmldata->GetText();
 		if (argsStrn.length() % 2 > 0)
@@ -1392,4 +1473,105 @@ void ACB::WriteUTFNodePTRData(tinyxml2::XMLElement* xmldata, UTF_Data_t* p_data,
 		return;
 	}
 	// end
+}
+
+std::vector<char> ACB::WriteUTF_CommandData(tinyxml2::XMLElement* xmldata, int* pOutSize)
+{
+	std::vector<char> out;
+	
+	char maxBuffer[32];
+	alignas(4) UTF_Command_t cmdCode;
+	char codeBuffer[4];
+	int noAlign = 0;
+
+	tinyxml2::XMLElement* entry;
+	for (entry = xmldata->FirstChildElement(); entry != 0; entry = entry->NextSiblingElement()) {
+		int buffSize = 0;
+		std::string nodeType = entry->Name();
+		if (nodeType == "cmd") {
+			cmdCode.cmdType = entry->IntAttribute("code", 0);
+
+			switch (cmdCode.cmdType)
+			{
+			case 0x57: {
+				INT16 volume = entry->IntAttribute("volume", 0);
+				WriteINT16BE(&maxBuffer[0], volume);
+
+				buffSize = 2;
+				cmdCode.valueSize = buffSize;
+				break;
+			}
+			case 0x7D0: {
+				INT16 wavetype = entry->IntAttribute("wavetype", 0);
+				INT16 waveId = entry->IntAttribute("waveId", 0);
+				WriteINT16BE(&maxBuffer[0], wavetype);
+				WriteINT16BE(&maxBuffer[2], waveId);
+
+				buffSize = 4;
+				cmdCode.valueSize = buffSize;
+				break;
+			}
+			default: goto toOPcode;
+			}
+		}
+		else if (nodeType == "opcode")
+		{
+			cmdCode.cmdType = entry->IntAttribute("type", 0);
+
+			toOPcode:
+			auto str = entry->GetText();
+			if (str) {
+				std::string argsStrn = str;
+				if (argsStrn.length() % 2 > 0)
+				{
+					argsStrn = ("0" + argsStrn);
+				}
+
+				//Convert to hex.
+				for (unsigned int i = 0; i < argsStrn.length(); i += 2)
+				{
+					if (buffSize >= 32) {
+						std::cout << "Warning: Command data is too large, it will be truncated.\n";
+						break;
+					}
+
+					std::string byteString = argsStrn.substr(i, 2);
+					char byte = (char)std::stol(byteString.c_str(), NULL, 16);
+					maxBuffer[buffSize] = byte;
+					buffSize++;
+				}
+			}
+
+			cmdCode.valueSize = buffSize;
+		}
+		else {
+			continue;
+		}
+
+		WriteINT16BE(&codeBuffer[0], cmdCode.cmdType);
+		codeBuffer[2] = cmdCode.valueSize;
+
+		out.insert(out.end(), codeBuffer, codeBuffer + 3);
+		if (buffSize) {
+			out.insert(out.end(), maxBuffer, maxBuffer + buffSize);
+		}
+
+		if( !cmdCode.cmdType && !cmdCode.valueSize) {
+			noAlign = 1;
+		}
+		else {
+			noAlign = 0;
+		}
+	}
+
+	*pOutSize = out.size();
+	if (!noAlign) {
+		int align = out.size() % 32;
+		if (align) {
+			ZeroMemory(maxBuffer, 32);
+			out.insert(out.end(), maxBuffer, maxBuffer + (32 - align));
+		}
+	}
+
+	return out;
 }

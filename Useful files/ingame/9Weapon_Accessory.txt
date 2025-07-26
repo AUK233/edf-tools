@@ -1,0 +1,47 @@
+======== Ranger =========
+0   float - Ally Amount Healed (Heal Items Obtained).
+1   float - Item Acquisition Range. fencer ok.
+2   float - Speed Reduction (Being Hit).
+12  int - All Lock-on one target. 1 = yes. fencer ok.
+13  float - Lock-on Speed. fencer ok.
+14  int - Knocked Down by Blast Wave. 1 = no. fencer ok.
+15  float - Walking Speed. fencer ok.
+16  float - Lock-on Range. fencer ok.
+100 float - Dash Speed.
+101 float - Swirl Speed During Dash.
+102 float - Dash Acceleration.
+103 int - Obstacle Destruction During Dash. 1 = yes
+104 float - Speed Reduction During Dash (Being Hit).
+======== Ranger =========
+======== Core =========
+200 ptr - Boost Speed
+    float0 - Sideways
+    float1 - Forward
+    float2 - Backward
+201 float - Boost Consumption. Base = Energy / 33 (3%/once)
+202 float - Flying Speed.
+203 float - Flight damping.
+204 float - Takeoff speed, affect height.
+205 float - Flight Consumption. Base = Energy / 6.67 (0.25%/frame, so 100 / 15 = 6.67)
+206 float - Weapon Charge Speed.
+208 float - Charge. Base = Energy / 16.67 (0.1%/frame)
+209 float - Emergency Charge. Base = Energy / 8.33 (0.2% of current maximum energy /frame)
+210 float - Weight, Affect recoil.
+======== Core =========
+======== Fencer =========
+3   float - Shield Durability.
+4   float - Shield Consumption. ???
+5   float - Shield Consumption.
+6   float - Shield Damage Reduction Rate.
+7   float - Shield Knockback Reduction Rate.
+8   int - what?
+9   float - Recoil Reduction. = * recoil
+10  float - Eqpt Weight Impact on Rotational inertia.
+11  float - Eqpt Weight Impact on Speed.
+17  float - Shield Defense Angle. + radian
+300 int - Consecutive Dashes.
+301 float - Dash Interval. maybe = value * 2
+302 int - Consecutive Boosts.
+305 float - Horizontal Boost Speed.
+500 float - Walking Speed. Acceleration? (all are able, should)
+======== Fencer =========
