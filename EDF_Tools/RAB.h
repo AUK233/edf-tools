@@ -36,6 +36,17 @@ DWORD WINAPI RABWriteMTCompress(LPVOID lpParam);
 DWORD WINAPI RABWriteMTCompress2(LPVOID lpParam);
 RABFileList* __fastcall RABWriteMTCompressNext(RABFileList* File, LPCRITICAL_SECTION cs);
 
+
+struct RABPreprocessFile
+{
+	std::wstring fileName;
+	std::wstring filePath;
+
+	bool operator<(const RABPreprocessFile& other) const {
+		return fileName < other.fileName;
+	}
+};
+
 struct RABFile
 {
 	RABFile::RABFile( std::wstring name, int fID, const std::wstring& fullPath );
@@ -66,13 +77,14 @@ struct CMPLHandler
 	bool bUseFakeCompression;
 };
 
-struct RAB
+class RAB
 {
 public:
 	//Read
 	void Read(const std::wstring& path, const std::wstring& suffix);
 
 	//Write
+	void Initialization();
 	void CreateFromDirectory( const std::wstring& path );
 
 	void AddFilesInDirectory( const std::wstring& path );
@@ -90,6 +102,7 @@ public:
 	int numFiles;
 	int numFolders;
 	int mdbFileNum;
+	int esbFileNum;
 
 private:
 	int nameTablePos;

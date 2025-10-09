@@ -5,8 +5,8 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:local="clr-namespace:GuiTools"
 		mc:Ignorable="d"
-		Title="EDF GUI Tools" Height="250" Width="450">
-    <Grid>
+		Title="EDF GUI Tools" Height="300" Width="450">
+    <Grid Margin="0,0,0,0">
         <Grid>
             <TextBlock HorizontalAlignment="Left" Margin="10,12,0,0" Text="File path:" VerticalAlignment="Top" FontSize="14" FontWeight="Bold"/>
             <TextBox x:Name="ModelPathBox" HorizontalAlignment="Left" Height="50" Margin="10,35,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="380" Background="White" BorderBrush="Black" AllowDrop="True" PreviewDragOver="TextBox_DragOver" PreviewDrop="TextBox_Drop" Grid.ColumnSpan="2" SelectionBrush="Blue" VerticalScrollBarVisibility="Visible" BorderThickness="2,2,2,2"/>
@@ -21,6 +21,15 @@
             <TextBox x:Name="CANMPathBox" HorizontalAlignment="Left" Height="50" Margin="10,35,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="380" Background="White" BorderBrush="Black" AllowDrop="True" PreviewDragOver="TextBox_DragOver" PreviewDrop="TextBox_Drop" Grid.ColumnSpan="2" SelectionBrush="Blue" VerticalScrollBarVisibility="Visible" BorderThickness="2,2,2,2"/>
 
             <Button Content="CANM Resolver" Width="118" Height="20" FontSize="14" Click="GotoCANMResolver_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="272,12,0,0"/>
+        </Grid>
+        <Grid Margin="0,223,0,10">
+            <TextBlock HorizontalAlignment="Left" Text="Script Start:" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" Margin="10,0,0,0" Grid.ColumnSpan="2"/>
+            <TextBox x:Name="EDF6Mission1" HorizontalAlignment="Left" Height="18" Margin="98,0,0,0" TextWrapping="Wrap" Text="2" FontSize="12" VerticalAlignment="Top" Width="48" Background="White" BorderBrush="Black" SelectionBrush="Blue" BorderThickness="2,2,2,2"/>
+
+            <TextBlock HorizontalAlignment="Left" Text="Count:" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" Margin="151,0,0,0"/>
+            <TextBox x:Name="EDF6Mission2" HorizontalAlignment="Left" Height="18" Margin="203,0,0,0" TextWrapping="Wrap" Text="50" FontSize="12" VerticalAlignment="Top" Width="48" Background="White" BorderBrush="Black" SelectionBrush="Blue" BorderThickness="2,2,2,2"/>
+
+            <Button Content="Done" Width="80" Height="20" FontSize="14" Click="GotoEDF6Mission_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="308,-2,0,0"/>
         </Grid>
     </Grid>
 </Window>

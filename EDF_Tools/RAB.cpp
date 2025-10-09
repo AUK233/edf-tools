@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "util.h"
 #include "RAB.h"
 
@@ -224,6 +225,16 @@ void RAB::Read(const std::wstring& path, const std::wstring& suffix)
 	}
 }
 
+void RAB::Initialization()
+{
+	bUseFakeCompression = false;
+	bIsMultipleThreads = false;
+	bIsMultipleCores = false;
+	customizeThreads = 0;
+	mdbFileNum = 0;
+	esbFileNum = 0;
+}
+
 void RAB::CreateFromDirectory( const std::wstring& path )
 {
 	largestFileSize = 0;
@@ -259,27 +270,6 @@ void RAB::CreateFromDirectory( const std::wstring& path )
 	FindClose( hFind );
 }
 
-#ifdef MULTITHREAD
-#include <thread> //Move this to head of file.
-
-//Multithreaded file compressor.
-#define MAX_MULTITHREADED_FILES 4
-
-void MultithreadCompressFile( RABFile *file )
-{
-	std::wcout << L"Compressing file: " + file->fileName + L"\n";
-
-	CMPLHandler compresser = CMPLHandler( file->data );
-	compresser.bUseFakeCompression = false;
-
-	std::vector< char > compressedFile = compresser.Compress( );
-
-	file->data.clear( );
-	file->data = compressedFile;
-}
-
-#endif
-
 void RAB::AddFilesInDirectory( const std::wstring& path )
 {
 	std::wcout << L"Writing path " + path + L"!\n";
@@ -294,10 +284,8 @@ void RAB::AddFilesInDirectory( const std::wstring& path )
 		return;
 	}
 
-#ifdef MULTITHREAD
-	std::vector< std::thread > threads;
-#endif
-
+	RABPreprocessFile out;
+	std::vector< RABPreprocessFile > v_file;
 	do
 	{
 		if( !(fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
@@ -305,41 +293,39 @@ void RAB::AddFilesInDirectory( const std::wstring& path )
 			std::wstring fileName = fileData.cFileName;
 			std::wcout << L"FILE:" + fileName + L"\n";
 
-			AddFile( path + L"\\" + fileName );
+			//AddFile( path + L"\\" + fileName );
+			out.fileName = fileName;
+			out.filePath = path + L"\\" + fileName;
+			v_file.push_back(out);
 
 			size_t lastindex = fileName.find_last_of(L'.');
 			if (lastindex != std::wstring::npos)
 			{
 				std::wstring extension = fileName.substr(lastindex + 1, extension.size() - lastindex);
 				extension = ConvertToLower(extension);
-				if (extension == L"mdb") {
+
+				if (extension == L"esb") {
+					esbFileNum++;
+				}else if (extension == L"mdb") {
 					mdbFileNum++;
 				}
 			}
-
-#ifdef MULTITHREAD
-			if( threads.size( ) < MAX_MULTITHREADED_FILES - 1 )
-			{
-				threads.push_back( std::thread( MultithreadCompressFile, files.back( ).get( ) ) );
-			}
-			else
-			{
-				threads.push_back( std::thread( MultithreadCompressFile, files.back( ).get( ) ) );
-
-				std::wcout << L"Ran Max Allowed threads. Waiting for completion\n";
-
-				for( int i = 0; i < threads.size( ); ++i )
-				{
-					threads[i].join( );
-
-					std::wcout << L"Completed All Threads. Continuing\n";
-				}
-			}
-#endif
 		}
 	} while( FindNextFile( hFind, &fileData ) != 0 );
 
 	FindClose( hFind );
+
+	//Sort files alphabetically:
+	if (v_file.size() == 0) {
+		return;
+	}
+
+	std::sort(v_file.begin(), v_file.end());
+	for( int i = 0; i < v_file.size( ); ++i )
+	{
+		AddFile( v_file[i].filePath );
+	}
+	v_file.clear();
 }
 
 void RAB::AddFile( std::wstring filePath )
@@ -348,7 +334,7 @@ void RAB::AddFile( std::wstring filePath )
 	std::wstring file = filePath;
 
 	size_t last_slash_idx = filePath.rfind( L'\\' );
-	if( std::string::npos != last_slash_idx )
+	if( std::wstring::npos != last_slash_idx )
 	{
 		directory = filePath.substr( 0, last_slash_idx );
 		file = filePath.substr( last_slash_idx + 1, filePath.size( ) - last_slash_idx );
@@ -356,7 +342,7 @@ void RAB::AddFile( std::wstring filePath )
 
 	//Further split string
 	last_slash_idx = directory.rfind( L'\\' );
-	if( std::string::npos != last_slash_idx )
+	if( std::wstring::npos != last_slash_idx )
 	{
 		directory = directory.substr( last_slash_idx + 1, directory.size( ) - last_slash_idx );
 	}
@@ -381,7 +367,6 @@ void RAB::AddFile( std::wstring filePath )
 		largestFileSize = files.back( )->fileSize;
 }
 
-#include <algorithm>
 
 bool CompRabNames( const RABFile *a, const RABFile *b )
 {

@@ -440,13 +440,7 @@ int _tmain( int argc, wchar_t* argv[] )
 		if( !lstrcmpW( argv[1], L"/ARCHIVE" ) && argc > 2 )
 		{
 			std::unique_ptr< RAB > rabReader = std::make_unique< RAB >( );
-
-			rabReader->bUseFakeCompression = false;
-			rabReader->bIsMultipleThreads = false;
-			rabReader->bIsMultipleCores = false;
-			rabReader->customizeThreads = 0;
-			rabReader->mdbFileNum = 0;
-
+			rabReader->Initialization();
 			int fileArgNum = 2;
 
 			if( argc > 3)
@@ -484,14 +478,19 @@ int _tmain( int argc, wchar_t* argv[] )
 
 			rabReader->CreateFromDirectory(fileName);
 
+			if (rabReader->esbFileNum) {
+				fileName += L".efarc";
+				goto writeRAB;
+			}
+
 			if (rabReader->mdbFileNum > 1)
 			{
 				fileName += L".mrab";
-			}
-			else {
+			} else {
 				fileName += L".rab";
 			}
 
+			writeRAB:
 			rabReader->Write( fileName );
 			rabReader.reset( );
 

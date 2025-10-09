@@ -13,7 +13,6 @@
 #include <locale>
 #include <locale.h>
 #include "util.h"
-#include "include/tinyxml2.h"
 #include "DSGO.h"
 #include "SGO.h"
 #include "Middleware.h"

@@ -158,6 +158,7 @@
     <ClInclude Include="CANM6.h" />
     <ClInclude Include="CAS.h" />
     <ClInclude Include="DSGO.h" />
+    <ClInclude Include="ESB.h" />
     <ClInclude Include="HashMap.h" />
     <ClInclude Include="include\half.hpp" />
     <ClInclude Include="include\tinyxml2.h" />
@@ -192,6 +193,10 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">DEBUGMODE;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="DSGO.cpp" />
+    <ClCompile Include="ESB.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="include\tinyxml2.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>

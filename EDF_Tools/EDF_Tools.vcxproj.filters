@@ -90,6 +90,9 @@
     <ClInclude Include="HashMap.h">
       <Filter>Source Files\Formats</Filter>
     </ClInclude>
+    <ClInclude Include="ESB.h">
+      <Filter>Source Files\Formats</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -150,6 +153,9 @@
       <Filter>Source Files\Formats</Filter>
     </ClCompile>
     <ClCompile Include="RMPA6.cpp">
+      <Filter>Source Files\Formats</Filter>
+    </ClCompile>
+    <ClCompile Include="ESB.cpp">
       <Filter>Source Files\Formats</Filter>
     </ClCompile>
   </ItemGroup>
