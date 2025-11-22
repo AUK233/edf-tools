@@ -615,7 +615,11 @@ int DSGO::WriteData_GetStringData(tinyxml2::XMLElement* xmlNode)
 	v_outNode.push_back(node);
 
 	// get string
-	std::string str = xmlNode->GetText();
+	std::string str = "";
+	auto pstr = xmlNode->GetText();
+	if (pstr) {
+		str = pstr;
+	}
 	int offset = WriteData_WideString(str);
 
 	updateDataOffset_t out_dataup;

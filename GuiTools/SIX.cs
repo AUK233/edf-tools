@@ -9,7 +9,9 @@ namespace GuiTools
 		public void GenerateMissionTemplate(int i_start, int i_count, string outputPath)
 		{
 			StringBuilder sb = new StringBuilder();
-            sb.AppendLine("\n// Base Mission From \"MISSION\\SAMPLE\\BERSERKERBOMMER\"\n");
+            sb.AppendLine("\n// Base Mission From \"MISSION\\SAMPLE\\BERSERKERBOMMER\"");
+            sb.AppendLine("// internal_EventFactorRegister@ e = internal_CreateEvent(\"__0001_game_event\", \"終了\", 100.00, EVENT_TYPE_SYNC, EVENT_CHECK_AND, int_value);");
+            sb.AppendLine("// int_value is this event has N event factors.\n");
 
             int i_end = i_start + i_count - 1;
             // first part
@@ -28,14 +30,15 @@ namespace GuiTools
                 sb.AppendLine($"\tinternal_GetEventState({inum}).SetName(\"noman\"); // __{ihex}_game_event");
             }
             sb.AppendLine("\n//---------------------------------------------");
-            sb.AppendLine("// may need to use\n");
 
+            sb.AppendLine("// If this event is will be disabled, then this is required.\n");
             // third part
             for (int i = i_start; i <= i_end; i++)
             {
                 string ihex = i.ToString("X4").ToUpper();
                 string inum = i.ToString();
-                sb.AppendLine($"\t//internal_SyncStateEnable({inum}); // __{ihex}_game_event");
+                sb.AppendLine($"\t//If use: SetBoolState( {inum},::__{ihex}_data.m_is_break,true);");
+                sb.AppendLine($"\t//internal_SyncStateEnable({inum}); // __{ihex}_game_event\n");
             }
             sb.AppendLine("\n//---------------------------------------------\n");
 

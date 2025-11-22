@@ -1,0 +1,1245 @@
+internal_EventFactorRegister
+    "void Factor_Wait(float )"
+    "void Factor_WaitNC(float )"
+    "void Factor_Timer(uint32 , float )"
+    "void Factor_IsRetry()"
+    "void Factor_IsNotRetry()"
+    "void Factor_IsOnlineMode(bool )"
+    "void Factor_DifficultyOverEqu(::Difficulty )"
+    "void Factor_DifficultyLessEqu(::Difficulty )"
+    "void Factor_ObjectDestroy(::Object )"
+    "void Factor_ObjectAlive(::Object )"
+    "void Factor_ObjectResurrection(::Object )"
+    "void Factor_ObjectDurability(::Object , float )"
+    "void Factor_AllEnemyDestroy(float )"
+    "void Factor_PlayerAreaIn(const string & in)"
+    "void Factor_PlayerAreaIn_Meeting(const string & in)"
+    "void Factor_ObjectAreaIn(::Object , const string & in)"
+    "void Factor_TeamObjectCount(::TeamID , uint32 )"
+    "void Factor_TeamBigObjectCount(::TeamID , int )"
+    "void Factor_AreaTeamObjectCount(const string & in, ::TeamID , uint32 )"
+    "void Factor_ObjectEncount(::Object )"
+    "void Factor_TeamEncount(::TeamID )"
+    "void Factor_TeamNotEncount(::TeamID )"
+    "void Factor_GeneratorEnemyCount(int )"
+    "void Factor_ObjectPartsCount(::Object , int , int )"
+    "void Factor_GroupObjectCount(const ::ObjectGroup& in, uint32 )"
+    "void Factor_GroupObjectCount(uint32 , uint32 )"
+    "void Factor_GroupObjectEncount(const ::ObjectGroup& in)"
+    "void Factor_GroupObjectEncount(uint32 )"
+    "void Factor_GroupObjectDurability(const ::ObjectGroup& in, float )"
+    "void Factor_GroupObjectDistance(const ::ObjectGroup& in, float )"
+    "void Factor_AiFollow(const ::Object& in)"
+    "void Factor_AiMoveEnd(::Object )"
+    "void Factor_AiMoveEndOrDie(::Object )"
+    "void Factor_FlagOn(uint32 )"
+    "void Factor_FlagOff(uint32 )"
+    "void Factor_GeneratorEnemyCount(uint32 )"
+    "void Factor_RideVehicle(::Object )"
+    "void Factor_ObjectDistance(::Object , ::Object , float )"
+    "void Factor_PointDistance(::Object , const string & in, float )"
+    "void Factor_PlayerObjectDistance(::Object , float )"
+    "void Factor_PlayerPointDistance(const string & in, float )"
+    "void Factor_WaitGeneratorEnd(::Object , uint32 )"
+    "void Factor_VehicleWeaponAmmoEmpty(::Object )"
+    "void Factor_JormungandFace_WaitPhase3(::Object )"
+=== End ===
+
+void f()
+
+void f(const ::Object& in)
+
+void f(const ::ObjectGroup& in)
+
+void f(const ::Talkers& in)
+
+void f(const ::UI& in)
+
+void f(const ::Dialog& in)
+
+StoryMessageWindow@ f()
+
+void f(const ::EventLightTool& in)
+
+void f(const ::internal_SyncCounter& in)
+
+Mutex@ f()
+
+void f(const ::SoundPlayer& in)
+
+void f(const test::test2::global_class& in)
+
+void f(const test::test2::global_class_member_class& in)
+
+ref_test@ f()
+
+void f(const ::bbb& in)
+
+void internal_Initialize(uint32 )
+
+void internal_Exit(::MissionResult )
+
+::EventState@ internal_GetEventState(uint32 )
+
+void internal_InitEventThread(uint32 , uint32 , const string & in, const string & in)
+
+void internal_CreateThread(const string & in)
+
+::internal_EventFactorRegister@ internal_CreateEvent(const string & in, const string & in, float , ::EventType , ::EventCheckType , uint32 )
+
+void internal_SetEnablePause(bool )
+
+void internal_ps4_SetTextureReductionLevel(uint32 )
+
+bool internal_BeginFinishing()
+
+void BeginLoading()
+
+void EndLoading()
+
+void PreloadMap(const string & in, const string & in, int )
+
+void Preload(const string & in, int )
+
+void PreloadPlayerResource()
+
+void WaitPreload()
+
+void Online_WaitStart()
+
+::Object _InheritHashCode(::Object , ::Object )
+
+void internal_SceneEffect_Snow(float , float , float , float , float , float , float , float , float , float , float , float , int , float , float )
+
+void internal_SceneEffect_Rain(float , float , float , float , float , float , float , float , float , int , float , float , float )
+
+void internal_SceneEffect_FugitiveDust(float , int , float , float , float , float , float )
+
+void sys_Yield()
+
+bool sys_IsDemoMode()
+
+bool IsOnlineMode()
+
+bool IsRetry()
+
+void ResetScene()
+
+void Wait(float )
+
+void ResetAllTimer()
+
+void ResetTimer(uint32 )
+
+void FlagOn(uint32 )
+
+void SetEnablePause(bool )
+
+void SetLightWeightMode()
+
+void SetFullLightWeightMode()
+
+void SetRagdollManagerAcceptGeneratorObjectMode(bool )
+
+void SetMissionLevel(float )
+
+void SetMissionLevelFix()
+
+::Difficulty GetDifficulty()
+
+void Map(const string & in, const string & in)
+
+void MapMaterial_SetValue_Float(const string & in, const string & in, float )
+
+void MapMaterial_SetValue_Float4(const string & in, const string & in, float , float , float , float )
+
+void MapMaterial_MulValue_Float(const string & in, const string & in, float )
+
+void MapMaterial_MulValue_Float4(const string & in, const string & in, float , float , float , float )
+
+void MapMaterial_ClampValue_Float(const string & in, const string & in, float , float )
+
+void MapObjectDestroy(const string & in)
+
+void MapObjectDestroy2(const string & in)
+
+void MapObjectDestroy3(const string & in)
+
+void MapObjectDestroy4(const string & in, int )
+
+void MapObjectDestroy4_Group(const string & in, int )
+
+void MapObjectInvincible(const string & in)
+
+void MapObjectInvincible_Group(const string & in)
+
+void SetMoveArea(string )
+
+void SceneEffect_Snow(float , float , int , float )
+
+void SceneEffect_Rain(float , float , float , int , float , float )
+
+void SceneEffect_FugitiveDust(float , int , float , float , float , float )
+
+void SceneEffect_Fog(float , float , float , float )
+
+void SceneEffect_StartFade(float , float )
+
+::Object DispRouteGuideToObject(::Object , float )
+
+::Object DispRouteGuideToObjectEX(::Object , float , float , float , uint32 , bool )
+
+::Object DispRouteGuideToArea(const string & in, float )
+
+::Object DispRouteGuideToAreaEX(const string & in, float , float , float , uint32 , bool )
+
+::Object DispArea(const string & in)
+
+void LookCameraToObject(::Object , float , float , float , float , float )
+
+void LookCameraToJbect_Infnit(::Object , float , float , float , float )
+
+void LookCameraToArea(const string & in, float )
+
+void LookCameraToArea_Infinit(const string & in)
+
+void EndLookCamera()
+
+void CreatePlayer(const string & in)
+
+void CreatePlayer_NoWeapon(const string & in)
+
+void CreatePlayer_InitWeapon(const string & in)
+
+uint32 PlayerCount()
+
+::Object GetPlayerObject(uint32 )
+
+::PlayerType GetPlayerSoldierType(uint32 )
+
+void SetPlayerCameraType(::PlayerCameraType )
+
+void ResetPlayerCameraType()
+
+void SetPlayerMoveSpeedLimit(float )
+
+void ResetPlayerMoveSpeedLimit()
+
+void SetPlayerControlMaskFlags(uint32 , uint32 )
+
+void SetPlayerControlMaskFlags_1P(uint32 )
+
+void SetPlayerHudShow(bool )
+
+void SetWeaponCondition(::WeaponCondition )
+
+void PlayerIgnoreDamageEventMode(bool )
+
+void PlayerStealthMode(bool )
+
+::Object CreateFriend(const string & in, const string & in, float , bool )
+
+::ObjectGroup CreateFriendGroup(const string & in, float , const string & in, int , float , bool )
+
+::Object CreateFriendSquad(const string & in, float , const string & in, const string & in, int , float , bool )
+
+::Object CreateFriendTransporter(const string & in, const string & in, const string & in, const string & in, const string & in, float )
+
+::Object CreateTransporter(const string & in, const string & in, const string & in, const string & in, const string & in, float )
+
+void RegisterMob(const string & in, float )
+
+void CreateMobGroup(const string & in, float , int , bool )
+
+void CreateMobGroup2(const string & in, float , int , float )
+
+void CreateMob_Path(const string & in, int , float , float )
+
+void DeleteMob()
+
+::Object CreateVehicle(const string & in, const string & in)
+
+::Object CreateVehicle2(const string & in, const string & in, float )
+
+::Object CreateNeutral(const string & in, const string & in, float )
+
+::Object CreateNeutral_Direct(float , float , float , float , const string & in, float )
+
+::Object CreateEventObject(const string & in, const string & in)
+
+::Object CreateEventObject2(const string & in, const string & in)
+
+::Object CreateEnemy(const string & in, const string & in, float , bool )
+
+::Object CreateEnemy2(const string & in, const string & in, float , bool )
+
+::Object CreateEnemy_Spawn(const string & in, const string & in, float , bool , float )
+
+::ObjectGroup CreateEnemyGroup(const string & in, float , const string & in, int , float , bool )
+
+::ObjectGroup CreateEnemyGroupUG(const string & in, float , const string & in, int , float , bool )
+
+void CreateEnemyGroup_Spawn(const string & in, float , const string & in, int , float , bool , float )
+
+void CreateEnemyGroupUG_Spawn(const string & in, float , const string & in, int , float , bool , float )
+
+::ObjectGroup CreateEnemyGroup_Area(const string & in, const string & in, int , float , bool )
+
+void CreateEnemyGroup_Area_Spawn(const string & in, const string & in, int , float , bool , float )
+
+void CreateEnemyGroup_Area_Route(const string & in, const string & in, const string & in, int , float , bool )
+
+::ObjectGroup CreateFlyingEnemyGroup_Area(const string & in, const string & in, int , float , bool )
+
+void CreateFlyingEnemyGroup_Area_Route(const string & in, const string & in, const string & in, int , float , bool )
+
+::ObjectGroup CreateFlyingEnemyGroup_OnRoute(const string & in, float , const string & in, int , float , bool )
+
+::Object CreateEnemySquad(const string & in, float , const string & in, float , const string & in, int , float , bool )
+
+::Object CreateFlyingEnemySquad_Area(const string & in, const string & in, float , const string & in, int , float , bool )
+
+void CreateEnemy_FollowerGroup(const ::Object& in, const string & in, float , const string & in, int , float , bool )
+
+void CreateEnemy_FollowerGroup_Spawn(const ::Object& in, const string & in, float , const string & in, int , float , bool , float )
+
+::Object InstantGenerateEnemy_Area(const string & in, const string & in, int , float , float , bool )
+
+::Object InstantGenerateEnemy_AreaEX(const string & in, const string & in, int , float , float , bool , const string , const string & in, uint32 , const string & in)
+
+void Quake(const string & in, float , float )
+
+void AirStrike(::Object , float , const string & in, float )
+
+void AirStrike2(::Object , float , const string & in, float )
+
+void PointAirStrike(const string & in, float , const string & in, float , int , float )
+
+void AddGroupObjectBegin(uint32 )
+
+void AddGroupObjectBegin()
+
+void AddGroupObjectEnd_old()
+
+::ObjectGroup AddGroupObjectEnd()
+
+uint32 GetGroupObjectCount(uint32 )
+
+void SendTeamEncount(::TeamID )
+
+int GetTeamObjectCount(::TeamID )
+
+void SuicideTeamObject(::TeamID )
+
+void ResurrectionTeamObject(::TeamID )
+
+::UI CreateUI(const string & in)
+
+::UI CreateUI_File(const string & in)
+
+::StoryMessageWindow@ CreateStoryMessageWindow()
+
+void DebugMessage(const string , float )
+
+void ClearDebugMessage()
+
+void Bgm(const string & in)
+
+void StopBgm(float )
+
+void CrossFadeBgm(const string & in, float )
+
+void Bgm2(const string & in, float , float )
+
+void CrossFadeBgm2(const string & in, float , float )
+
+::SoundPlayer PlaySe(const string & in)
+
+::SoundPlayer EventSe(const string & in, const string & in)
+
+void SetMapEnvironment_SoundReverve(float )
+
+void SetUndergroundSoundReverve()
+
+void internal_Voice(const string & in, bool )
+
+void Voice(const string & in)
+
+void WaitVoice()
+
+void TalkFromTable(const ::Object& in, const string & in, float )
+
+void EnableAiRandomTalk()
+
+void DisableAiRandomTalk()
+
+void SetCharacterRandomTalk(const ::Object& in, bool )
+
+void TalkCondition(int )
+
+void TalkGroupCondition(int , int )
+
+void TalkProgress(float )
+
+void TalkBegin()
+
+void TalkEnd()
+
+::Talkers GetTalkers()
+
+void Talk_AddSingle(const ::Object& in, const string & in, const string & in, float )
+
+void Talk_AddSingleSoldier(int , const string & in, const string & in, float )
+void Talk_AddSingleSoldier2(int , const string & in, const string & in, float , int )
+
+void Talk_AddSoldiers(int , const string & in, const string & in, float , float )
+void Talk_AddSoldiers2(int , const string & in, const string & in, float , float , int )
+
+void Talk_AddSingleFollower(const ::Object& in, int , const string & in, const string & in, float )
+void Talk_AddFollowers(const ::Object& in, int , const string & in, const string & in, float , float )
+
+void Talk_AddSingleAuto(const ::Object& in, const string & in, const string & in, uint32 , float )
+
+void Talk_AddMulti(::ObjectGroup , int , const string & in, const string & in, float , float , uint32 )
+
+void Talk_AddVoice(const string & in, bool )
+
+void Talk_AddRadio(const string & in)
+
+void Talk_AddEnemies(int , const string & in, const string & in, float , float )
+
+void Talk_AddWait(float )
+
+void Talk_AddAppeal(const ::Object& in, const string )
+
+void Talk_AddAppealEnd(const ::Object& in)
+
+void Online_GameOver()
+
+void Online_GameOverWait()
+
+void Online_DisconnectedWait()
+
+bool Online_IsClient()
+
+bool IsBoolState(int , bool & out, bool )
+
+void SetBoolState(int , bool & out, bool )
+
+void internal_SyncStateEnable(int )
+
+void CreateFriendFollowerGroup(::Object , const string & in, float , const string & in, int , float )
+
+::Object GetFollowerObject(::Object , uint32 )
+
+void TestDrawText(const string & in)
+
+::UI CreateUi(const string & in)
+
+void CloseUi(::UI )
+
+void FadeUiControl(::UI , ::FadeControl , float )
+
+void WaitFadeUiComplete(const ::UI& in)
+
+void Dialog_Message(const string & in)
+
+::UI Dialog_Notification(const string & in)
+
+void EventLightTool_AddPointLightGroup(const string & in)
+
+void EventLightTool_AddSpotLightGroup(const string & in, const string & in, int , float , float )
+
+void EventLightTool_SetLightGroupColor(const string & in, float , float , float )
+
+void EventLightTool_AddLightGroupAnimation(const string & in, int , float , float , float , float )
+
+void EventLightTool_EnvMode(int )
+
+void EventLightTool_EnvFadeAnimation(int , float , float , float , float , float )
+
+void EventLightTool_RevertEnvFadeAnimation(int , float , float )
+
+void EventLightTool_RevertAllEnvFadeAnimation(float , float )
+
+void EventLightTool_RotateLightDirection(float , float , float )
+
+::Object GetPlayerObjectID(uint32 )
+
+void WaitPlayerEvent(uint32 , uint32 , uint32 )
+
+void SetHumanControlMaskFlags(::Object , int )
+
+void SetObjectDurability(::Object , float )
+
+void SetObjectDurabilityMin(::Object , float )
+
+void SetObjectAutoResurrection(::Object , bool )
+
+void SetObjectPosition(::Object , const string & in)
+
+void DeleteObject(::Object )
+
+void DeleteSquad(::Object )
+
+void ObjectSuicide(::Object )
+
+int GetPartsObjectCount(::Object , int )
+
+::Object GetPartsObject(::Object , int , int )
+
+void SetObjectInvincible(::Object , bool )
+
+void SetIgnoreDamageEventMode(::Object , bool )
+
+void ObjectAction(::Object , int )
+
+void SetEncount(::Object )
+
+void SetEncountReportRadius(::Object , float )
+
+void SetTeamID(::Object , ::TeamID )
+
+void SetupVehicle(::Object )
+
+void RideVehicle(::Object )
+
+void SetAiMoveSpeed(::Object , float )
+
+void SetAiFollow(::Object , ::Object )
+
+void SetAiAutoFollow(::Object , bool )
+
+void SetAiRoute(::Object , const string & in)
+
+void SetAiEncountRouteCancel(::Object , bool )
+
+void SetAiPath(::Object , const string & in)
+
+bool IsAiMoveEnd(::Object )
+
+void WaitAiMoveEnd(const ::Object& in)
+
+void SetAiNavMesh_CostModifierEnable(::Object , bool )
+
+void SetAiNavMesh_StraightMode(::Object , bool )
+
+void SetAiNavMesh_IgnoreShutterEdge(::Object , bool )
+
+void AppealAnimation(::Object , const string & in)
+
+void AppealAnimation_Loop(::Object , const string & in)
+
+void AppealAnimationEnd(::Object )
+
+void SetAiObjectDirection_Point(::Object , const string & in, float , bool )
+
+void SetAiObjectDirection_Object(::Object , ::Object , float , bool )
+
+void ClearAiObjectDirection(::Object , bool )
+
+void FixObjectAiPosition(::Object , bool )
+
+void SetSoldierBattleMoveSpeelMultiply(::Object , float )
+
+void SetEnemyGenerator(::Object , int , const string & in, int , float , float , float , bool )
+
+void SetInstantEnemyGenerator(::Object , int , const string & in, int , float , float , bool )
+
+void SetAiVehicleAttack(::Object , bool )
+
+void SetAiVehicleTacticsMode(::Object , bool )
+
+void SetAiVehicleIgnoreShutterEdge(::Object , bool )
+
+void SetVehicleRide(::Object , bool )
+
+void SetAiFormationRadius(::Object , float )
+
+::Object SetDropBoatCrew(::Object , const string & in, float , const string & in, int , float , bool )
+
+void SetDropBoatDrop(::Object )
+
+void SetDropBoatAutoCruise(::Object , const string & in, float )
+
+void MovingFort_Activate(::Object , ::MovingFortress_GroupType , ::MovingFortress_ArmingType , bool )
+
+void EnableHumanExplosionDown(::Object , bool )
+
+::Object& opAssign(int )
+
+bool opEquals(int )
+
+::ObjectGroup opAdd(const ::Object )
+
+bool IsAlive()
+
+bool IsValidity()
+
+bool IsInitialized()
+
+void Delete()
+
+void DeleteSquad()
+
+void Suicide()
+
+::Object& internal_SetUniqueTalk()
+
+::Object& SetTalkTable(const string & in)
+
+::Object& SetTalkVariationID(uint32 )
+
+::Object& SetDurability(float )
+
+::Object& SetDurabilityMin(float )
+
+::Object& SetTeamDamageAdjust(::TeamID , float )
+
+::Object& SetTeamDamageAdjust_Squad(::TeamID , float )
+
+::Object& SetInvincible(bool )
+
+::Object& SetIgnoreDamageEventMode(bool )
+
+::Object& SetTeamID(::TeamID )
+
+::Object& ExcludeTeamManager(bool )
+
+::Object& SetEncountReEntry(bool )
+
+::Object& SetPosition(const string & in)
+
+::Object& SetPositionAndDir(const string & in)
+
+::Object& Spawn(float )
+
+::Object& SetEncount()
+
+::Object& SetAcceptEncount(bool )
+
+::Object& SetEncountReportRadius(float )
+
+::Object& SetAutoResurrection(bool )
+
+::Object& SetAutoResurrectionSquad(bool )
+
+::Object& Resurrection()
+
+::Object& ResurrectionSquad()
+
+::Object& SetEnemyGenerator(int , const string & in, int , float , float , float , bool )
+
+::Object& SetInstantEnemyGenerator(int , const string & in, int , float , float , bool )
+
+::Object& CancelEnemyGenerator(int )
+
+int GetPartsObjectCount(int )
+
+::Object GetPartsObject(int , int )
+
+::Object& Action(int )
+
+::Object& Action2(const string & in)
+
+::Object& AppealAnimation(const string & in)
+
+::Object& AppealAnimation_Loop(const string & in)
+
+::Object& AppealAnimationEnd()
+
+::Object& Capture(::Object )
+
+::Object CreateEfs(const string & in)
+
+::Object Efs_EndLoop()
+
+::Object PlaySe(const string & in)
+
+::Object& LockAttackTarget(const ::Object& in)
+
+::Object& SetAiAutoFollow(bool )
+
+::Object& SetAiFollow(const ::Object& in)
+
+::Object& Unfollow()
+
+::Object& SetAiChaseLeader(bool )
+
+::Object GetFollowerObject(uint32 )
+
+::ObjectGroup GetFollowerObjects()
+
+::Object Follower(uint32 )
+
+::ObjectGroup Followers()
+
+::ObjectGroup ToObjectGroup()
+
+::Object& SetAiFormationRadius(float )
+
+::Object& SetAiRoute(const string & in)
+
+::Object& SetAiRoute_DeleteWheneDone(const string & in)
+
+::Object& CancelAiRoute()
+
+::Object& SetAiRouteNavigate(const string & in, float , float , float , float )
+
+::Object& UpdateAiRouteNavigate(float , float , float , float )
+
+::Object& SetAiEncountRouteCancel(bool )
+
+::Object& SetAiPath(const string & in)
+
+bool IsAiMoveEnd() const
+
+void WaitAiMoveEnd()
+
+::Object& SetAiMoveSpeed(float )
+
+::Object& SetAiNavMesh_IgnoreShutterEdge(bool )
+
+::Object& SetAiNavMesh_CostModifierEnable(bool )
+
+::Object& SetAiNavMesh_StraightMode(bool )
+
+::Object& FixAiPosition(bool )
+
+::Object& FixAiDirection(bool )
+
+::Object& SetAiObjectDirection_Point(const string & in, float , bool )
+
+::Object& SetAiObjectDirection_Object(::Object , float , bool )
+
+::Object& ClearAiObjectDirection(bool )
+
+::Object& Human_SetControlMaskFlags(uint32 )
+
+::Object& Human_EnableExplosionDown(bool )
+
+void Player_WaitEvent(uint32 , uint32 )
+
+void Player_CancelSubWeapon()
+
+::Object& Vehicle_SetRideEnable(bool )
+
+::Object& Vehicle_SetAiAttack(bool )
+
+::Object& Vehicle_SetAiTacticsMode(bool )
+
+::Object& Vehicle_Setup()
+
+::Object& Vehicle_RideAi()
+
+::Object& Vehicle_SetRideMask(bool )
+
+::Object& Vehicle_FortressRobo_SetNoDownMode()
+
+::Object& Soldier_SetBattleMoveSpeedMultiply(float )
+
+::Object& Soldier_SetTalkMask(uint32 )
+
+::Object& Soldier_SetNavigateTalk(bool )
+
+::Object& FarObject_PlayAnimation(const string & in, const string & in)
+
+::Object DropBoat_SetCrew(const string & in, float , const string & in, int , float , bool )
+
+::Object& DropBoat_Drop()
+
+::Object& DropBoat_SetAutoCruise(const string & in, float )
+
+::Object& MovingFortress_Activate(::MovingFortress_GroupType , ::MovingFortress_ArmingType , bool )
+
+::Object& EDF6_TimeShip_Warp(float )
+
+::Object& EDF6_TimeShip_WarpVanish()
+
+::Object& EDF6_TimeShip_Warp2(float )
+
+::Object& EDF6_TimeShip_WarpVanish2()
+
+::Object& EDF6_TimeShip_SetForceHatchOpen(bool )
+
+::Object& EDF6_TimeShip_DropAnchor(const string & in)
+
+::Object& EDF6_TimeShip_DropAnchor2()
+
+::Object& EDF6_TimeShip_CreatePods(uint32 )
+
+::Object& EDF6_TimeShip_CreatePodCrue(uint32 , const string & in, uint32 , float , bool )
+
+::Object& EDF6_TimeShip_DropAllPods(const string & in, float , float )
+
+::Object& EDF6_TimeShip_DropPod(uint32 , const string & in)
+
+::Object& EDF6_TimeShip_Evacuation()
+
+::Object& EDF6_TimeShip_Anchor_Falling()
+
+::Object& EDF6_TimeShip_Anchor_SetGunBatteryState(bool )
+
+::Object EDF6_GrandMother_CreateParts(float , float , string , float )
+
+::ObjectGroup EDF6_GrandMother_CreateParts_Circle(float , float , float , float , string , uint32 , uint32 , float )
+
+::Object EDF6_GrandMother_Arm_AdjustDurability(float )
+
+::Object EDF6_GrandMother_SetPartsAttack(bool )
+
+::Object EDF6_GrandMother_SetRotation(float , float , float )
+
+::Object EDF6_GrandMother_SetTransformAnimation(const string & in, float , float , float , float , float )
+
+::Object EDF6_GrandMother_GateOpen()
+
+::Object EDF6_GrandMother_GateClose()
+
+::Object EDF6_GrandMother_SetPhase(uint32 )
+
+::Object EDF6_GrandMother_SetCoreActive(bool )
+
+::Object EDF6_GrandMother_EnableFlayingLimit()
+
+::Object EDF6_GrandMother_EnemyWarpOut(float , float , float , const string & in, float , bool )
+
+void EDF6_GrandMother_EnemyWarpIn(float , float , ::Object , float )
+
+void EDF6_GrandMother_EnemyWarpIn(float , float , ::ObjectGroup , float )
+
+void EDF6_GrandMother_EnemyWarpIn2(::Object , float )
+
+void EDF6_GrandMother_SetEnemyGeneratorArea(float , float , float , float , float )
+
+void EDF6_GrandMother_WeakParts_SetDestroyEffectLoop(bool )
+
+::Object EDF6_FlyingDyno_SetFlyingMode()
+
+::Object EDF6_FlyingDyno_SetAutoDownRatio(float )
+
+::Object EDF6_FlyingDyno_ForceDown()
+
+::Object EDF6_FlyingDyno_SetAutoWakeup(bool )
+
+::Object EDF6_FlyingDyno_Wakeup()
+
+::Object EDF6_FlyingDyno_SetForm(int )
+
+::Object EDF6_FlyingDyno_SetBuildingDestruction(bool )
+
+::Object EDF6_Jormungand_ActivateNextSection()
+
+::Object EDF6_Jormungand_ActivateAdditionalParts(int32 , uint32 )
+
+::Object EDF6_JormungandHead_SetRingState(int32 )
+
+::Object EDF6_JormungandHead_SetMeteorInterval(float )
+
+void EDF6_SpiderEggSac_SetScale(float )
+
+::Object& opAssign(const ::Object& in)
+
+::ObjectGroup opAdd(const ::ObjectGroup& in)
+
+::ObjectGroup opAdd(const ::Object& in)
+
+::ObjectGroup& opAddAssign(const ::ObjectGroup& in)
+
+::ObjectGroup& opAddAssign(::Object )
+
+::Object opIndex(uint32 )
+
+uint32 Count()
+
+::ObjectGroup& SetDurability(float )
+
+::ObjectGroup& SetDurabilityMin(float )
+
+::ObjectGroup& SetInvincible(bool )
+
+::ObjectGroup& Spawn(float )
+
+::ObjectGroup& SetAiFollow(const ::Object& in)
+
+::ObjectGroup& SetAiRoute(const string & in)
+
+::ObjectGroup& SetAiRoute_DeleteWheneDone(const string & in)
+
+::ObjectGroup& SetAiMoveSpeed(float )
+
+::ObjectGroup& SetAiEncountRouteCancel()
+
+::ObjectGroup& SetAutoResurrection(bool )
+
+::ObjectGroup& ExcludeTeamManager(bool )
+
+::ObjectGroup& SetEncountReEntry(bool )
+
+::ObjectGroup& SetEncountReportRadius(float )
+
+::ObjectGroup& SetEncount()
+
+::ObjectGroup& Suicide()
+
+::ObjectGroup& DelayDelete(float )
+
+::ObjectGroup& opAssign(const ::ObjectGroup& in)
+
+::ObjectGroup Near(uint32 )
+
+::ObjectGroup Far(uint32 )
+
+::Talkers& opAssign(const ::Talkers& in)
+
+bool IsAlive() const
+
+void Close()
+
+void WaitClose()
+
+void Fade_Control(::UI_FadeControl , float )
+
+void Fade_WaitComplete()
+
+::UI& opAssign(const ::UI& in)
+
+void OpenMissionFailed()
+
+::Dialog_MissionFailedResult GetMissionFailedResult()
+
+void OpenMessage(const string & in)
+
+void Message(const string & in)
+
+void Notification(const string )
+
+::Dialog& opAssign(const ::Dialog& in)
+
+void BGColor(float , float , float )
+
+void FontColor(float , float , float )
+
+void FontBorder(float )
+
+void FontBorderColor(float , float , float )
+
+void TextShowSpeed(float )
+
+void SetLineSpace(float )
+
+void AddText_Debug(float , const string & in)
+
+float AddText_Direct(const string & in, float )
+
+float AddText(const string & in, float )
+
+void Show(float , float )
+
+void SetName(const string & in)
+
+void AddPointLightGroup(const string & in)
+
+void AddSpotLightGroup(const string & in, const string & in, int , float , float )
+
+void SetLightGroupColor(const string & in, float , float , float )
+
+void AddLightGroupAnimation(const string & in, ::EventLightAnimationType , float , float , float , float )
+
+void EnvMode(::EventLightEnvMode )
+
+void EnvFadeAnimation(::EventLightEnvFadeType , float , float , float , float , float )
+
+void RevertEnvFadeAnimation(::EventLightEnvFadeType , float , float )
+
+void RevertAllEnvFadeAnimation(float , float )
+
+void RotateLightDirection(float , float , float )
+
+::EventLightTool& opAssign(const ::EventLightTool& in)
+
+void Reset()
+
+void Update(uint32 )
+
+void Wait(uint32 )
+
+::internal_SyncCounter& opAssign(const ::internal_SyncCounter& in)
+
+::Mutex_LockObject@ Lock()
+
+string ToString(bool b)
+
+string ToString(int32 i)
+
+string ToString(uint32 i)
+
+string ToString(float f)
+
+string ToString(double f)
+
+void Stop(float )
+
+::SoundPlayer& opAssign(const ::SoundPlayer& in)
+
+int global_function()
+
+::Mutex@ NewMutex()
+
+void function()
+
+void function2()
+
+test::test2::global_class function3()
+
+test::test2::global_class_member_class function4()
+
+test::test2::global_class_member_class& opAssign(const test::test2::global_class_member_class& in)
+
+void function_member_val(const test::test2::global_class_member_class& in)
+
+test::test2::global_class& opAssign(const test::test2::global_class& in)
+
+void call(test::test2::ref_test@ )
+
+void const_call(const test::test2::ref_test@ )
+
+void function(int , int )
+
+::bbb& opAssign(const ::bbb& in)
+
+### TeamID
+TEAM_ID_PLAYER
+TEAM_ID_ENEMY
+TEAM_ID_FRIEND
+TEAM_ID_NEUTRAL
+TEAM_ID_VEHICLE
+
+### Difficulty
+MISSION_DIFFICULTY_EASY
+MISSION_DIFFICULTY_NORMAL
+MISSION_DIFFICULTY_HARD
+MISSION_DIFFICULTY_HARDEST
+MISSION_DIFFICULTY_INFERNO
+
+### EventLightEnvMode
+EVENT_LIGHT_ENV_NORMAL
+EVENT_LIGHT_ENV_UNDERGROUND
+
+### AiSoldierTalkMaskFlags
+AISOLDIER_TALK_MASK_NORMAL
+AISOLDIER_TALK_MASK_BATTLE
+AISOLDIER_TALK_MASK_ALL
+
+### FadeControl
+FADE_CONTROL_OUT
+FADE_CONTROL_IN
+FADE_CONTROL_OUT_TO_IN
+FADE_CONTROL_IN_TO_OUT
+
+### Dialog_MissionFailedResult
+MISSIONFAILED_DIALOG_RESULT_UNKNOWN
+MISSIONFAILED_DIALOG_RESULT_RESTART
+MISSIONFAILED_DIALOG_RESULT_EXIT
+
+### MissionResult
+MISSION_RESULT_UNKNOWN
+MISSION_RESULT_CLEAR
+MISSION_RESULT_ABORT
+MISSION_RESULT_RETRY
+MISSION_RESULT_LOBBY
+MISSION_RESULT_MAX
+
+### EventLightAnimationType
+EVENT_LIGHT_ANIMATIN_ROT_X
+EVENT_LIGHT_ANIMATIN_ROT_Y
+EVENT_LIGHT_ANIMATIN_ROT_Z
+EVENT_LIGHT_ANIMATIN_BRIGHTNESS
+
+### EventLightEnvFadeType
+EVENT_LIGHT_ENV_FADE_LIGHT0_COLOR
+EVENT_LIGHT_ENV_FADE_LIGHT0_SPECULAR_COLOR
+EVENT_LIGHT_ENV_FADE_LIGHT0_VECTOR
+EVENT_LIGHT_ENV_FADE_LIGHT1_COLOR
+EVENT_LIGHT_ENV_FADE_LIGHT1_SPECULAR_COLOR
+EVENT_LIGHT_ENV_FADE_LIGHT1_VECTOR
+EVENT_LIGHT_ENV_FADE_LIGHT2_COLOR
+EVENT_LIGHT_ENV_FADE_LIGHT2_SPECULAR_COLOR
+EVENT_LIGHT_ENV_FADE_LIGHT2_VECTOR
+EVENT_LIGHT_ENV_FADE_LIGHT3_COLOR
+EVENT_LIGHT_ENV_FADE_LIGHT3_SPECULAR_COLOR
+EVENT_LIGHT_ENV_FADE_LIGHT3_VECTOR
+EVENT_LIGHT_ENV_FADE_AMBIENT_COLOR
+EVENT_LIGHT_ENV_FADE_FOG_DISTANCE
+EVENT_LIGHT_ENV_FADE_FOG_COLOR
+EVENT_LIGHT_ENV_FADE_FOG_CURVE
+EVENT_LIGHT_ENV_FADE_FOG_BG_APPLY
+EVENT_LIGHT_ENV_FADE_BRIGHTNESS_FOG_DISTANCE
+EVENT_LIGHT_ENV_FADE_BRIGHTNESS_FOG_COLOR
+EVENT_LIGHT_ENV_FADE_BRIGHTNESS_FOG_CURVE
+EVENT_LIGHT_ENV_FADE_SHADOW_VECTOR
+EVENT_LIGHT_ENV_FADE_SKY_COLOR
+EVENT_LIGHT_ENV_FADE_SUN_COLOR
+EVENT_LIGHT_ENV_FADE_SUN_HALO_COLOR
+EVENT_LIGHT_ENV_FADE_TONE_CENTER_BRIGHTNESS
+EVENT_LIGHT_ENV_FADE_TONE_BRIGHTNESS
+EVENT_LIGHT_ENV_FADE_TONE_BRIGHTNESS_LERP
+EVENT_LIGHT_ENV_FADE_TONE_POWER
+
+UfoMother511_PartsType
+UFO_MOTHER511_PARTS_TYPE_NONE
+UFO_MOTHER511_PARTS_TYPE_BARRIER_GENERATOR
+UFO_MOTHER511_PARTS_TYPE_ATTACK
+UFO_MOTHER511_PARTS_TYPE_OBJECT_GENERATOR
+UFO_MOTHER511_PARTS_TYPE_CORE_BIG_CANNON
+UFO_MOTHER511_PARTS_TYPE_CORE_SMALL_CANNON
+
+### UfoMother511_Action
+UFO_MOTHER511_ACTION_ATTACK_MODE
+UFO_MOTHER511_ACTION_CORE_HATCH_CLOSE
+UFO_MOTHER511_ACTION_CORE_HATCH_AUTO_CTRL
+UFO_MOTHER511_ACTION_CORE_HATCH_OPEN
+UFO_MOTHER511_ACTION_GENOCIDE_AUTO_ATTACK
+UFO_MOTHER511_ACTION_GENOCIDE_EVENT_ATTACK
+UFO_MOTHER511_ACTION_LIGHT_WEIGHT_EXPLOSION
+
+### UfoCarrier_Action
+UFOCARRIER_ACTION_OPEN_MODE
+
+### Monster501_Action
+MONSTER501_ACTION_SHOUT0
+MONSTER501_ACTION_SLEEP
+MONSTER501_ACTION_WAKEUP
+
+### Monster504_Action
+MONSTER504_ACTION_SHOUT0
+MONSTER504_ACTION_SLEEP
+MONSTER504_ACTION_WAKEUP
+MONSTER504_ACTION_ROLLING_LONG
+MONSTER504_ACTION_ROLLING
+
+### Vehicle501_FortressRobo_Action
+FORTRESSROBO_ACTION_GROUND_CHARGE
+FORTRESSROBO_ACTION_TACTICS_MODE
+FORTRESSROBO_ACTION_DISABLE_AI_ATTACK
+FORTRESSROBO_ACTION_ENABLE_AI_ATTACK
+
+### VehicleBegaruta_Action
+VEHICLE_BEGARUTA_ACTION_MOVE_DIRECTION_AUTO
+VEHICLE_BEGARUTA_ACTION_MOVE_DIRECTION_FORWARD
+VEHICLE_BEGARUTA_ACTION_MOVE_DIRECTION_BACK
+
+### MovingFortress_GroupType
+MOVINGFORTRESS_BIG_CANNON
+MOVINGFORTRESS_CANNON
+MOVINGFORTRESS_SMALL_CANNON1
+MOVINGFORTRESS_SMALL_CANNON2
+MOVINGFORTRESS_SMALL_CANNON3
+MOVINGFORTRESS_SMALL_CANNON_GREEN
+
+### MovingFortress_ArmingType
+MOVINGFORTRESS_FORT
+MOVINGFORTRESS_MOVING
+
+### MovingFortress_GeneratorType
+MOVINGFORTRESS_GENERATOR
+MOVINGFORTRESS_CORE
+
+### MovingFortress_Action
+MOVINGFORTRESS_ACTION_WAKEUP
+MOVINGFORTRESS_ACTION_DEBRIS
+MOVINGFORTRESS_ACTION_MOVING
+MOVINGFORTRESS_ACTION_ACTIVATE_ALL
+MOVINGFORTRESS_ACTION_DEACTIVATE_ALL
+
+### TalkConditionType
+TALK_CONDITION_NORMAL
+TALK_CONDITION_EVACUATION
+TALK_CONDITION_SERIOUSNESS
+TALK_CONDITION_UNDERGROUND
+
+### WeaponCondition
+WEAPON_CONDITION_NORMAL
+WEAPON_CONDITION_NO_SUPPORT
+WEAPON_CONDITION_FORCE_ENABLE
+WEAPON_CONDITION_MAX
+
+### E505Generator_Action
+E505_GENERATOR_ACTION_FALL
+E505_GENERATOR_ACTION_FALL3000
+
+### GiantAnt01_Action
+GIANTANT01_CAPTURE
+
+### EventType
+EVENT_TYPE_SYNC
+EVENT_TYPE_ASYNC
+
+### EventCheckType
+EVENT_CHECK_AND
+EVENT_CHECK_OR
+
+### MapObjectDestroy4Flags
+MOD4_FLAG_IGNORE_SMALL
+MOD4_FLAG_IGNORE_BUILDING
+
+### HumanBaseEventFlags
+HBEF_COMMON_MOVE
+HBEF_COMMON_TURN
+HBEF_COMMON_JUMP
+HBEF_COMMON_RELOAD
+HBEF_COMMON_ATTACK1
+HBEF_COMMON_ATTACK2
+HBEF_COMMON_DODGE
+HBRD_COMMON_CYCLE_WEAPON
+HBEF_COMMON_SECONDARY_ACTION1
+HBEF_COMMON_SECONDARY_ACTION2
+HBEF_SPECIAL_ACTION
+HBEF_PALEWING_FLYING
+HBEF_COMMON_SUB_ATTACK1
+HBEF_COMMON_SUB_ATTACK2
+HBEF_ALL
+
+### HumanBaseControlMaskFlags
+HBCM_MOVE
+HBCM_TURN
+HBCM_JUMP
+HBCM_RELOAD
+HBCM_ATTACK1
+HBCM_ATTACK2
+HBRD_CYCLE_WEAPON
+HBCM_SECONDARY_ACTION1
+HBCM_SECONDARY_ACTION2
+HBCM_SPECIAL_ACTION
+HBCM_DODGE
+HBCM_PALEWING_FLYING
+HBCM_SUB_ATTACK1
+HBCM_SUB_ATTACK2
+HBCM_ALL
+
+### PlayerType
+PLAYER_TYPE_ASSAULT
+PLAYER_TYPE_PALEWING
+PLAYER_TYPE_ENGINEER
+PLAYER_TYPE_HEAVYARMOR
+PLAYER_TYPE_MAX
+
+### PlayerCameraType
+PLAYER_CAMERA_FAR
+PLAYER_CAMERA_MIDDLE
+PLAYER_CAMERA_NEAR
+PLAYER_CAMERA_CLOSEUP
+
+### TalkMaskFlags
+TALK_RANGER
+TALK_WINGDIVER
+TALK_AIRRADER
+TALK_FENCER
+TALK_LEADER
+TALK_DEFAULT
+
+### SpeakControlFlags
+SPK_AUTO_RADIO
+SPK_FAR_AUTO_RADIO
+SPK_VEHICLE
+SPK_DEFAULT
