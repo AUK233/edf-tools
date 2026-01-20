@@ -496,14 +496,16 @@ std::vector<char> CAS::WriteData(tinyxml2::XMLElement* Data)
 
 	// check version
 	int Version = Data->IntAttribute("version");
-	if (Version == 41)
-	{
+	if (Version == 41) {
 		CAS_Version = 512;
 		i_CasDCCount = 9;
 	}
-	else if (Version == 5)
-	{
+	else if (Version == 5) {
 		CAS_Version = 515;
+		i_CasDCCount = 13;
+	}
+	else if (Version == 6) {
+		CAS_Version = 516;
 		i_CasDCCount = 13;
 	}
 

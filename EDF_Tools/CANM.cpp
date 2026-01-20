@@ -371,14 +371,22 @@ void CANM::Write(const std::wstring& path)
 
 std::vector<char> CANM::WriteData(tinyxml2::XMLElement* Data)
 {
+	// check version
+	int Version = Data->IntAttribute("version");
+	if (Version == 6) {
+		std::unique_ptr<CANM6> canm = std::make_unique<CANM6>();
+		std::vector<char> bytes = canm->WriteData(Data);
+		canm.reset();
+		return bytes;
+	}
+
 	std::vector< char > bytes, kfbytes, bdbytes;
 	tinyxml2::XMLElement* entry, * entry2;
 	
 	// read bone name table (if there is)
 	std::string bstr;
 	entry = Data->FirstChildElement("BoneList");
-	if (entry != nullptr)
-	{
+	if (entry != nullptr) {
 		for (entry2 = entry->FirstChildElement("value"); entry2 != 0; entry2 = entry2->NextSiblingElement("value"))
 		{
 			bstr = entry2->GetText();

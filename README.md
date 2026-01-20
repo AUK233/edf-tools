@@ -21,20 +21,21 @@ The filename extension should be correct, Like:
 
 Support file types:
 
-- `.canm` <-> `.xml`
-- `.cas` <-> `.xml`
+- `.canm` <-> `.xml` (No EDF6)
+- `.cas` <-> `.xml` (No EDF6)
 - `.mdb` <-> `.xml`
-- `.mrab` <-> Folder include model and textures
-- `.txt` <-> `.bvm`
-- `.rab` <-> Folder include models and textures
-- `.mab` -> `.xml`
-- `.mtab` -> `.xml`
-- `.rmpa` -> `.xml`
-- `.sgo` -> `.xml`
+- `.mrab` <-> Folder
+- `.rab` <-> Folder
+- `.efarc` <-> Folder
+- `.txt` -> `.bvm`
+- `.mab` <-> `.xml`
+- `.mtab` <-> `.xml`
+- `.rmpa` <-> `.xml` (EDF6 Only)
+- `.sgo` <-> `.xml`
 
 ### Convert model files
 
-convert folder back to `.rab` or `.mrab`:
+convert folder to `.rab` `.mrab` `.efarc`:
 
 ```batch
 "EDF Tool.exe" /ARCHIVE [optional1] [optional2] <Folder Name>
@@ -58,4 +59,4 @@ It's still in an early stage.
 
 ## Build
 
-Required: [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/?cid=learn-onpage-download-install-visual-studio-page-cta)
+Required: [Visual Studio 2026](https://visualstudio.microsoft.com/downloads)

@@ -30,6 +30,9 @@
     <ClCompile Include="..\EDF_Tools\include\tinyxml2.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="clAddSound.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="clAWB.h">
@@ -42,6 +45,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\EDF_Tools\include\tinyxml2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="clAddSound.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="clUTFstructure.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

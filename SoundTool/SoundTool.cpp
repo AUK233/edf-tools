@@ -6,6 +6,47 @@
 
 #include "clACB.h"
 #include "clAWB.h"
+#include "clAddSound.h"
+
+void AddSoundToACB(const int argc, char* argv[]) {
+	std::string ACBpath, FolderPath;
+	int isInsert = 0;
+	/*if (argc < 4) {
+		std::cout << "Usage: SoundTool -ADD <ACB file path> <Folder path with WAV files>\n";
+		return;
+	}*/
+
+	if (argc < 3) {
+		std::cout << "Insert mode (0: append, 1: insert to last front): ";
+		std::cin >> isInsert;
+		std::cout << "\n";
+	}
+	else {
+		isInsert = atoi(argv[2]);
+	}
+
+	if (argc < 4) {
+		std::cout << "ACB xml path: ";
+		std::cin >> ACBpath;
+		std::cout << "\n";
+	}
+	else {
+		ACBpath = argv[3];
+	}
+
+	if (argc < 5) {
+		std::cout << "Folder path with HCA files: ";
+		std::cin >> FolderPath;
+		std::cout << "\n";
+	}
+	else {
+		FolderPath = argv[4];
+	}
+
+	std::unique_ptr< AddSound2ACB > script = std::make_unique< AddSound2ACB >();
+	script->AddSound(ACBpath, FolderPath, isInsert);
+	script.reset();
+}
 
 int main(int argc, char* argv[])
 {
@@ -13,6 +54,11 @@ int main(int argc, char* argv[])
 
 	string path;
 	if (argc > 1) {
+		if(!lstrcmpA(argv[1], "-ADD")) {
+			AddSoundToACB(argc, argv);
+			return 0;
+		}
+
 		path = argv[1];
 	}
 	else {
@@ -53,7 +99,6 @@ int main(int argc, char* argv[])
 		script->Write(path);
 		script.reset();
 	}
-
 
 	system("pause");
 	return 0;
