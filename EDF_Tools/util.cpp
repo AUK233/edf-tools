@@ -444,6 +444,16 @@ std::wstring ConvertToLower(const std::wstring& in )
 	return out;
 }
 
+std::string ConvertToUpper(const std::string& in)
+{
+	std::string out;
+	for (int i = 0; i < in.size(); i++)
+	{
+		out += toupper(in[i]);
+	}
+	return out;
+}
+
 //Function to determine "type" of string argument
 ValueType DetermineType(const std::wstring& input )
 {

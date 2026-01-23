@@ -1151,6 +1151,11 @@ void CXMLToMDB::Write(const std::wstring& path, bool multcore)
 	tinyxml2::XMLNode* header = doc.FirstChildElement("MDB");
 	tinyxml2::XMLElement* entry, * entry2;
 
+	// read version
+	entry = header->ToElement();
+	int Version = entry->IntAttribute("version", 5);
+	if (Version == 6) GameVersion = 0x20;
+
 	// read model name table (if there is)
 	bool NoNameTable = false;
 	entry = header->FirstChildElement("Names");
@@ -1495,7 +1500,7 @@ void CXMLToMDB::GenerateHeader(std::vector< char >& bytes)
 	bytes[2] = 0x42;
 	bytes[3] = 0x30;
 	//0x14 00 00 00
-	bytes[4] = 0x14;
+	*(int*)&bytes[4] = GameVersion;
 	//NameTable starts at 0x30
 	bytes[0xC] = 0x30;
 }
@@ -1928,7 +1933,7 @@ MDBObject CXMLToMDB::GetModel(tinyxml2::XMLElement* entry2, bool NoNameTable, bo
 	// read mesh count
 	for (entry3 = entry2->FirstChildElement("Mesh"); entry3 != 0; entry3 = entry3->NextSiblingElement("Mesh"))
 	{
-		std::wcout << L"read mesh: " + ToString(index[2]) + L"\n";
+		std::wcout << L" read mesh: " + ToString(index[2]) + L"\n";
 
 		m_vecObjInfo.push_back(GetMeshInModel(entry3, index[2], multcore));
 		index[2] += 1;
@@ -1948,8 +1953,8 @@ MDBObject CXMLToMDB::GetModel(tinyxml2::XMLElement* entry2, bool NoNameTable, bo
 
 int CXMLToMDB::GetMeshLayoutSize(tinyxml2::XMLElement* entry5)
 {
-	int chunkSize, chunkType;
-	chunkType = entry5->IntAttribute("type");
+	int chunkSize = 0;
+	int chunkType = entry5->IntAttribute("type");
 
 	if (chunkType == 1)
 		chunkSize = 16;
@@ -2035,6 +2040,10 @@ MDBObjectLayout CXMLToMDB::GetLayoutInModel(tinyxml2::XMLElement* entry5, int la
 	out.channel = entry5->IntAttribute("channel");
 
 	std::string argsStrn = entry5->Name();
+	if (GameVersion == 0x20) {
+		argsStrn = ConvertToUpper(argsStrn);
+	}
+
 	WriteStringToTemp(argsStrn);
 	out.name = argsStrn;
 
@@ -2069,7 +2078,7 @@ MDBByte CXMLToMDB::GetVerticesInModel(std::vector<MDBObjectLayout> objlay, int c
 	int offset = objlay[0].offset;
 	int type = objlay[0].type;
 	std::wstring wstr = UTF8ToWide(objlay[0].name);
-	std::wcout << L"read: " + wstr + L", ";
+	std::wcout << L"-> read: " + wstr + L", ";
 	GetModelVertex(type, num, entry5, out.bytes, chunksize, offset);
 	std::wcout << L"write complete!\n";
 	//start looping to get
@@ -2081,7 +2090,7 @@ MDBByte CXMLToMDB::GetVerticesInModel(std::vector<MDBObjectLayout> objlay, int c
 		offset = objlay[i].offset;
 		type = objlay[i].type;
 		wstr = UTF8ToWide(objlay[i].name);
-		std::wcout << L"read: " + wstr + L", ";
+		std::wcout << L"-> read: " + wstr + L", ";
 		GetModelVertex(type, num, entry5, out.bytes, chunksize, offset);
 		std::wcout << L"write complete!\n";
 	}

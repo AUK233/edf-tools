@@ -21,8 +21,8 @@ The filename extension should be correct, Like:
 
 Support file types:
 
-- `.canm` <-> `.xml` (No EDF6)
-- `.cas` <-> `.xml` (No EDF6)
+- `.canm` <-> `.xml`
+- `.cas` <-> `.xml`
 - `.mdb` <-> `.xml`
 - `.mrab` <-> Folder
 - `.rab` <-> Folder
@@ -33,21 +33,36 @@ Support file types:
 - `.rmpa` <-> `.xml` (EDF6 Only)
 - `.sgo` <-> `.xml`
 
-### Convert model files
+### Command line
+
+```batch
+"EDF Tool.exe" [optional1] [optional2] [optional3] <path>
+```
+
+A directly input `path` will be auto-recognized and converted. If it is a folder, it will be packed without compression as a `RAB` file.
+
+`optional1` arguments:
+- `-br`: Use `path` as input folder. Convert supported binary data to text.
+- `-bw`: Use `path` as input folder. Convert supported text to binary data.
+- `-pd`: Use `path` as input folder. Archive a folder to `RAB`, `optional2` is required.
+- `-px`: Same as above, but it will process `XML` files in `MODEL` folder.
+
+`optional2` arguments:
+- `-in` (Default compression)
+- `-fc` (No compression)
+- `-mc` (Multithreading, but only P-Core)
+- `-mt` (Multithreading compression)
+- `-st` (Multi-core compression, require `optional3` as cores count)
+
+#### Example:
 
 convert folder to `.rab` `.mrab` `.efarc`:
 
 ```batch
-"EDF Tool.exe" /ARCHIVE [optional1] [optional2] <Folder Name>
+"EDF Tool.exe" -px -st 6 ANTHILL301
 ```
-
-Example:
-
-```batch
-"EDF Tool.exe" /ARCHIVE ANTHILL301
-```
-
-Acceptable `optional1` arguments: `-fc`(use a faster packing method, but it will bloat the filesize significantly), `-mt`(use all threads to compress the file, if there are really enough files), `-mc`(select P-Core for compression), `-cmtn`(use 4 cores to compress files if you don't add `optional2`), pass the number of cores to `optional2`
+In ANTHILL301, `XML` files within `MODEL` folder will be converted to `MDB`.
+Then it will use 6 cores to compress the files, finally packaging them into `RAB`.
 
 ### 3dsmax support
 

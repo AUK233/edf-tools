@@ -40,6 +40,8 @@ int CheckCANMVersion(tinyxml2::XMLElement* inData, LPCSTR outPath)
 
 	if (version == 6) {
 		errorCode = Canm6To5(inData, outPath);
+	} else {
+		errorCode = Canm5To6(inData, outPath);
 	}
 
 	return errorCode;
@@ -306,6 +308,153 @@ void Canm6To5SetQuaternionKeyframe(tinyxml2::XMLElement* inData, tinyxml2::XMLEl
 		CanmResolverGetVector4(inKF, v4_value);
 		outPtr = outData->InsertNewChildElement("v");
 		CanmResolverSetVector4(outPtr, v4_value);
+
+	}
+}
+
+int Canm5To6(tinyxml2::XMLElement* inData, LPCSTR outPath)
+{
+	int errorCode = -1;
+
+	tinyxml2::XMLDocument xml;
+	xml.InsertFirstChild(xml.NewDeclaration());
+	tinyxml2::XMLElement* xmlHeader = xml.NewElement("CANM");
+	xml.InsertEndChild(xmlHeader);
+
+	tinyxml2::XMLElement* xmlData = xmlHeader->InsertNewChildElement("AnmData");
+	tinyxml2::XMLElement* xmlPTR;
+	tinyxml2::XMLElement* xmlNode;
+	tinyxml2::XMLElement* xmlKF;
+
+	// read data
+	tinyxml2::XMLElement* entry, * entry2, * entry3, * entry4;
+	LPCSTR pStr;
+	int i32_value;
+	float f32_value;
+
+	entry = inData->FirstChildElement("AnmData");
+	for (entry2 = entry->FirstChildElement("node"); entry2 != 0; entry2 = entry2->NextSiblingElement("node"))
+	{
+		// create out node
+		xmlPTR = xmlData->InsertNewChildElement("node");
+
+		// set node value
+		i32_value = entry2->IntAttribute("index");
+		xmlPTR->SetAttribute("index", i32_value);
+		
+		i32_value = entry2->IntAttribute("int1");
+		xmlPTR->SetAttribute("loop", i32_value);
+
+		pStr = entry2->Attribute("name");
+		xmlPTR->SetAttribute("name", pStr);
+
+		f32_value = entry2->FloatAttribute("time");
+		xmlPTR->SetAttribute("time", f32_value);
+
+		f32_value = entry2->FloatAttribute("speed");
+		xmlPTR->SetAttribute("speed", f32_value);
+
+		i32_value = entry2->IntAttribute("kf");
+		xmlPTR->SetAttribute("keyframe", i32_value);
+		// node value end
+
+		for (entry3 = entry2->FirstChildElement("value"); entry3 != 0; entry3 = entry3->NextSiblingElement("value"))
+		{
+			// create out value
+			xmlNode = xmlPTR->InsertNewChildElement("value");
+
+			pStr = entry3->Attribute("bone");
+			xmlNode->SetAttribute("bone", pStr);
+
+			entry4 = entry3->FirstChildElement("position");
+			xmlKF = xmlNode->InsertNewChildElement("position");
+			Canm5To6Keyframe(entry4, xmlKF);
+
+			entry4 = entry3->FirstChildElement("rotation");
+			xmlKF = xmlNode->InsertNewChildElement("rotation");
+			Canm5To6Keyframe(entry4, xmlKF);
+
+			entry4 = entry3->FirstChildElement("scaling");
+			xmlKF = xmlNode->InsertNewChildElement("scaling");
+			Canm5To6Keyframe(entry4, xmlKF);
+		}
+		// end
+	}
+
+	xml.SaveFile(outPath);
+	errorCode = 0;
+
+	return errorCode;
+}
+
+void Canm5To6Keyframe(tinyxml2::XMLElement* inData, tinyxml2::XMLElement* outData)
+{
+	int i_type;
+	tinyxml2::XMLElement* outPtr;
+	std::string type = inData->Attribute("type");
+	if (type == "null")
+	{
+		outData->SetAttribute("type", "null");
+		return;
+	}
+
+	i_type = inData->IntAttribute("type");
+	switch (i_type) {
+	case 0: {
+		outData->SetAttribute("type", "0");
+		Canm5To6SetTransform(inData, outData);
+		return;
+	}
+	case 1: {
+		outData->SetAttribute("type", "1");
+		Canm5To6SetTransform(inData, outData);
+		Canm5To6SetKeyframeData(inData, outData);
+		return;
+	}
+	default:
+		outData->SetAttribute("type", "null");
+		return;
+	}
+	// end
+}
+
+void Canm5To6SetTransform(tinyxml2::XMLElement* inData, tinyxml2::XMLElement* outData)
+{
+	tinyxml2::XMLElement* inPtr;
+	float f32_value[4];
+
+	int i32_value = inData->IntAttribute("frame");
+	outData->SetAttribute("frame", i32_value);
+
+	f32_value[0] = inData->FloatAttribute("ix");
+	f32_value[1] = inData->FloatAttribute("iy");
+	f32_value[2] = inData->FloatAttribute("iz");
+	f32_value[3] = 1;
+	auto outInitial = outData->InsertNewChildElement("initial");
+	CanmResolverSetVector4(outInitial, f32_value);
+
+	f32_value[0] = inData->FloatAttribute("vx");
+	f32_value[1] = inData->FloatAttribute("vy");
+	f32_value[2] = inData->FloatAttribute("vz");
+	if (i32_value > 1) {
+		f32_value[3] = 1;
+	} else {
+		f32_value[3] = 0;
+	}
+	auto outVelocity = outData->InsertNewChildElement("velocity");
+	CanmResolverSetVector4(outVelocity, f32_value);
+}
+
+void Canm5To6SetKeyframeData(tinyxml2::XMLElement* inData, tinyxml2::XMLElement* outData)
+{
+	auto outKF = outData->InsertNewChildElement("keyframe");
+
+	UINT16 i16_value[3];
+	for (tinyxml2::XMLElement* inKF = inData->FirstChildElement("v"); inKF != 0; inKF = inKF->NextSiblingElement("v")) {
+
+		CanmResolverGetVector3(inKF, i16_value);
+		auto outPtr = outKF->InsertNewChildElement("v");
+		CanmResolverSetVector3(outPtr, i16_value);
 
 	}
 }

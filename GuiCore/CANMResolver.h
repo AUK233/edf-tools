@@ -14,6 +14,15 @@ void Canm6To5SetFloatToUInt16(tinyxml2::XMLElement* inData, tinyxml2::XMLElement
 void Canm6To5SetQuaternionKeyframe(tinyxml2::XMLElement* inData, tinyxml2::XMLElement* outData);
 // 6 to 5 end
 
+// 5 to 6
+int Canm5To6(tinyxml2::XMLElement* inData, LPCSTR outPath);
+void Canm5To6Keyframe(tinyxml2::XMLElement* inData, tinyxml2::XMLElement* outData);
+void Canm5To6SetTransform(tinyxml2::XMLElement* inData, tinyxml2::XMLElement* outData);
+void Canm5To6SetKeyframeData(tinyxml2::XMLElement* inData, tinyxml2::XMLElement* outData);
+// 5 to 6 end
+
+// utility
+
 void CanmResolverGetVector3(tinyxml2::XMLElement* in, UINT16* vf);
 void CanmResolverGetVector3(tinyxml2::XMLElement* in, float* vf);
 void CanmResolverGetVector3(tinyxml2::XMLElement* in, double* vf);

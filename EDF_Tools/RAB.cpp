@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <filesystem>
 #include "util.h"
 #include "RAB.h"
 
@@ -272,11 +273,12 @@ void RAB::CreateFromDirectory( const std::wstring& path )
 
 void RAB::AddFilesInDirectory( const std::wstring& path )
 {
-	std::wcout << L"Writing path " + path + L"!\n";
+	std::wcout << L"Reading path: " + path + L"\n";
 
+	RABPreprocessFile out;
+	std::vector< RABPreprocessFile > v_file;
 	//Scan files in directory:
-
-	WIN32_FIND_DATA fileData;
+	/*WIN32_FIND_DATA fileData;
 	HANDLE hFind = FindFirstFile( ( path + L"\\*" ).c_str( ), &fileData );
 	if( hFind == INVALID_HANDLE_VALUE )
 	{
@@ -284,24 +286,15 @@ void RAB::AddFilesInDirectory( const std::wstring& path )
 		return;
 	}
 
-	RABPreprocessFile out;
-	std::vector< RABPreprocessFile > v_file;
 	do
 	{
 		if( !(fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
 		{
 			std::wstring fileName = fileData.cFileName;
-			std::wcout << L"FILE:" + fileName + L"\n";
-
-			//AddFile( path + L"\\" + fileName );
-			out.fileName = fileName;
-			out.filePath = path + L"\\" + fileName;
-			v_file.push_back(out);
-
 			size_t lastindex = fileName.find_last_of(L'.');
 			if (lastindex != std::wstring::npos)
 			{
-				std::wstring extension = fileName.substr(lastindex + 1, extension.size() - lastindex);
+				std::wstring extension = fileName.substr(lastindex + 1, fileName.size() - lastindex - 1);
 				extension = ConvertToLower(extension);
 
 				if (extension == L"esb") {
@@ -310,10 +303,37 @@ void RAB::AddFilesInDirectory( const std::wstring& path )
 					mdbFileNum++;
 				}
 			}
+
+			std::wcout << L"FILE:" + fileName + L"\n";
+			out.fileName = fileName;
+			out.filePath = path + L"\\" + fileName;
+			v_file.push_back(out);
 		}
 	} while( FindNextFile( hFind, &fileData ) != 0 );
 
-	FindClose( hFind );
+	FindClose( hFind );*/
+
+	// c++17 version
+	for (const auto& entry : std::filesystem::directory_iterator(path)) {
+		if (entry.is_regular_file()) {
+			auto extension = ConvertToLower(entry.path().extension().wstring());
+
+			if (extension == L".esb") {
+				esbFileNum++;
+			} else if (extension == L".mdb") {
+				mdbFileNum++;
+			} else if (extension == L".xml") {
+				// skip xml files.
+				continue;
+			}
+
+			std::wstring fileName = entry.path().filename().wstring();
+			std::wcout << L"FILE: " + fileName + L"\n";
+			out.fileName = fileName;
+			out.filePath = entry.path().wstring();
+			v_file.push_back(out);
+		}
+	}
 
 	//Sort files alphabetically:
 	if (v_file.size() == 0) {

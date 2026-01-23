@@ -372,7 +372,7 @@ void CANM::Write(const std::wstring& path)
 std::vector<char> CANM::WriteData(tinyxml2::XMLElement* Data)
 {
 	// check version
-	int Version = Data->IntAttribute("version");
+	int Version = Data->IntAttribute("version", 5);
 	if (Version == 6) {
 		std::unique_ptr<CANM6> canm = std::make_unique<CANM6>();
 		std::vector<char> bytes = canm->WriteData(Data);

@@ -6,3 +6,5 @@ int ScaleMDB(tinyxml2::XMLNode* header, float scaleSize);
 void __fastcall ScaleMDBFloat3(tinyxml2::XMLElement* data, float scaleSize);
 int ScaleCANM(tinyxml2::XMLElement* data, float scaleSize);
 void __fastcall ScaleCANMFloat3x2(tinyxml2::XMLElement* data, float scaleSize);
+// EDF6
+void __fastcall ScaleCANMFloat4x2(tinyxml2::XMLElement* data, float scaleSize);

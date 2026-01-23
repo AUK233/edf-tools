@@ -46,24 +46,21 @@ void init_locale(void)
 
 #include "util.h"
 #include "JSONAMLParser.h"
-#include "MissionScript.h" //TODO: Implement mission script class that stores and proccess data
-//#include "RMPA.h" //TODO: Implement RMPA class that stores and proccess data
-#include "RAB.h" //RAB extractor
+#include "ModManager.h"
+
+#include "Middleware.h" //Data middleware
 
 #include "SGO.h" //SGO parser
 #include "DSGO.h" //DSGO parser
-#include "Middleware.h" //Data middleware
 #include "MAB.h" //MAB parser
 #include "MTAB.h" //MTAB parser
-
 #include "MDB.h" //MDB parser
 #include "CAS.h" //CAS parser
 #include "CANM.h" //CANM parser
+#include "RMPA6.h" //EDF6's RMPA
+#include "RAB.h" //RAB extractor
+#include "MissionScript.h" //TODO: Implement mission script class that stores and proccess data
 
-#include "ModManager.h"
-
-// EDF6
-#include "RMPA6.h"
 
 #define FLAG_VERBOSE 1
 #define FLAG_CREATE_FOLDER 2
@@ -265,179 +262,15 @@ void ProcessFile( const std::wstring& path, int extraFlags )
 	}
 }
 
-//UNDONE: Expression parsing is not within project scope at this time
-#if 0
-struct ExprContext
-{
-	ExprContext( std::wstring strn, int l )
-	{
-		rawStrn = strn;
-		level = l;
-	}
-	std::wstring rawStrn;
-	int level;
-};
-struct ExprParser
-{
-	ExprParser( std::wstring in )
-	{
-		originalStrn = in.c_str( );
-		dbgOutput = in + L'\n';
-
-		//Extract brackets
-		std::vector < std::wstring > bracketedStrings;
-		int level = 1;
-
-		std::wstring preBracketString;
-		std::wstring bracket = ExtractBrackets( in, preBracketString );
-
-		if( preBracketString.size( ) > 0 )
-		{
-			expression.push_back( ExprContext( preBracketString, 0 ) );
-			in.erase( 0, preBracketString.size( ) );
-			preBracketString.clear( );
-		}
-
-		while( bracket.size( ) > 0 )
-		{
-			bracketedStrings.push_back( bracket );
-			level++;
-			bracket = ExtractBrackets( bracketedStrings.back( ), preBracketString );
-			expression.push_back( ExprContext( preBracketString, level - 1 ) );
-			preBracketString.clear( );
-			
-
-			if( bracket.size( ) == 0 )
-			{
-				level = 1;
-				bracket = ExtractBrackets( in, preBracketString );
-				if( preBracketString.size( ) > 0 )
-				{
-					expression.push_back( ExprContext( preBracketString, 0 ) );
-					in.erase( 0, preBracketString.size( ) );
-					preBracketString.clear( );
-				}
-			}
-		}
-
-		//simple sorting algorthm:
-		for( int i = 0; i < expression.size( ); ++i )
-		{
-			for( int j = 1; j < expression.size( ); ++j )
-			{
-				if( expression[j].level < expression[j - 1].level )
-				{
-					std::swap( expression[j], expression[j - 1] );
-				}
-			}
-		}
-
-		//Print proccessed string
-
-		dbgOutput += L"STAGE 1:\n";
-		for( int i = 0; i < expression.size( ); ++i )
-		{
-			//extract brackets
-			dbgOutput += L"Level: " + ToString(expression[i].level) + L" string: " + expression[i].rawStrn + L'\n';
-		}
-	}
-
-	std::wstring ExtractBrackets( std::wstring &in, std::wstring &preBracketString )
-	{
-		std::wstring retn;
-		int depth = 0;
-		int startPos = 0;
-		for( int i = 0; i < in.size( ); ++i )
-		{
-			if( in[i] == L'(' )
-			{
-				++depth;
-				if( depth == 1 )
-				{
-					startPos = i;
-					continue;
-				}
-			}
-			else if( in[i] == L')' )
-			{
-				--depth;
-				if( depth == 0 )
-				{
-					in.erase( startPos, i - startPos + 1 );
-					return retn;
-				}
-			}
-			if( depth != 0 )
-			{
-				retn.push_back( in[i] );
-			}
-			else
-				preBracketString.push_back( in[i] );
-		}
-
-		return retn;
-	}
-	std::wstring ExtractBrackets( std::wstring &in )
-	{
-		std::wstring retn;
-		int depth = 0;
-		int startPos = 0;
-		for( int i = 0; i < in.size( ); ++i )
-		{
-			if( in[i] == L'(' )
-			{
-				++depth;
-				if( depth == 1 )
-				{
-					startPos = i;
-					continue;
-				}
-			}
-			else if( in[i] == L')' )
-			{
-				--depth;
-				if( depth == 0 )
-				{
-					in.erase( startPos, i - startPos + 1 );
-					return retn;
-				}
-			}
-			if( depth != 0 )
-			{
-				retn.push_back( in[i] );
-			}
-		}
-
-		return retn;
-	}
-
-	std::wstring originalStrn;
-	std::wstring dbgOutput;
-
-	std::vector< ExprContext > expression;
-};
-
-std::wstring TestProccess( std::wstring input )
-{
-	//first thing first: Kill whitespace:
-	std::wstring proccessStrn = KillWhitespace( input );
-
-	ExprParser parser( proccessStrn );
-
-	return parser.dbgOutput;
-}
-#endif
 
 int _tmain( int argc, wchar_t* argv[] )
 {
-    using namespace std;
-
 	init_locale( );
-	wstring path;
+	std::wstring path;
 
 	if( argc > 1 )
 	{
-		if( !lstrcmpW( argv[1], L"/ARCHIVE" ) && argc > 2 )
+		/*if( !lstrcmpW( argv[1], L"/ARCHIVE" ) && argc > 2 )
 		{
 			std::unique_ptr< RAB > rabReader = std::make_unique< RAB >( );
 			rabReader->Initialization();
@@ -454,7 +287,6 @@ int _tmain( int argc, wchar_t* argv[] )
 					fileArgNum++;
 				}
 				else if (!lstrcmpW(argv[2], L"-mc")) {
-					// Initialize thread information
 					rabReader->WriteInitMTInfo();
 					fileArgNum++;
 				}
@@ -464,7 +296,7 @@ int _tmain( int argc, wchar_t* argv[] )
 					rabReader->customizeThreads = 4;
 					fileArgNum++;
 					if (argc > 4) {
-						int tempThreadNum = stoi(argv[3]);
+						int tempThreadNum = std::stoi(argv[3]);
 						if (tempThreadNum > 16) {
 							tempThreadNum = 16;
 						}
@@ -474,7 +306,7 @@ int _tmain( int argc, wchar_t* argv[] )
 				}
 			}
 
-			wstring fileName = argv[fileArgNum];
+			std::wstring fileName = argv[fileArgNum];
 
 			rabReader->CreateFromDirectory(fileName);
 
@@ -497,111 +329,83 @@ int _tmain( int argc, wchar_t* argv[] )
 			return 0;
 		}
 
-		wcout << L"Parsing file: " << argv[1] << L'\n';
+		std::wcout << L"Parsing file: " << argv[1] << L'\n';
 
-		ProcessFile( std::wstring( argv[1] ), 1 );
-		/*
-		std::wcout << L"Compile (0) or decompile (1)?: ";
-		std::wcin >> path;
+		ProcessFile( std::wstring( argv[1] ), 1 );*/
 
-		if( stoi( path ) == 0 )
-		{
-			CMissionScript *script = new CMissionScript( );
-			std::wstring strn = argv[1];
-			size_t lastindex = strn.find_last_of( L"." );
-			strn = strn.substr( 0, lastindex );
+		if (argc > 2) {
+			// to batch read
+			if (!lstrcmpW(argv[1], L"-br")) {
+				path = argv[2];
+				ProcessFile(path, ProcessType_t::Batch, ThreadType_t::Read, 0);
+				return 0;
+			}
 
-			//lastindex = strn.find_last_of( L"\\" );
-			//strn = strn.substr( lastindex + 1, strn.size() - lastindex );
+			// to batch write
+			if (!lstrcmpW(argv[1], L"-bw")) {
+				path = argv[2];
+				ProcessFile(path, ProcessType_t::Batch, ThreadType_t::Write, 0);
+				return 0;
+			}
 
-			script->Write( strn, 1 );
-			delete script;
+			// to pack folder
+			if (argc > 3) {
+				auto processType = ProcessType_t::None;
+				if (!lstrcmpW(argv[1], L"-pd")) {
+					processType = ProcessType_t::Pack;
+				} else if(!lstrcmpW(argv[1], L"-px")) {
+					processType = ProcessType_t::BatchToPackage;
+				}
+
+				if (processType == ProcessType_t::None) {
+					std::wcout << L"Invalid command line!\n";
+					system("pause");
+					return 0;
+				}
+
+				int threadNum = 0;
+				auto threadType = ThreadType_t::None;
+				int argIndex = 3;
+
+				// -in as default
+				if (!lstrcmpW(argv[2], L"-fc")) {
+					threadType = ThreadType_t::NoCompression;
+				}
+				else if (!lstrcmpW(argv[2], L"-mc")) {
+					threadType = ThreadType_t::MultiCore;
+				}
+				else if (!lstrcmpW(argv[2], L"-mt")) {
+					threadType = ThreadType_t::MultiThreading;
+				}
+				else if (argc > 4 && !lstrcmpW(argv[2], L"-st")) {
+					threadType = ThreadType_t::SetThread;
+					threadNum = 4;
+					int tempThreadNum = std::stoi(argv[3]);
+					if (tempThreadNum > 16) {
+						tempThreadNum = 16;
+					}
+					threadNum = tempThreadNum;
+					argIndex++;
+				}
+
+				path = argv[argIndex];
+				ProcessFile(path, processType, threadType, threadNum);
+
+				return 0;
+			}
+		} else {
+			path = argv[1];
+			ProcessFile(path, ProcessType_t::None, ThreadType_t::None, 0);
 		}
-		if( stoi( path ) == 1 )
-		{
-			std::wstring strn = argv[1];
-			size_t lastindex = strn.find_last_of( L"." );
-			strn = strn.substr( 0, lastindex );
-
-			CMissionScript *script = new CMissionScript( );
-			script->Read( strn );
-			delete script;
-			std::wcout << "\n";
-		}
-		*/
 	}
 	else
 	{
-		//wcout << TestProccess( L"2+4-(10-2*(10-5)+5)+(5-2/5)" );
-		//system( "pause" );
-		//return 0;
+		std::wcout << L"Filename:";
+		std::wcin >> path;
+		std::wcout << L"\n";
 
-		//TestReadMab( );
-		//TestReadMBD( );
-		//system( "pause" );
-		//return 0;
-
-		//unique_ptr<CWpnListMgr> ui = make_unique<CWpnListMgr>( );
-		//ui->GenerateUI( );
-
-		//CJSONAMLParser *parser = new CJSONAMLParser( L"EDF5MissionCommands.jsonaml" );
-		//wcout << parser->SearchTest( );
-		//delete parser;
-
-		//return 0;
-
-		//std::unique_ptr< RAB > rabReader = std::make_unique< RAB >( );
-		//rabReader->CreateFromDirectory( L"NewMissionImageList" );
-		//rabReader->Write( L"NewMissionImageList.rab" );
-		//rabReader.reset( );
-
-		//std::unique_ptr< SGO > sgoReader = std::make_unique< SGO >( );
-		//sgoReader->Read( L"2017_example.sgo" );
-		//sgoReader.reset( );
-
-		//system( "pause" );
-
-		//return 0;
-
-		wcout << L"Filename:";
-		wcin >> path;
-		wcout << L"\n";
-
-		wcout << L"Parsing file...\n";
-
-		ProcessFile( path, 1 );
-
-		
-		//TEMP CMPL TEST:
-		/*
-		std::vector< char > inFile;
-		std::ifstream file( path, std::ios::binary | std::ios::ate );
-
-		std::streamsize size = file.tellg( );
-		file.seekg( 0, std::ios::beg );
-
-		if( size == -1 )
-			return 0;
-
-		std::vector<char> buffer( size );
-		if( file.read( buffer.data( ), size ) )
-		{
-			CMPLHandler compressor = CMPLHandler( buffer );
-			std::vector< char > comprFile = compressor.Decompress( );
-
-			std::ofstream file = std::ofstream( L"decompressed_" + path, std::ios::binary | std::ios::out | std::ios::ate );
-			file.write(comprFile.data(), comprFile.size());
-			file.close( );
-
-			comprFile.clear( );
-			compressor.data.clear( );
-		}
-		file.close( );
-		*/
-
-		wcout << "\n";
+		ProcessFile( path, ProcessType_t::None, ThreadType_t::None, 0 );
 	}
-	system( "pause" );
 	
 	return 0;
 }

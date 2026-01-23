@@ -475,7 +475,7 @@ CANM6::outAnimationData_t CANM6::WriteAnimationData(tinyxml2::XMLElement* data)
 		out.boneData.push_back(boneData);
 	}
 	out.raw.BoneCount = out.boneData.size();
-	out.raw.BoneOffset = 0x1C; // after header
+	out.raw.BoneOffset = 0; // yeah, default is 0
 	
 	return out;
 }

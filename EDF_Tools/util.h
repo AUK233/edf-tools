@@ -57,6 +57,8 @@ int CompareStringIsSame(const std::string& str1, const char* str2, int length);
 std::string ConvertToLower(const std::string& in);
 //Converts a wide string to lower case
 std::wstring ConvertToLower(const std::wstring& in );
+//Converts a string to upper case
+std::string ConvertToUpper(const std::string& in);
 
 //Value type enum.
 enum ValueType

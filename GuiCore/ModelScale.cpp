@@ -111,6 +111,8 @@ void __fastcall ScaleMDBFloat3(tinyxml2::XMLElement* data, float scaleSize)
 
 int ScaleCANM(tinyxml2::XMLElement* data, float scaleSize)
 {
+	int version = data->IntAttribute("version", 0);
+
 	tinyxml2::XMLElement* entry, * entry2, * entry3, * entry4;
 	std::string type;
 	entry = data->FirstChildElement("AnmData");
@@ -122,7 +124,12 @@ int ScaleCANM(tinyxml2::XMLElement* data, float scaleSize)
 			type = entry4->Attribute("type");
 			if (type != "null")
 			{
-				ScaleCANMFloat3x2(entry4, scaleSize);
+				if(version == 6){
+					ScaleCANMFloat4x2(entry4, scaleSize);
+				}
+				else {
+					ScaleCANMFloat3x2(entry4, scaleSize);
+				}
 			}
 		}
 	}
@@ -155,6 +162,32 @@ void __fastcall ScaleCANMFloat3x2(tinyxml2::XMLElement* data, float scaleSize)
 	vf = data->FloatAttribute("vz");
 	vf *= scaleSize;
 	data->SetAttribute("vz", vf);
+}
+
+void __fastcall ScaleCANMFloat4x2(tinyxml2::XMLElement* data, float scaleSize)
+{
+	float vf;
+	auto initial = data->FirstChildElement("initial");
+	vf = initial->FloatAttribute("x");
+	vf *= scaleSize;
+	initial->SetAttribute("x", vf);
+	vf = initial->FloatAttribute("y");
+	vf *= scaleSize;
+	initial->SetAttribute("y", vf);
+	vf = initial->FloatAttribute("z");
+	vf *= scaleSize;
+	initial->SetAttribute("z", vf);
+
+	auto velocity = data->FirstChildElement("velocity");
+	vf = velocity->FloatAttribute("x");
+	vf *= scaleSize;
+	velocity->SetAttribute("x", vf);
+	vf = velocity->FloatAttribute("y");
+	vf *= scaleSize;
+	velocity->SetAttribute("y", vf);
+	vf = velocity->FloatAttribute("z");
+	vf *= scaleSize;
+	velocity->SetAttribute("z", vf);
 }
 
 
