@@ -31,7 +31,7 @@ Support file types:
 - `.mab` <-> `.xml`
 - `.mtab` <-> `.xml`
 - `.rmpa` <-> `.xml` (EDF6 Only)
-- `.sgo` <-> `.xml`
+- `.sgo` <-> `.xml` (Includes DSGO)
 
 ### Command line
 

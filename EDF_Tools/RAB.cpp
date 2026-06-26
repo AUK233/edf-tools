@@ -674,7 +674,7 @@ void RAB::Write( const std::wstring& rabName )
 	if (bIsMultipleThreads)
 	{
 		CRITICAL_SECTION *CriticalSection = new CRITICAL_SECTION;
-		InitializeCriticalSectionAndSpinCount(CriticalSection, 0x00000400);
+		std::ignore = InitializeCriticalSectionAndSpinCount(CriticalSection, 0x00000400);
 
 		size_t inVFileSize = files.size();
 		RABMTFile* v_MTFile = new RABMTFile[inVFileSize]; 

@@ -299,22 +299,145 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	std::vector< char > bytes;
 
 	tinyxml2::XMLElement* entry = mainData->FirstChildElement();
+	OutSGOHeader_t outHeader;
+
 	// if empty content, return empty sgo
-	if (!entry)
-	{
-		bytes.resize(0x20, 0);
-
-		bytes[0] = 0x53;
-		bytes[1] = 0x47;
-		bytes[2] = 0x4F;
-		bytes[4] = 0x02;
-		bytes[5] = 0x01;
-		bytes[0xC] = 0x20;
-		bytes[0x14] = 0x20;
-		bytes[0x1C] = 0x20;
-
+	if (!entry) {
+		bytes.resize(sizeof(OutSGOHeader_t), 0);
+		memcpy(&bytes[0], &outHeader, sizeof(OutSGOHeader_t));
 		return bytes;
 	}
+
+	// first, get all valid nodes
+	std::vector< OutSGONode_t > v_Node;
+	do {
+		auto backNode = WriteData_GetNodeData(entry, 1);
+		if (backNode.type != OutSGONodeType_t::invalid) {
+			v_Node.push_back(backNode);
+		}
+
+		entry = entry->NextSiblingElement();
+	} while (entry);
+	// sort the nodes by name
+	std::sort(v_Node.begin(), v_Node.end());
+	int i_nodeCount = v_Node.size();
+
+	// manage names
+	std::vector< OutSGONodeNameOffset_t > v_NodeName(i_nodeCount);
+	int i_NameTableSize = i_nodeCount * 8;
+	std::vector<char> v_NameTable(i_NameTableSize);
+	for (int i = 0; i < i_nodeCount; i++) {
+		v_NodeName[i].name = UTF8ToWide(v_Node[i].name);
+
+		auto curPos = i * 8;
+		v_NodeName[i].ofs.WritePos = curPos;
+		//v_NodeName[i].ofs.BasePos = curPos;
+
+		// set placeholder
+		WriteData_WriteINT32LE(&v_NameTable[curPos], 0xBA);
+		// set index
+		WriteData_WriteINT32LE(&v_NameTable[curPos+4], i);
+	}
+
+	// preload extra data
+	for (entry = header->FirstChildElement("Subdata"); entry != 0; entry = entry->NextSiblingElement("Subdata")) {
+		std::string dataName = entry->Attribute("name");
+		map_extra[dataName] = v_OfsExtra.size();
+
+		RelativeOffsetSet_ExtraData_t outExtra;
+		outExtra.xmlNode = entry;
+		v_OfsExtra.push_back(outExtra);
+	}
+
+	// process node
+	int i_nodeSize = i_nodeCount * 12;
+	std::vector<char> v_NodeBuffer(i_nodeSize);
+	for (int i = 0; i < i_nodeCount; i++) {
+		auto& node = v_Node[i];
+		auto curPos = i * 12;
+
+		if (node.type != OutSGONodeType_t::raw) {
+			WriteData_ProcessData(node, curPos, v_NodeBuffer, v_NodeBuffer.size(), header);
+		}
+
+		memcpy(&v_NodeBuffer[curPos], node.data, 12);
+	}
+
+	// next, process data
+	bytes.resize(sizeof(OutSGOHeader_t), 0);
+	outHeader.DataNodeCount = i_nodeCount;
+	outHeader.DataNameCount = i_nodeCount;
+
+	bytes.insert(bytes.end(), v_NodeBuffer.begin(), v_NodeBuffer.end());
+	v_NodeBuffer.clear();
+
+	outHeader.DataNameOffset = bytes.size();
+	bytes.insert(bytes.end(), v_NameTable.begin(), v_NameTable.end());
+
+	int i_AlignPos = bytes.size();
+	outHeader.DataUnkOffset = i_AlignPos;
+	int i_AlignSize = i_AlignPos % 16;
+	if (i_AlignSize) {
+		i_AlignSize = 16 - i_AlignSize;
+		for (size_t i = 0; i < i_AlignSize; i++) {
+			bytes.push_back(0);
+		}
+	}
+	memcpy(&bytes[0], &outHeader, sizeof(OutSGOHeader_t));
+
+	// process extra data
+	for (auto& extraData : v_OfsExtra) {
+		if (extraData.xmlNode != nullptr) continue;
+
+		int cur_pos = bytes.size();
+		for (auto& offset : extraData.v_offset) {
+			int relativeOffset = cur_pos - offset.BasePos;
+			WriteData_WriteINT32LE(&bytes[offset.WritePos], relativeOffset);
+		}
+
+		bytes.insert(bytes.end(), extraData.data.begin(), extraData.data.end());
+	}
+
+	// check null string
+	if(NullString.size()){
+		int cur_pos = bytes.size();
+		for (auto& nullStr : NullString) {
+			int relativeOffset = cur_pos - nullStr.BasePos;
+			WriteData_WriteINT32LE(&bytes[nullStr.WritePos], relativeOffset);
+		}
+
+		bytes.push_back(0);
+		bytes.push_back(0);
+	}
+
+	// process name string data
+	int i_NameTablePos = outHeader.DataNameOffset;
+	for (auto& nameData : v_NodeName) {
+		int cur_pos = bytes.size();
+		int base_pos = i_NameTablePos + nameData.ofs.WritePos;
+
+		int relativeOffset = cur_pos - base_pos;
+		WriteData_WriteINT32LE(&bytes[base_pos], relativeOffset);
+
+		PushWStringToVector(nameData.name, &bytes);
+	}
+
+	// process string data
+	for (auto& stringData : v_OfsString) {
+		int cur_pos = bytes.size();
+
+		for (auto& offset : stringData.v_offset) {
+			int relativeOffset = cur_pos - offset.BasePos;
+			WriteData_WriteINT32LE(&bytes[offset.WritePos], relativeOffset);
+		}
+
+		PushWStringToVector(stringData.wstr, &bytes);
+	}
+
+	return bytes;
+
+#if 0
+	// old ===========================================
 
 	// prefetch data size
 	StringMap.rehash(0x1000);
@@ -485,7 +608,8 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	// write wide string
 	for (size_t i = 0; i < NodeWString.size(); i++)
 		PushWStringToVector(NodeWString[i].name, &bytes);
-
+	return bytes;
+#endif
 	// debug only
 	/*
 	std::wcout << L"String Size: " + ToString(int(NodeString.size())) + L"\n\n";
@@ -498,7 +622,6 @@ std::vector< char > SGO::WriteData(tinyxml2::XMLElement* mainData, tinyxml2::XML
 	std::wcout << L"SubDataGroup num: " + ToString(int(SubDataGroup.size())) + L"\n";
 	std::wcout << L"ExtraData num: " + ToString(int(ExtraData.size())) + L"\n";
 	*/
-	return bytes;
 }
 
 void SGO::GetNodeExtraData(tinyxml2::XMLElement* entry, int& nodePtrNum)
@@ -716,4 +839,187 @@ SGOExtraData SGO::GetNodeName(tinyxml2::XMLElement* entry, int pos, int NodeInde
 	}
 
 	return out;
+}
+
+void SGO::WriteData_WriteINT32LE(char* pdata, INT32 value) {
+	*(INT32*)pdata = value;
+}
+
+OutSGONode_t SGO::WriteData_GetNodeData(tinyxml2::XMLElement* entry, int needName) {
+	OutSGONode_t out;
+	out.hasName = needName;
+
+	if (needName) {
+		out.name = entry->Attribute("name");
+	}
+
+	ZeroMemory(out.data, 12U);
+
+	std::string nodeName = entry->Name();
+	if (nodeName == "int") {
+		out.type = OutSGONodeType_t::raw;
+
+		out.data[0] = 1;
+		out.data[4] = 4;
+		int value = entry->IntText();
+		memcpy(&out.data[8], &value, 4U);
+
+		return out;
+	} else if (nodeName == "float") {
+		out.type = OutSGONodeType_t::raw;
+
+		out.data[0] = 2;
+		out.data[4] = 4;
+		float value = entry->FloatText();
+		memcpy(&out.data[8], &value, 4U);
+
+		return out;
+	}
+
+
+	out.xmlNode = entry;
+	if (nodeName == "ptr") {
+		out.type = OutSGONodeType_t::node;
+	}
+	else if (nodeName == "string") {
+		out.type = OutSGONodeType_t::string;
+	}
+	else if (nodeName == "extra") {
+		out.type = OutSGONodeType_t::extra;
+	}
+	else {
+		out.type = OutSGONodeType_t::invalid;
+	}
+
+	return out;
+}
+
+void SGO::WriteData_ProcessData(OutSGONode_t& in, int inPos, std::vector<char>& outBuffer, int curBufferPos, tinyxml2::XMLNode* header) {
+	switch (in.type) {
+	case OutSGONodeType_t::node: {
+		// process child nodes
+		tinyxml2::XMLElement* entry2;
+		std::vector< OutSGONode_t > v_SubNode;
+		for (entry2 = in.xmlNode->FirstChildElement(); entry2 != 0; entry2 = entry2->NextSiblingElement()) {
+			auto backNode = WriteData_GetNodeData(entry2, 0);
+			if (backNode.type != OutSGONodeType_t::invalid) {
+				v_SubNode.push_back(backNode);
+			}
+		}
+
+		int i_SubNodeCount = v_SubNode.size();
+		int i_SubNodeSize = i_SubNodeCount * 12;
+		std::vector<char> v_SubBuffer(i_SubNodeSize);
+		for (int i = 0; i < i_SubNodeCount; i++) {
+			auto& node = v_SubNode[i];
+			auto curPos = i * 12;
+
+			if (node.type != OutSGONodeType_t::raw) {
+				WriteData_ProcessData(node, curBufferPos + curPos, v_SubBuffer, curBufferPos + v_SubBuffer.size(), header);
+			}
+
+			memcpy(&v_SubBuffer[curPos], node.data, 12);
+		}
+
+		outBuffer.insert(outBuffer.end(), v_SubBuffer.begin(), v_SubBuffer.end());
+
+		// write info
+		WriteData_WriteINT32LE(&in.data[0], 0);
+		WriteData_WriteINT32LE(&in.data[4], i_SubNodeCount);
+
+		// get offset
+		int offset = curBufferPos - inPos;
+		WriteData_WriteINT32LE(&in.data[8], offset);
+		return;
+	}
+	case OutSGONodeType_t::string:{
+		DataRelativeOffset_t outPos;
+		outPos.BasePos = inPos + sizeof(OutSGOHeader_t);
+		outPos.WritePos = inPos + sizeof(OutSGOHeader_t) + 8;
+
+		WriteData_WriteINT32LE(&in.data[0], 3);
+		WriteData_WriteINT32LE(&in.data[8], 0xDF);
+
+		auto pSTR = in.xmlNode->GetText();
+		if (!pSTR) {
+		NullString:
+			NullString.push_back(outPos);
+
+			WriteData_WriteINT32LE(&in.data[4], 0);
+			return;
+		}
+
+		std::wstring wstr = UTF8ToWide(pSTR);
+		if (wstr.empty()) {
+			goto NullString;
+		}
+
+		WriteData_WriteINT32LE(&in.data[4], wstr.size());
+
+		// check map
+		auto it = map_string.find(wstr);
+		if (it != map_string.end()) {
+			v_OfsString[it->second].v_offset.push_back(outPos);
+			return;
+		}
+
+		// write string to group
+		int index = v_OfsString.size();
+		map_string[wstr] = index;
+
+		RelativeOffsetSet_WString_t outStr;
+		outStr.wstr = wstr;
+		outStr.v_offset.push_back(outPos);
+
+		v_OfsString.push_back(outStr);
+		return;
+	}
+	case OutSGONodeType_t::extra: {
+		WriteData_WriteINT32LE(&in.data[0], 4);
+
+		std::string str = in.xmlNode->GetText();
+
+		// check map
+		auto it = map_extra.find(str);
+		if (it == map_extra.end()) {
+			WriteData_WriteINT32LE(&in.data[4], 0);
+			WriteData_WriteINT32LE(&in.data[8], 4);
+			return;
+		}
+
+		WriteData_WriteINT32LE(&in.data[8], 0xCC);
+
+		DataRelativeOffset_t outPos;
+		outPos.BasePos = inPos + sizeof(OutSGOHeader_t);
+		outPos.WritePos = inPos + sizeof(OutSGOHeader_t) + 8;
+
+		auto& extraData = v_OfsExtra[it->second];
+		if (extraData.xmlNode == nullptr){
+			WriteData_WriteINT32LE(&in.data[4], extraData.size);
+			extraData.v_offset.push_back(outPos);
+			return;
+		}
+
+		auto extraBuffer = CheckDataType(extraData.xmlNode, header);
+
+		size_t dataSize = extraBuffer.size();
+		extraData.size = dataSize;
+		WriteData_WriteINT32LE(&in.data[4], dataSize);
+
+		size_t alignSize = dataSize % 16;
+		if (alignSize) {
+			alignSize = 16 - alignSize;
+			for (size_t i = 0; i < alignSize; i++) {
+				extraBuffer.push_back(0);
+			}
+		}
+		extraData.data = extraBuffer;
+
+		extraData.v_offset.push_back(outPos);
+		extraData.xmlNode = nullptr;
+		return;
+	}
+	default:
+		return;
+	}
 }

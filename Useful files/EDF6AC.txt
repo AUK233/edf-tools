@@ -711,6 +711,11 @@ void WaitAiMoveEnd()
 ::Object& SetAiObjectDirection_Point(const string & in, float , bool )
 
 ::Object& SetAiObjectDirection_Object(::Object , float , bool )
+SetAiObjectDirection_Object(
+    door1,	// 目標とするオブジェクト
+    -1,	// 目標に注目する秒数（マイナスを指定すると無制限）
+    true	// 配下のオブジェクトにも適用する？
+);
 
 ::Object& ClearAiObjectDirection(bool )
 
@@ -1070,10 +1075,10 @@ EVENT_LIGHT_ENV_FADE_LIGHT3_COLOR
 EVENT_LIGHT_ENV_FADE_LIGHT3_SPECULAR_COLOR
 EVENT_LIGHT_ENV_FADE_LIGHT3_VECTOR
 EVENT_LIGHT_ENV_FADE_AMBIENT_COLOR
-EVENT_LIGHT_ENV_FADE_FOG_DISTANCE
-EVENT_LIGHT_ENV_FADE_FOG_COLOR
-EVENT_LIGHT_ENV_FADE_FOG_CURVE
-EVENT_LIGHT_ENV_FADE_FOG_BG_APPLY
+EVENT_LIGHT_ENV_FADE_FOG_DISTANCE 13
+EVENT_LIGHT_ENV_FADE_FOG_COLOR 14
+EVENT_LIGHT_ENV_FADE_FOG_CURVE 15
+EVENT_LIGHT_ENV_FADE_FOG_BG_APPLY 16
 EVENT_LIGHT_ENV_FADE_BRIGHTNESS_FOG_DISTANCE
 EVENT_LIGHT_ENV_FADE_BRIGHTNESS_FOG_COLOR
 EVENT_LIGHT_ENV_FADE_BRIGHTNESS_FOG_CURVE
@@ -1243,3 +1248,10 @@ SPK_AUTO_RADIO
 SPK_FAR_AUTO_RADIO
 SPK_VEHICLE
 SPK_DEFAULT
+
+
+ranger
+    ap025, ap027, ap030, ap037, ap038, ap039, ap048, ap049, ap050, ap053, ap054, ap056, ap057, ap059, ap060, ap061, ap063, ap064, ap065, ap066, ap068, ap069, ap072, ap073, ap074, ap075, ap076, ap077, ap078, ap079, ap080, ap081, ap082, ap083, ap085, ap087, ap088, ap089, ap090, ap091, ap094, ap095, ap096, ap097
+    npc_ap004_talk, npc_ap005_talk, npc_ap006_talk, npc_ap009_char, npc_ap010_char, npc_ap011_char, npc_ap012_char, npc_ap020_replay, npc_ap024_shock, npc_ap025_surprise, npc_ap027_panic, npc_ap028_panic, npc_ap029_merge, npc_ap030_merge, npc_ap031_merge, npc_ap032_merge, npc_ap036_damage, npc_ap039_damage, npc_ap040_grad_large, npc_ap043_grad_large, npc_ap044_grad_large, npc_ap045_grad_middle, npc_ap046_grad_middle
+    npc_PRN002_who1_listen, npc_PRN003_who0_sir_yes_sir, npc_PRN004_who1_speech, npc_PRN005_who0_speech_move, npc_PRN007_who1_talk_large, npc_PRN008_who1_talk_small, npc_PRN009_who1_think, npc_PRN010_who1_arms_folded, npc_PRN011_who0_angry_armSlide, npc_PRN012_who0_hand_up, npc_PRN013_who0_finger_pointing, npc_PRN014_who0_speech_move_r, npc_PRN015_who1_talk_angry, npc_PRN016_who0_talk_amazed, npc_PRN017_who0_talk_command, npc_PRN018_who0_confused_folded, npc_RN001_who1_talk_normal, npc_RN002_who1_talk_large, npc_RN003_who1_stand_wait, npc_RN004_who1_talk_angry, npc_RN006_who0_angry_armSlide, npc_RN007_who0_direction_front, npc_RN008_who0_direction_left, npc_RN009_who1_direction_top, npc_RN010_who1_speech_angry, npc_RN011_who1_p_thinking, npc_RN012_who1_p_talk_player, npc_RN013_who1_p_talk_suggest, npc_RN014_who1_p_talk_analyse, npc_RN015_who1_p_talk_dark, npc_RN016_who1_p_timewarp, npc_RN021_who0_c_command, npc_RN022_who1_c_talk_bossy, npc_RN023_who1_c_talk_caring, npc_RN024_who1_c_talk_discontent, npc_RN025_who1_c_talk_angry, npc_RN026_who1_c_talk_negative, npc_RN027_who1_c_talk_phone, npc_RN028_who1_c_timewarp, npc_RN036_who1_order_stop, npc_RN037_who0_order_beckon, npc_RN038_who0_handup, npc_RN039_who0_overlook, npc_RN040_who0_boring, npc_RN041_who0_irritate, npc_RN045_who1_scared, npc_RN046_who0_surprise_top, npc_RN047_who0_deplore, npc_RN048_who1_despair
+=== End ===

@@ -73,3 +73,7 @@ Equipped with a laser sight.
 \n\nIn order to re-request this, you need to achieve a certain number of credits during the mission by defeating enemies. Your allies' kills will also help you earn credits.
 \n\n攻撃を再度要請するためには、戦場で一定の功績（多数の敵を撃破する）が必要である。（功績は仲間による撃破も含まれる）
 
+\n由于装备过于沉重，动力装甲无法提供跳跃功能。\n\n短按跳跃键进行发射，长按以装填。
+\n由於裝備過於沈重，動力裝甲無法提供跳躍功能。\n\n短按跳躍按鈕進行發射，長按以裝填。
+\nDue to its excessive weight, the power exoskeleton is unable to provide a jumping function.\n\nPress the Jump button (briefly) to fire. Press and hold to reload.
+\n装備が過度に重いため、パワーアーマーには跳躍機能がない。\n\n跳躍ボタン（短く押す）で発射。長押しでリロード。

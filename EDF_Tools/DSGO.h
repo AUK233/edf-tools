@@ -80,8 +80,8 @@ public:
 	};
 
 	struct updateDataOffset_t {
-		// pos is rosition to be written to
-		// offset is rrite value
+		// pos is position to be written to
+		// offset is write value
 		int pos, offset;
 	};
 

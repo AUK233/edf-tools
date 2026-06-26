@@ -357,4 +357,16 @@ void AWB::WriteAWEFile(const std::string& inPath, int block_NameOfsSize, int blo
 	}
 
 	newFile.close();
+
+	// new header used in EDF6
+	bytes[5] = 2;
+
+	std::ofstream newFile6(inPath + "_6_list.awe", std::ios::binary | std::ios::out | std::ios::ate);
+	newFile6.write(bytes.data(), bytes.size());
+
+	for (int i = 0; i < v_File.size(); i++) {
+		newFile6.write(v_File[i].name.data(), v_File[i].name.size() + 1);
+	}
+
+	newFile6.close();
 }
